@@ -1,0 +1,33 @@
+\documentclass[tikz,convert={size=640}]{standalone}
+\usepackage{pgfplots}
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[
+legend entries={simulation sample 1,
+                measurement sample 1,
+                %simulation sample 2,
+                measurement sample 2},
+legend pos=outer north east]
+\addplot[mark=o,color=blue] coordinates {
+  (0,0)
+  (1,1)
+  (2,2)
+};
+\addplot[mark=o,color=green] coordinates {
+  (0,1)
+  (1,1.5)
+  (2,1.8)
+};
+\addplot[mark=square,color=blue] coordinates {
+  (3,0.5)
+  (4.5,1)
+  (5,2)
+};
+\addplot[mark=square,color=green] coordinates {
+  (3,0)
+  (4,1)
+  (5,2.2)
+};
+\end{axis}
+\end{tikzpicture}
+\end{document}

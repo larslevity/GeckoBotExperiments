@@ -38,9 +38,10 @@ def remove_offset_time_xy(data):
         else:
             jdx += 1
 
+    sc = 100/640.  # px->cm
     for idx in range(6):
-        data['x{}'.format(idx)] = [x-xstart for x in data['x{}'.format(idx)]]
-        data['y{}'.format(idx)] = [y-ystart for y in data['y{}'.format(idx)]]
+        data['x{}'.format(idx)] = [(x-xstart)*sc for x in data['x{}'.format(idx)]]
+        data['y{}'.format(idx)] = [(y-ystart)*sc for y in data['y{}'.format(idx)]]
 
     return data
 
@@ -179,7 +180,6 @@ color_alp = 'red'
 
 
 plt.figure()
-plt.title('Shift in position')
 
 
 ## small
@@ -196,6 +196,10 @@ mat = make_matrix_plain(centers)
 mu, sigma = calc_mean_stddev(mat)
 plt.plot(t, mu, '-', lw=2, label='p_{v0}', color=color_alp)
 plt.fill_between(t, mu+sigma, mu-sigma, facecolor=color_alp, alpha=0.2)
+
+plt.xlabel('time (s)')
+plt.ylabel('$\bar{x}$ (cm)')
+plt.grid()
 
 
 save.save_as_tikz('pics/Shift.tex')
@@ -229,7 +233,7 @@ for idx in range(6):
     plt.fill_between(x, y+sigy, y-sigy, facecolor=col[idx], alpha=0.6)
 
 
-yshift = -230
+yshift = -50
 X, Y, Xstd, Ystd = calc_foot_mean_of_all_exp(db, cyc_big)
 for idx in range(6):
     x = np.array(X[idx])
@@ -281,9 +285,11 @@ if SAVE:
 
 plt.figure()
 plt.title('Track Mean')
+smapleval = .8
+
 
 # Big
-yshift = -100
+yshift = -20
 X, _ = calc_centerpoint(db, cyc_big, axis='x')
 mat = make_matrix_plain(X)
 x, sigx = calc_mean_stddev(mat)
@@ -293,9 +299,9 @@ mat = make_matrix_plain(Y)
 y, sigy = calc_mean_stddev(mat)
 y = -(y + yshift)
 
-x = np.array(downsample(x, .01))
-y = np.array(downsample(y, .01))
-sigy = np.array(downsample(sigy, .01))
+x = np.array(downsample(x, smapleval))
+y = np.array(downsample(y, smapleval))
+sigy = np.array(downsample(sigy, smapleval))
 
 plt.plot(x, y, color=col[idx])
 plt.fill_between(x, y+sigy, y-sigy, facecolor=color_alp, alpha=0.5, label='mean_big')
@@ -312,18 +318,17 @@ y, sigy = calc_mean_stddev(mat)
 y = -(y + yshift)
 
 
-x = np.array(downsample(x, .01))
-y = np.array(downsample(y, .01))
-sigy = np.array(downsample(sigy, .01))
+x = np.array(downsample(x, smapleval))
+y = np.array(downsample(y, smapleval))
+sigy = np.array(downsample(sigy, smapleval))
 
 plt.plot(x, y, color=col[idx])
 plt.fill_between(x, y+sigy, y-sigy, facecolor=color_prs, alpha=0.5, label='mean_small')
 
 plt.axis('equal')
-plt.legend(loc='upper right')
-
-
-
+plt.xlabel('x position (cm)')
+plt.ylabel('y position (cm)')
+plt.grid()
 
 
 

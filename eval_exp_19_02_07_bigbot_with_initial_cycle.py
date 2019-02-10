@@ -35,6 +35,30 @@ plt.show()
 
 
 if 1:
+    for exp in range(23):
+#        t1 = ev.rm_offset(db[13]['time'][cyc[13][0]:])
+#        r1 = db[13]['r1'][cyc[13][0]:]
+        t2 = ev.rm_offset(db[exp]['time'][cyc[exp][0]:])
+        r2 = db[exp]['r1'][cyc[exp][0]:]
+
+#        plt.plot(t1, r1)
+#        plt.plot(t2, r2)
+#        plt.show()
+#
+#        plt.plot(r1)
+#        plt.plot(r2)
+#        plt.show()
+#
+#        plt.plot(t1, '.')
+#        plt.plot(t2, '.')
+#        plt.show()
+
+#        plt.plot(np.diff(t1))
+        plt.plot(np.diff(t2))
+    plt.show()
+
+
+if 1:
     print('TRACK FEET')
     fig, ax = plt.subplots(subplot_kw=dict(aspect='equal'))
     col = ['red', 'orange', 'green', 'blue', 'magenta', 'darkred']

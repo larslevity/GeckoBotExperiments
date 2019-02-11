@@ -6,9 +6,11 @@ Created on Thu Feb 07 15:18:02 2019
 """
 import matplotlib.pyplot as plt
 import matplotlib.patches as pat
+import numpy as np
 
 import eval as ev
 import kin_model
+
 
 
 ###############################################################################
@@ -69,7 +71,7 @@ if 1:
     positions = [{}, {}]
     alpha = {}
 
-    for axis in [0,1,2,3,4,5]:
+    for axis in [0, 1, 2, 3, 4, 5]:
         x, sigx = ev.calc_mean_of_axis(db, cyc, 'x{}'.format(axis), [1])
         y, sigy = ev.calc_mean_of_axis(db, cyc, 'y{}'.format(axis), [1])
         a, siga = ev.calc_mean_of_axis(db, cyc, 'aIMG{}'.format(axis), [1])

@@ -5,27 +5,36 @@ Created on Wed Jan 30 16:37:21 2019
 @author: AmP
 """
 
-import matplotlib.pyplot as plt
+
 import numpy as np
 from itertools import islice
+import traces
 
 import load
-import save
-import kin_model
-
-SAVE = False
 
 
 def downsample(rows, proportion=.1):
     return list(islice(rows, 0, len(rows), int(1/proportion)))
 
 
+def resample(t, x, Ts=.03):
+    ts = traces.TimeSeries()
+    for idx in range(len(t)):
+        ts[t[idx]] = x[idx]
+    resample = ts.sample(sampling_period=Ts,
+                         interpolate='linear')
+    t, x = map(list, zip(*resample))
+    return t, x
+
+
 def remove_offset_time_xy(data):
+    # remove time offset
     start_idx = data['f0'].index(1)  # upper left foot attached 1st time
     start_time = data['time'][start_idx]
     data['time'] = \
         [round(data_time - start_time, 3) for data_time in data['time']]
 
+    # remove offset of xy
     succes, jdx = False, 0
     while not succes:
         if not np.isnan(data['x0'][start_idx-jdx]):
@@ -37,13 +46,18 @@ def remove_offset_time_xy(data):
             break
         else:
             jdx += 1
-
     sc = 100/640.  # px->cm
     for idx in range(6):
         data['x{}'.format(idx)] = \
             [(x-xstart)*sc for x in data['x{}'.format(idx)]]
         data['y{}'.format(idx)] = \
             [-(y-ystart)*sc for y in data['y{}'.format(idx)]]
+
+    # resample data
+    t = data['time']
+    for key in data:
+        x = data[key]
+        _, data[key] = resample(t, x)
 
     return data
 
@@ -163,7 +177,7 @@ def calc_mean_of_axis_in_exp_and_cycle(data_set, cycles, axis='x0'):
 
 def calc_mean_of_axis(db, cyc, axis, cyc_index=[1, 2]):
     min_len = min([len(cycle) for cycle in cyc])
-    assert (max(cyc_index)<min_len), 'minimal cycle number in given dataset is {}'.format(min_len)
+    assert (max(cyc_index) < min_len), 'minimal cycle number in given dataset is {}'.format(min_len)
     X = []
     x0 = db[0][axis][cyc[0][cyc_index[0]]]
     for idx in cyc_index:
@@ -198,10 +212,25 @@ def load_data(exp_name, exp_idx=['00']):
     dset, Cycles = [], []
     for exp in exp_idx:
         data = load.read_csv(exp_name+"{}.csv".format(exp))
-        cycle = find_cycle_idx(data)
         data = remove_offset_time_xy(data)
+        cycle = find_cycle_idx(data)
         dset.append(data)
 
         Cycles.append(cycle)
     return dset, Cycles
 
+
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+
+    data, cyc = load_data('2019_02_07_big_initial_cycle_exp/', ['000'])
+    t = data[0]['time']
+
+    tt, ts = resample(t, t)
+
+    plt.plot(t, t)
+    plt.plot(ts, ts)
+
+    plt.figure()
+    plt.plot(np.diff(t))
+    plt.plot(np.diff(ts))

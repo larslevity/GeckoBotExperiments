@@ -13,6 +13,27 @@ import traces
 import load
 
 
+def shift_jump(xlist, jump, minmax=360):
+    """ assumes xlist is 'minmax' periodic"""
+    x_out = []
+    for x in xlist:
+        if x < jump:
+            x_out.append(x)
+        else:
+            x_out.append(x-minmax)
+    return x_out
+            
+
+def rotate_xy(X, Y, eps):
+    s = np.sin(np.deg2rad(eps))
+    c = np.cos(np.deg2rad(eps))
+    Xout, Yout = [], []
+    for x, y in zip(X, Y):
+        Xout.append(c*x - s*y)
+        Yout.append(s*x + c*y)
+    return Xout, Yout
+
+
 def downsample(rows, proportion=.1):
     return list(islice(rows, 0, len(rows), int(1/proportion)))
 
@@ -187,7 +208,7 @@ def calc_mean_of_axis(db, cyc, axis, cyc_index=[1, 2]):
             x = add_offset(rm_offset(x_), x0)
             X.append(x)
     mat = make_matrix_plain(X)
-    print(np.shape(mat))
+#    print(np.shape(mat))
     xx, sigxx = calc_mean_stddev(mat)
     return xx, sigxx
 

@@ -71,6 +71,9 @@ def _calc_rad(length, angle):
 def tikz_draw_gecko(alp, ell, eps, F1, col='black', linewidth='.5mm'):
     c1, c2, c3, c4 = _calc_phi(alp, eps)
     l1, l2, lg, l3, l4 = ell
+    for idx, a in enumerate(alp):
+        if abs(a) < 2:
+            alp[idx] = 2 * a/abs(a)
     alp1, bet1, gam, alp2, bet2 = alp
     r1, r2, rg, r3, r4 = [_calc_rad(ell[i], alp[i]) for i in range(5)]
 

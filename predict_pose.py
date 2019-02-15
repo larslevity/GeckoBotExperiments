@@ -368,6 +368,53 @@ def animate_gait(fig1, data_xy, data_markers, inv=500,
 
 
 def save_animation(line_ani, name='gait.mp4', conv='avconv'):
+    """
+    To create gif:
+        0. EASY: Use : https://ezgif.com/video-to-gif
+        OR:
+        1. Create a directory called frames in the same directory with
+           your .mp4 file. Use command:
+            ffmpeg -i video.mp4  -r 5 'frames/frame-%03d.jpg'
+
+            -r 5 stands for FPS value
+                for better quality choose bigger number
+                adjust the value with the -delay in 2nd step
+                to keep the same animation speed
+
+            %03d gives sequential filename number in decimal form
+
+        1a. Loop the thing (python):
+            import os
+            for jdx, idx in enumerate(range(1, 114)[::-1]):
+                os.rename('frame-'+'{}'.format(idx).zfill(3)+'.jpg',
+                          'frame-'+'{}'.format(114+jdx).zfill(3)+'.jpg')
+
+        1b. Reduce size of singe frames (bash):
+            for i in *.jpg; do convert "$i" -quality 20 "${i%%.jpg*}_new.jpg"; done
+
+        2. Convert Images to gif (bash):
+            cd frames
+            convert -delay 20 -loop 0 *.jpg myimage.gif
+
+            -delay 20 means the time between each frame is 0.2 seconds
+               which match 5 fps above.
+               When choosing this value
+                   1 = 100 fps
+                   2 = 50 fps
+                   4 = 25 fps
+                   5 = 20 fps
+                   10 = 10 fps
+                   20 = 5 fps
+                   25 = 4 fps
+                   50 = 2 fps
+                   100 = 1 fps
+                   in general 100/delay = fps
+
+            -loop 0 means repeat forever
+        2a. To further compress you can skip frames:
+            gifsicle -U input.gif `seq -f "#%g" 0 2 99` -O2 -o output.gif
+            
+    """
     # Set up formatting for the movie files
     Writer = animation.writers[conv]
     writer = Writer(fps=15, metadata=dict(artist='Lars Schiller'),

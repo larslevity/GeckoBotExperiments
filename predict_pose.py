@@ -413,7 +413,7 @@ def save_animation(line_ani, name='gait.mp4', conv='avconv'):
             -loop 0 means repeat forever
         2a. To further compress you can skip frames:
             gifsicle -U input.gif `seq -f "#%g" 0 2 99` -O2 -o output.gif
-            
+
     """
     # Set up formatting for the movie files
     Writer = animation.writers[conv]

@@ -7,29 +7,41 @@ Created on Wed Jan 30 17:18:20 2019
 
 from matplotlib2tikz import save as tikz_save
 import fileinput
+import numpy as np
 
 
-def save_as_tikz(filename):
+def save_as_tikz(filename, gecko_str=None, scale=1):
     print('Saving as TikZ-Picture...')
 
-    tikz_save(filename)
-    insert_tex_header(filename)
+    axisparams = {'anchor=origin', 'disabledatascaling',
+                  'x=1cm', 'y=1cm'}
+    tikz_save(filename,
+              extra_axis_parameters=axisparams if gecko_str else None)
+    insert_tex_header(filename, gecko_str, scale)
     print('Done!')
 
 
-def insert_tex_header(filename):
-    header = \
-        "\\documentclass[crop,tikz]{standalone} \
-         \\usepackage[utf8]{inputenc} \
-         \\usepackage{tikz} \
-         \\usepackage{pgfplots} \
-         \\pgfplotsset{compat=newest} \
-         \\usepgfplotslibrary{groupplots} \
-         \\begin{document} \
-         "
+def insert_tex_header(filename, gecko_str=None, scale=1):
+    header = """
+\\documentclass[crop,tikz]{standalone}
+\\usepackage[utf8]{inputenc}
+\\usepackage{tikz}
+\\usepackage{pgfplots}
+\\pgfplotsset{compat=newest}
+\\usepgfplotslibrary{groupplots}
+\\begin{document}
+"""
+    if gecko_str:
+        # remove \begin{tikzpicture}
+        with open(filename, 'r') as fin:
+            data = fin.read().splitlines(True)
+        with open(filename, 'w') as fout:
+            fout.writelines([data[0]] + data[2:])
+        # add geckostr between header and matplotlib2tikz data
+        header = header + '\n\\begin{tikzpicture}[scale=%s]' % (scale) + gecko_str
     line_pre_adder(filename, header)
     # Append Ending
-    ending = "%% End matplotlib2tikz content %% \n \\end{document}"
+    ending = "\n%% End matplotlib2tikz content %% \n\\end{document}"
     with open(filename, "a") as myfile:
         myfile.write(ending)
 
@@ -41,3 +53,57 @@ def line_pre_adder(filename, line_to_prepend):
             print line_to_prepend.rstrip('\r\n') + '\n' + xline,
         else:
             print xline,
+
+
+def _calc_phi(alpha, eps):
+    c1 = np.mod(eps - alpha[0] - alpha[2]*.5 + 360, 360)
+    c2 = np.mod(c1 + alpha[0] + alpha[1] + 360, 360)
+    c3 = np.mod(180 + alpha[2] - alpha[1] + alpha[3] + c2 + 360, 360)
+    c4 = np.mod(180 + alpha[2] + alpha[0] - alpha[4] + c1 + 360, 360)
+    phi = [c1, c2, c3, c4]
+    return phi
+
+
+def _calc_rad(length, angle):
+    return 360.*length/(2*np.pi*angle)
+
+
+def tikz_draw_gecko(alp, ell, eps, F1, col='black', linewidth='.5mm'):
+    c1, c2, c3, c4 = _calc_phi(alp, eps)
+    l1, l2, lg, l3, l4 = ell
+    alp1, bet1, gam, alp2, bet2 = alp
+    r1, r2, rg, r3, r4 = [_calc_rad(ell[i], alp[i]) for i in range(5)]
+
+    elem = """
+\\def\\col{%s}
+\\def\\lw{%s}
+\\def\\alpi{%f}
+\\def\\beti{%f}
+\\def\\gam{%f}
+\\def\\alpii{%f}
+\\def\\betii{%f}
+\\def\\gamh{%f}
+
+\\def\\eps{%f}
+\\def\\ci{%f}
+\\def\\cii{%f}
+\\def\\ciii{%f}
+\\def\\civ{%f}
+
+\\def\\ri{%f}
+\\def\\rii{%f}
+\\def\\rg{%f}
+\\def\\riii{%f}
+\\def\\riv{%f}
+
+\\path (%f, %f)coordinate(F1);
+
+\\draw[\\col, line width=\\lw] (F1)arc(180+\\ci:180+\\ci+\\alpi:\\ri)coordinate(OM);
+\\draw[\\col, line width=\\lw] (OM)arc(180+\\ci+\\alpi:180+\\ci+\\alpi+\\beti:\\rii)coordinate(F2);
+\\draw[\\col, line width=\\lw] (OM)arc(90+\\ci+\\alpi:90+\\ci+\\alpi+\\gam:\\rg)coordinate(UM);
+\\draw[\\col, line width=\\lw] (UM)arc(\\gam+\\ci+\\alpi:\\gam+\\ci+\\alpi+\\alpii:\\riii)coordinate(F3);
+\\draw[\\col, line width=\\lw] (UM)arc(\\gam+\\ci+\\alpi:\\gam+\\ci+\\alpi-\\betii:\\riv)coordinate(F4);
+
+""" % (col, linewidth, alp1, bet1, gam, alp2, bet2, gam*.5, eps, c1, c2, c3, c4,
+       r1, r2, rg, r3, r4, F1[0], F1[1])
+    return elem

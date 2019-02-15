@@ -10,6 +10,7 @@ import matplotlib.patches as pat
 import numpy as np
 
 import eval as ev
+import save
 import kin_model
 import predict_pose as pp
 
@@ -26,7 +27,7 @@ import predict_pose as pp
 sets = ['{}'.format(idx).zfill(3) for idx in range(4)]
 db, cyc = ev.load_data('2019_02_11_slow_bigbot/', sets)
 
-# correction of epsilon
+# correction of jump epsilon
 for exp in range(len(db)):
     db[exp]['eps'] = ev.shift_jump(db[exp]['eps'], 180)
 
@@ -42,30 +43,19 @@ for exp in range(len(db)):
         db[exp]['y{}'.format(marker)] = Y
     db[exp]['eps'] = ev.add_offset(db[exp]['eps'], -eps0+rotate)
 
-
-# check for quality:
-
-for exp in range(len(db)):
-    for idx in range(6):
-        x = db[exp]['x{}'.format(idx)][cyc[exp][1]:cyc[exp][2]]
-        y = db[exp]['y{}'.format(idx)][cyc[exp][1]:cyc[exp][2]]
-        plt.figure('raw data XY')
-        plt.plot(x, y)
-    eps = db[exp]['eps'][cyc[exp][1]:cyc[exp][2]]
-    t = db[exp]['time'][cyc[exp][1]:cyc[exp][2]]
-    plt.figure('raw data Epsilon')
-    plt.plot(t, eps)
-
 # ### eps during cycle
 eps, sige = ev.calc_mean_of_axis(db, cyc, 'eps', [1])
 t, sigt = ev.calc_mean_of_axis(db, cyc, 'time', [1])
-# hack
+# hack to remove high freq noise
 for idx in range(1, len(t)):
     if abs(eps[idx] - eps[idx-1]) > 1:
         eps[idx] = eps[idx-1]
     if abs(sige[idx] - sige[idx-1]) > 1:
         sige[idx] = sige[idx-1]
 
+eps = np.array(ev.downsample(list(eps)))
+t = ev.downsample(t)
+sige = np.array(ev.downsample(sige))
 plt.figure('Epsilon corrected')
 plt.plot(ev.rm_offset(t), eps, '-', color='mediumpurple')
 plt.fill_between(ev.rm_offset(t), eps+sige, eps-sige,
@@ -76,6 +66,7 @@ plt.xlabel('time (s)')
 plt.ylabel('orientation angle epsilon (deg)')
 plt.ylim((-11, 10))
 
+save.save_as_tikz('pics/track/eps.tex'.format(idx))
 
 
 
@@ -83,7 +74,7 @@ if 1:
     print('TRACK FEET')
     fig, ax = plt.subplots(subplot_kw=dict(aspect='equal'),
                            num='Track of feet')
-    col = ['red', 'orange', 'green', 'blue', 'magenta', 'darkred']
+    col = ['red', 'orange', 'magenta', 'blue', 'green', 'darkred']
     yshift = -50
     skip_first = 1
     skip_last = 1
@@ -123,35 +114,14 @@ if 1:
         alp = [alpha[axis][idx] for axis in range(6)]
         alp_ = alp[0:2] + [-alp[3]] + alp[4:6]
         eps_ = eps[idx]
-        print(alp_)
 
         pose, marks, ell, alp__ = kin_model.extract_pose(alp_, eps_, pos)
         plt.plot(pose[0], pose[1], '.', color='gray', markersize=1)
         for jdx in range(6):
             plt.plot(marks[0][jdx], marks[1][jdx], 'o', markersize=5, color=col[jdx])
-        print 'idx: ', ell, [a_ - a__ for a_, a__ in zip(alp_, alp__)]
+#        print 'idx: ', ell, [a_ - a__ for a_, a__ in zip(alp_, alp__)]
 
-    # #### compare to model:
-#    plt.figure(3)
-#    plt.axis('equal')
-#    init_pose = [(90, 1, -90, 90, 1), 0, (0, 0)]
-#    ref = [[[45-gam/2., 45+gam/2., gam, 45-gam/2., 45+gam/2.], [0, 1, 1, 0]]
-#           for gam in range(-90, 90, 10)]
-#    ref2 = [[[45-gam/2., 45+gam/2., gam, 45-gam/2., 45+gam/2.], [1, 0, 0, 1]]
-#            for gam in range(-90, 90, 10)[::-1]]  # reverse
-#    ref = ref + ref2
-#
-#    x, r, data, cst, marks = pp.predict_pose(ref, init_pose, True, False,
-#                                             len_leg=13, len_tor=14)
-#
-#    pp.plot_gait(*pp.start_end(*data))
-#
-#    markers = pp.marker_history(marks)
-#    for idx, marker in enumerate(markers):
-#        x, y = marker
-#        plt.plot(x, y, color=col[idx])
-
-    # ## withot stretching
+    # ## compare to model -- withot stretching
     init_pose = [(90, 1, -90, 90, 1), 0, (-5, 0)]
     step = 45
     ref = [[[45-gam/2., 45+gam/2., gam, 45-gam/2., 45+gam/2.], [0, 1, 0, 0]]
@@ -170,41 +140,52 @@ if 1:
         x, y = marker
         plt.plot(x, y, '-', color=col[idx])
 
-
-
-    # ############################################# ANIMATION ################
+    # ############################################# SINGLE SHOTS ##############
     # ################# plain track
-    if 0:
-        fig_ani, ax_ani = plt.subplots(num='Track of feet Animation',
-                                       subplot_kw=dict(aspect='equal'))
+    for idx in [0, 160, 285, 434, 569]:
+        print(idx)
+        fig, ax = plt.subplots(num='Track of feet {}'.format(idx),
+                               subplot_kw=dict(aspect='equal'))
         for axis in range(6):
             x, y = positions[0][axis], positions[1][axis]
             sigx, sigy = SIGXY[0][axis], SIGXY[1][axis]
-    
-            plt.plot(x, y, color=col[axis])
-            for xx, yy, sigxx, sigyy in zip(x, y, sigx, sigy):
-                el = pat.Ellipse((xx, yy), sigxx*2, sigyy*2,
-                                 facecolor=col[axis], alpha=.3)
-                ax_ani.add_artist(el)
-        # collect animation data
-        data_xy = []
-        data_marks = []
-        for idx in range(0, len(eps), 5):
-            # ####### plot gecko guess:
-            pos = ([positions[0][axis][idx] for axis in range(6)],
-                   [positions[1][axis][idx] for axis in range(6)])
-            alp = [alpha[axis][idx] for axis in range(6)]
-            alp_ = alp[0:2] + [-alp[3]] + alp[4:6]
-            eps_ = eps[idx]
-        
-            pose, marks, ell, alp__ = kin_model.extract_pose(alp_, eps_, pos)
-            data_xy.append(pose)
-            data_marks.append(marks)
-    
-        plt.xlabel('x (cm)')
-        plt.ylabel('y (cm)')
-        line_ani = pp.animate_gait(fig_ani, data_xy, data_marks)  # _ = --> important
-    #    pp.save_animation(line_ani, name='track_of_feet.mp4', conv='avconv')
-    
+            # downsample for tikz
+            prop = .1
+            x, y = ev.downsample(x, prop), ev.downsample(y, prop)
+            sigx, sigy = ev.downsample(sigx, prop), ev.downsample(sigy, prop)
+            # plot xy
+            plt.plot(x, y, color=col[axis], linewidth=20)
+            # plot sigma xy
+#            for xx, yy, sigxx, sigyy in zip(x, y, sigx, sigy):
+#                el = pat.Ellipse((xx, yy), sigxx*2, sigyy*2,
+#                                 facecolor=col[axis], alpha=.3)
+#                ax.add_artist(el)
+        # plot eps inclination
+        x1, y1, x4, y4 = (positions[0][1][idx], positions[1][1][idx],
+                          positions[0][4][idx], positions[1][4][idx])
+        dx = x4 - x1
+        dy = y4 - y1
+        plt.plot([x1-dx, x4+dx], [y1-dy, y4+dy],
+                 '--', color='mediumpurple', linewidth=20)
+        # draw best fit gecko
+        pos = ([positions[0][axis][idx] for axis in range(6)],
+               [positions[1][axis][idx] for axis in range(6)])
+        alp = [alpha[axis][idx] for axis in range(6)]
+        alp_ = alp[0:2] + [-alp[3]] + alp[4:6]
+        eps_ = eps[idx]
+
+        pose, marks, ell, alp__ = kin_model.extract_pose(alp_, eps_, pos)
+        for jdx in range(6):
+            plt.plot(marks[0][jdx], marks[1][jdx], 'o',
+                     markersize=60, color=col[jdx])
+
+        gecko_tikz_str = save.tikz_draw_gecko(alp__, ell, eps_,
+                                              (marks[0][0], marks[1][0]),
+                                              linewidth='2mm')
+
+#        plt.plot(pose[0], pose[1], '.', color='gray', markersize=1)
+        plt.axis('off')
+        save.save_as_tikz('pics/track/track_{}.tex'.format(idx), gecko_tikz_str,
+                          scale=.2)
 
 plt.show()

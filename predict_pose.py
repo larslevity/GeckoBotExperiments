@@ -27,7 +27,8 @@ n_limbs = 5
 
 def predict_pose(pattern, initial_pose, stats=False, debug=False,
                  f=[f_l, f_o, f_a], len_leg=len_leg, len_tor=len_tor,
-                 dev_ang=dev_ang):
+                 dev_ang=dev_ang, bounds=(blow, bup)):
+    blow, bup = bounds
     f_len, f_ori, f_ang = f
     alpha, eps, F1 = initial_pose
     ell_nominal = (len_leg, len_leg, len_tor, len_leg, len_leg)

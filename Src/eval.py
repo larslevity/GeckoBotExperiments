@@ -205,12 +205,23 @@ def calc_mean_of_axis(db, cyc, axis, cyc_index=[1, 2]):
         for exp in range(len(db)):
             exp_cyc = cyc[exp]
             x_ = db[exp][axis][exp_cyc[idx]:exp_cyc[idx+1]]
-            x = add_offset(rm_offset(x_), x0)
-            X.append(x)
+#            x_ = add_offset(rm_offset(x_), x0)
+            X.append(x_)
     mat = make_matrix_plain(X)
 #    print(np.shape(mat))
     xx, sigxx = calc_mean_stddev(mat)
     return xx, sigxx
+
+
+def calc_mean_of_axis_multi_cyc(db, cyc, axis, skipfirst=1, skiplast=None):
+    x, sigx = [], []
+    min_len = min([len(cycle) for cycle in cyc])
+    last_idx = min_len - skiplast - 1 if skiplast else min_len - 1
+    for idx in range(skipfirst, last_idx):
+        xx, sigxx = calc_mean_of_axis(db, cyc, axis, [idx])
+        x = np.array(list(x)+list(xx))
+        sigx = np.array(list(sigx)+list(sigxx))
+    return x, sigx
 
 
 def calc_mean_of_axis_for_all_exp_and_cycles(data, cyc, axis,
@@ -239,6 +250,14 @@ def load_data(exp_name, exp_idx=['00']):
 
         Cycles.append(cycle)
     return dset, Cycles
+
+
+def get_marker_color():
+    return ['red', 'orange', 'blue', 'darkred', 'darkorange', 'darkblue']
+
+
+def get_actuator_color():
+    return ['red', 'darkred', 'orange', 'darkorange', 'blue', 'darkblue']
 
 
 if __name__ == '__main__':

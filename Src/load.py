@@ -8,6 +8,12 @@ import csv
 import numpy as np
 
 
+try:
+    from os import scandir
+except ImportError:
+    from scandir import scandir
+
+
 def read_csv(filename):
     dic = {}
     mapping = {}
@@ -23,3 +29,14 @@ def read_csv(filename):
                 for jdx, val in enumerate(row):
                     dic[mapping[jdx]].append(float(val) if val else np.nan)
     return dic
+
+
+def _get_csv_names(dirpath):
+    for entry in scandir(dirpath):
+        if entry.is_file() and entry.name.endswith('.csv'):
+            yield entry.name
+
+
+def get_csv_set(dirpath):
+    names = _get_csv_names(dirpath)
+    return [name.split('.csv')[0] for name in sorted(names)]

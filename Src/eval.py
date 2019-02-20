@@ -7,6 +7,7 @@ Created on Wed Jan 30 16:37:21 2019
 
 
 import numpy as np
+from scipy import signal
 from itertools import islice
 import traces
 
@@ -22,7 +23,7 @@ def shift_jump(xlist, jump, minmax=360):
         else:
             x_out.append(x-minmax)
     return x_out
-            
+
 
 def rotate_xy(X, Y, eps):
     s = np.sin(np.deg2rad(eps))
@@ -35,7 +36,8 @@ def rotate_xy(X, Y, eps):
 
 
 def downsample(rows, proportion=.1):
-    return list(islice(rows, 0, len(rows), int(1/proportion)))
+    return np.array(
+            list(islice(list(rows), 0, len(list(rows)), int(1/proportion))))
 
 
 def resample(t, x, Ts=.03):
@@ -48,7 +50,7 @@ def resample(t, x, Ts=.03):
     return t, x
 
 
-def remove_offset_time_xy(data):
+def remove_offset_time_xy(data, Ts):
     # remove time offset
     start_idx = data['f0'].index(1)  # upper left foot attached 1st time
     start_time = data['time'][start_idx]
@@ -58,9 +60,9 @@ def remove_offset_time_xy(data):
     # remove offset of xy
     succes, jdx = False, 0
     while not succes:
-        if not np.isnan(data['x0'][start_idx-jdx]):
-            xstart = data['x0'][start_idx-jdx]
-            ystart = data['y0'][start_idx-jdx]
+        if not np.isnan(data['x1'][start_idx-jdx]):
+            xstart = data['x1'][start_idx-jdx]
+            ystart = data['y1'][start_idx-jdx]
             succes = True
         elif start_idx-jdx < 0:
             xstart, ystart = 0, 0
@@ -74,11 +76,16 @@ def remove_offset_time_xy(data):
         data['y{}'.format(idx)] = \
             [-(y-ystart)*sc for y in data['y{}'.format(idx)]]
 
+    # correction of jump epsilon
+    data['eps'] = shift_jump(data['eps'], 180)
+
+
+
     # resample data
     t = data['time']
     for key in data:
         x = data[key]
-        _, data[key] = resample(t, x)
+        _, data[key] = resample(t, x, Ts)
 
     return data
 
@@ -99,11 +106,12 @@ def find_cycle_idx(data):
 
 
 def rm_offset(lis):
-    offset = lis[0]
+    offset = list(lis)[0]
     return [val-offset for val in lis]
 
 
 def add_offset(lis, offset):
+    lis = list(lis)
     return [val+offset for val in lis]
 
 
@@ -240,11 +248,11 @@ def calc_mean_of_axis_for_all_exp_and_cycles(data, cyc, axis,
     return xx, sigxx
 
 
-def load_data(exp_name, exp_idx=['00']):
+def load_data(exp_name, exp_idx=['00'], Ts=.03):
     dset, Cycles = [], []
     for exp in exp_idx:
         data = load.read_csv(exp_name+"{}.csv".format(exp))
-        data = remove_offset_time_xy(data)
+        data = remove_offset_time_xy(data, Ts)
         cycle = find_cycle_idx(data)
         dset.append(data)
 
@@ -252,12 +260,28 @@ def load_data(exp_name, exp_idx=['00']):
     return dset, Cycles
 
 
+def calc_velocity(db, Ts):
+    b, a = signal.butter(3, 0.05)
+    for exp in range(len(db)):
+        for axis in range(6):
+            noisy = np.diff(db[exp]['x{}'.format(axis)])/Ts
+#            y = signal.filtfilt(b, a, noisy)
+            x = signal.convolve(noisy, [0.1]*10, mode='valid')
+            db[exp]['x{}dot'.format(axis)] = np.concatenate(([0], x))
+
+            noisy = np.diff(db[exp]['y{}'.format(axis)])/Ts
+#            y = signal.filtfilt(b, a, noisy)
+            y = signal.convolve(noisy, [0.1]*10, mode='valid')
+            db[exp]['y{}dot'.format(axis)] = np.concatenate(([0], y))
+    return db
+
+
 def get_marker_color():
     return ['red', 'orange', 'blue', 'darkred', 'darkorange', 'darkblue']
 
 
 def get_actuator_color():
-    return ['red', 'darkred', 'orange', 'darkorange', 'blue', 'darkblue']
+    return ['red', 'blue', 'darkorange', 'orange', 'darkred', 'darkblue']
 
 
 if __name__ == '__main__':

@@ -102,3 +102,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# tex
+*.toc
+*.synctex.gz
+*.aux
+*.log

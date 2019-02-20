@@ -10,13 +10,12 @@ import fileinput
 import numpy as np
 
 
-def save_as_tikz(filename, gecko_str=None, scale=1):
+def save_as_tikz(filename, gecko_str=None, scale=1, **kwargs):
     print('Saving as TikZ-Picture...')
-
-    axisparams = {'anchor=origin', 'disabledatascaling',
-                  'x=1cm', 'y=1cm'}
-    tikz_save(filename,
-              extra_axis_parameters=axisparams if gecko_str else None)
+    if gecko_str:
+        kwargs = {'extra_axis_parameters':
+                  {'anchor=origin', 'disabledatascaling', 'x=1cm', 'y=1cm'}}
+    tikz_save(filename, **kwargs)
     insert_tex_header(filename, gecko_str, scale)
     print('Done!')
 

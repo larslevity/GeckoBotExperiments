@@ -1,0 +1,698 @@
+
+\documentclass[crop,tikz]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{groupplots}
+\begin{document}
+
+\begin{tikzpicture}[scale=0.2]
+\def\col{black}
+\def\lw{2mm}
+\def\alpi{-19.202276}
+\def\beti{99.290747}
+\def\gam{81.413416}
+\def\alpii{16.069170}
+\def\betii{57.595673}
+\def\gamh{40.706708}
+
+\def\eps{-13.205303}
+\def\ci{325.290265}
+\def\cii{45.378736}
+\def\ciii{223.570575}
+\def\civ{149.905732}
+
+\def\ri{-31.031535}
+\def\rii{6.001326}
+\def\rg{7.882150}
+\def\riii{37.081948}
+\def\riv{10.345848}
+
+\path (18.484395, 4.582802)coordinate(F1);
+
+\draw[\col, line width=\lw] (F1)arc(180+\ci:180+\ci+\alpi:\ri)coordinate(OM);
+\draw[\col, line width=\lw] (OM)arc(180+\ci+\alpi:180+\ci+\alpi+\beti:\rii)coordinate(F2);
+\draw[\col, line width=\lw] (OM)arc(90+\ci+\alpi:90+\ci+\alpi+\gam:\rg)coordinate(UM);
+\draw[\col, line width=\lw] (UM)arc(\gam+\ci+\alpi:\gam+\ci+\alpi+\alpii:\riii)coordinate(F3);
+\draw[\col, line width=\lw] (UM)arc(\gam+\ci+\alpi:\gam+\ci+\alpi-\betii:\riv)coordinate(F4);
+% This file was created by matplotlib2tikz v0.6.15.
+
+\definecolor{color1}{rgb}{1,0.549019607843137,0}
+\definecolor{color0}{rgb}{1,0.647058823529412,0}
+\definecolor{color2}{rgb}{0.576470588235294,0.43921568627451,0.858823529411765}
+
+\begin{axis}[
+hide x axis,
+hide y axis,
+xmin=-13.4375640745507, xmax=25.6780244184143,
+ymin=-14.1835898094484, ymax=9.01415885017611,
+tick align=outside,
+tick pos=left,
+x grid style={lightgray!92.026143790849673!black},
+y grid style={lightgray!92.026143790849673!black},
+disabledatascaling,
+x=1cm,
+y=1cm,
+anchor=origin
+]
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:6.34611427339446,5.67682716624372) ellipse (0.0474485875666524 and 0.0433323727634293);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:6.38393460885812,5.66705469819997) ellipse (0.0535174117934627 and 0.0546114142655659);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:6.34611427339446,5.67682716624372) ellipse (0.0474485875666524 and 0.0433323727634293);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:6.26900662093978,5.68938494487714) ellipse (0.0409060445617923 and 0.0486375936068461);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:6.0808439143289,5.75763876536337) ellipse (0.0560136948423578 and 0.0499149877457692);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:5.87885311876875,5.88792564603945) ellipse (0.0659337169637193 and 0.071808592907435);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:5.70503691540031,5.98593017918889) ellipse (0.0526131791542273 and 0.0296556171949765);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:5.61195110647497,6.13998979956079) ellipse (0.0606137416300135 and 0.047806911409424);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:5.57983768304239,6.22402494124133) ellipse (0.0633720089626871 and 0.0453799604560616);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:5.64881496296824,6.37113256192539) ellipse (0.0864550111902536 and 0.0430180027460659);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:5.75593853806607,6.50971430191362) ellipse (0.049118054528872 and 0.0554435089655224);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:5.9157960933805,6.65001647091726) ellipse (0.0268768299004683 and 0.0330395663925241);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:6.24896433471914,6.82686226641284) ellipse (0.0854799374515427 and 0.0280767853205871);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:6.93488276396608,7.02850716912994) ellipse (0.128371370923421 and 0.0278287560359716);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:8.06298278271487,7.28668215034393) ellipse (0.0912015987660544 and 0.0393122484756387);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:9.45950664903325,7.45847752748028) ellipse (0.401642150056775 and 0.0485923276916668);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:11.5628382454938,7.46715996975116) ellipse (0.287331058184309 and 0.0292062850234712);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:13.7283288401898,7.11639235150698) ellipse (0.354218904567367 and 0.106231551148436);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:15.8689865714688,6.39980058977881) ellipse (0.461324561693059 and 0.214663314744234);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:16.9206363141091,5.84353129822963) ellipse (0.244849918210829 and 0.144810009124848);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:17.6249828608706,5.39016966349207) ellipse (0.141610067581646 and 0.135517558249105);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:17.9776679313467,5.0431160555381) ellipse (0.119064157408501 and 0.116131345998231);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.2606693858283,4.76760409618263) ellipse (0.125751585800281 and 0.0610603561956535);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.5169439379703,4.53816602210874) ellipse (0.123154115218199 and 0.116816010230008);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.5146352729915,4.5780660988391) ellipse (0.119546846183582 and 0.0549721404031562);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.5229873124352,4.57675820436536) ellipse (0.132703115586921 and 0.0567341244659722);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.5229873124352,4.57675820436536) ellipse (0.132703115586921 and 0.0567341244659722);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.5229873124352,4.57675820436536) ellipse (0.132703115586921 and 0.0567341244659722);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.5229873124352,4.57675820436536) ellipse (0.132703115586921 and 0.0567341244659722);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.494421452039,4.57983493682572) ellipse (0.0854408006412437 and 0.0561990172882554);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4525865804456,4.60249376972558) ellipse (0.0604574527246125 and 0.0405265823164544);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.5229873124352,4.57675820436536) ellipse (0.132703115586921 and 0.0567341244659722);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4843951301785,4.58280157883018) ellipse (0.0760044682950179 and 0.0489402702533619);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.4982300634403,4.58063508609752) ellipse (0.0948225200684649 and 0.051625662761314);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.5229873124352,4.57675820436536) ellipse (0.132703115586921 and 0.0567341244659722);
+\draw[fill=red,draw opacity=0,fill opacity=0.3] (axis cs:18.5229873124352,4.57675820436536) ellipse (0.132703115586921 and 0.0567341244659722);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:5.71330263187905,-3.1283100372137) ellipse (0.0407582811246682 and 0.0890631841827689);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:5.70678822771045,-3.16682550741176) ellipse (0.0485500245393324 and 0.062978466866898);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:5.68525476445914,-3.08071723370628) ellipse (0.0264189729674033 and 0.0393341312620306);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:5.76166728217942,-3.09653307621486) ellipse (0.0663296668436521 and 0.0449606443685775);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:5.7230750999228,-3.09048970175003) ellipse (0.0557284215547617 and 0.0418265412346392);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:5.8062261268423,-3.06445529812684) ellipse (0.0480544139769142 and 0.0606095902353591);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:5.86438673118094,-3.03121671244861) ellipse (0.0130370743862644 and 0.0881086110775164);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:6.00818779733609,-2.86491030301673) ellipse (0.0368324501643913 and 0.0830692771079939);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:6.1213042300212,-2.68807781806292) ellipse (0.0619127987329847 and 0.0467697596282332);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:6.34266065830298,-2.57508438862701) ellipse (0.0727421367963695 and 0.0565794218281231);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:6.53425160211314,-2.41409548391682) ellipse (0.0735646247773463 and 0.0737800162348308);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:6.76901414369037,-2.29767406267028) ellipse (0.0219252245593648 and 0.0654766641707492);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:7.13945506174808,-2.04335233616711) ellipse (0.0479252256194557 and 0.0352778150588329);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:7.57089344647829,-1.8122693890799) ellipse (0.117060065523231 and 0.0480611613497823);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:8.22800220514469,-1.51382932234718) ellipse (0.0907837428805465 and 0.0357702402778115);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:8.95447419464013,-1.34503890779736) ellipse (0.206371153101562 and 0.0461536520536905);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:9.95411849605945,-1.13971789907925) ellipse (0.106841551455891 and 0.0288832707344537);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:10.9992496493861,-1.11097657247343) ellipse (0.264002444915016 and 0.0650433206807249);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:11.7264176213011,-1.18548868850101) ellipse (0.168623420620941 and 0.0907454518257362);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.1555960221519,-1.29717656141787) ellipse (0.13253898620995 and 0.0545481366338453);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.3633914022943,-1.35566211458464) ellipse (0.0501168386570837 and 0.053373985520489);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.4420168005555,-1.39170566582507) ellipse (0.102177330592075 and 0.0777191892076412);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.5515329020529,-1.41474439329039) ellipse (0.0678947534935573 and 0.0700882722656235);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.541885641153,-1.46238229323581) ellipse (0.0602944560186137 and 0.0692920560312817);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.5369636468923,-1.49148287071899) ellipse (0.0679981997644023 and 0.0302520380654164);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.5393469654905,-1.477391845037) ellipse (0.0642420009551659 and 0.0465022119920196);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.5434780510609,-1.45296740052093) ellipse (0.0578514234638269 and 0.0845372529168713);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.5715175309247,-1.48007020555083) ellipse (0.0970010886031302 and 0.0524486083611072);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.6133761646126,-1.50729871322757) ellipse (0.114755339126206 and 0.0260801045513294);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.6156852492558,-1.5867768329095) ellipse (0.0743896648996378 and 0.0797925654748855);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.7021821142841,-1.65823835566202) ellipse (0.107351933934627 and 0.0636353054032859);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.7635278411995,-1.81466968549571) ellipse (0.0456841027637246 and 0.0826141961693445);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:12.8579722490488,-1.95462832204387) ellipse (0.108130524802842 and 0.0903909231618243);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:13.0764720383533,-2.05206797521092) ellipse (0.106444924346029 and 0.108733163267101);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:13.1685431076666,-2.21670212140496) ellipse (0.1204094943206 and 0.108443230478842);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:13.4186480123271,-2.46521345508965) ellipse (0.119048480418175 and 0.133675708989455);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:13.7969092257078,-2.81776108808899) ellipse (0.114906099193785 and 0.1196848311386);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:14.3368557094223,-3.16633856129289) ellipse (0.111683665860108 and 0.0831900986738407);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:15.0388118145724,-3.57143369747115) ellipse (0.183179972082021 and 0.116170852310278);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:16.0583077887666,-4.05396655716626) ellipse (0.165321208304516 and 0.119161072472045);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:16.9948189989474,-4.2802100308214) ellipse (0.189673232435227 and 0.118552944651638);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:17.5050175770664,-4.27226771682268) ellipse (0.18280226412575 and 0.0707622184314359);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:17.8371074819507,-4.30136691023846) ellipse (0.17706167219705 and 0.130471437761238);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:17.9185789487861,-4.29752440048491) ellipse (0.162340199608833 and 0.0810571527229975);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:18.0302432695862,-4.24845287174398) ellipse (0.132560736889171 and 0.124916003694935);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:18.0450442831203,-4.25916676852817) ellipse (0.120815417168183 and 0.118336395251671);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:18.0718130086424,-4.2634128252864) ellipse (0.141000133772059 and 0.115600114862494);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:18.1151287675386,-4.30365648592246) ellipse (0.0129325418813046 and 0.0911529312016832);
+\draw[fill=color0,draw opacity=0,fill opacity=0.3] (axis cs:18.1143909440585,-4.30991405765133) ellipse (0.10427446260497 and 0.105470388828235);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.211212861968,-10.1545273760591) ellipse (0.061347246710375 and 0.0111645904969823);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.1394613393929,-10.1394250454279) ellipse (0.048794868163046 and 0.0165298679919539);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.1394613393929,-10.1394250454279) ellipse (0.048794868163046 and 0.0165298679919539);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2540201522852,-10.1637667686323) ellipse (0.0204509264355878 and 0.0226259124110357);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2540201522852,-10.1637667686323) ellipse (0.0204509264355878 and 0.0226259124110357);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.1334179649281,-10.1780172276845) ellipse (0.0385326351897562 and 0.068952871214969);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.1765789568955,-10.1536849765249) ellipse (0.0601251306405507 and 0.0188579127423317);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.1394613393929,-10.1394250454279) ellipse (0.048794868163046 and 0.0165298679919539);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.1772816748566,-10.1491975134716) ellipse (0.0606410967829307 and 0.0195290062990058);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.2157971450547,-10.1557119176402) ellipse (0.0634396033516155 and 0.0123629177530802);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.1394613393929,-10.1394250454279) ellipse (0.048794868163046 and 0.0165298679919539);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.1772816748566,-10.1491975134716) ellipse (0.0606410967829307 and 0.0195290062990058);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.1772816748566,-10.1491975134716) ellipse (0.0606410967829307 and 0.0195290062990058);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.1117232083963,-10.1350813700313) ellipse (0.0085412581509144 and 0.0181205476008774);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.1008691571363,-10.1333816709631) ellipse (0.0206512149976907 and 0.0195125036470749);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.0958922605183,-10.1651634681152) ellipse (0.0287217446653831 and 0.04763857831416);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:10.8027742514259,-10.2318058452383) ellipse (0.051451586568166 and 0.0198145890806171);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:10.5713758862586,-10.2887316316639) ellipse (0.0299357483478943 and 0.0491155063044812);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:10.5263146636446,-10.4184264818048) ellipse (0.0470793107289623 and 0.0715599786579641);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:10.3461369949607,-10.5153411994377) ellipse (0.0453123140970404 and 0.0498879511429799);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:10.3333169796076,-10.6595960976365) ellipse (0.0487875216489053 and 0.0518762595492894);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:10.4486541459753,-10.8835375747677) ellipse (0.104133701525591 and 0.0839243067946108);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:10.4718448087144,-11.0071011934326) ellipse (0.0770863253293506 and 0.0642109656239644);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:10.8780406446675,-11.3304992769238) ellipse (0.183371706753702 and 0.109366563087156);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:11.6634266109203,-11.7174484948153) ellipse (0.122693925488087 and 0.0731759606454017);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:12.6689639329655,-12.2037634051082) ellipse (0.185989613460646 and 0.0470254559808879);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:14.2440969065643,-12.7058571503257) ellipse (0.412451428505871 and 0.108144007904312);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:16.7389518397273,-13.1291466885564) ellipse (0.180871863629053 and 0.0569031273580049);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:19.2893356988548,-13.0952271104391) ellipse (0.298623839728965 and 0.0605129517310057);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:20.6916902400443,-12.8199498789671) ellipse (0.342255893909313 and 0.0861068418829222);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:21.7873090650859,-12.5083232224974) ellipse (0.195926437452535 and 0.102921002601182);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:22.5345329898527,-12.1369288762761) ellipse (0.203503825052343 and 0.0845955335744078);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:23.0002898310734,-11.8366621667129) ellipse (0.157064364678094 and 0.0804862045587686);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:23.3715283537898,-11.5837964990261) ellipse (0.169816703022813 and 0.12412817166655);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:23.570791273107,-11.3745865445097) ellipse (0.175192105406059 and 0.0587028196636233);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:23.9000431232795,-11.1192822815067) ellipse (0.158274417520069 and 0.0599987411108074);
+\draw[fill=blue,draw opacity=0,fill opacity=0.3] (axis cs:23.9000431232795,-11.1192822815067) ellipse (0.158274417520069 and 0.0599987411108074);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.20222880514032,6.37529006921196) ellipse (0.0329944732127739 and 0.0195360360620887);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.20986354579954,6.34574293213082) ellipse (0.0398567408608343 and 0.0496909811377526);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.20222880514032,6.37529006921196) ellipse (0.0329944732127739 and 0.0195360360620887);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.20222880514032,6.37529006921196) ellipse (0.0329944732127739 and 0.0195360360620887);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.20222880514032,6.37529006921196) ellipse (0.0329944732127739 and 0.0195360360620887);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.15759324841888,6.40783887700375) ellipse (0.10025715812227 and 0.0433574155340042);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.19571440097172,6.41380553941003) ellipse (0.0256370036773506 and 0.0827990816138876);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.20222880514032,6.37529006921196) ellipse (0.0329944732127739 and 0.0195360360620887);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.1636366228837,6.36924669474714) ellipse (0.0902125343518978 and 0.0283401409645105);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.17151764549957,6.33874642421215) ellipse (0.0962728781365812 and 0.051735904009435);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.1636366228837,6.36924669474714) ellipse (0.0902125343518978 and 0.0283401409645105);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.1636366228837,6.36924669474714) ellipse (0.0902125343518978 and 0.0283401409645105);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.1636366228837,6.36924669474714) ellipse (0.0902125343518978 and 0.0283401409645105);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.1636366228837,6.36924669474714) ellipse (0.0902125343518978 and 0.0283401409645105);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.1636366228837,6.36924669474714) ellipse (0.0902125343518978 and 0.0283401409645105);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.1636366228837,6.36924669474714) ellipse (0.0902125343518978 and 0.0283401409645105);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.1636366228837,6.36924669474714) ellipse (0.0902125343518978 and 0.0283401409645105);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.20487001271977,6.36506835692425) ellipse (0.0349573347751417 and 0.0226100605231404);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.19122693791841,6.41310282144897) ellipse (0.0309739773801712 and 0.083352099218947);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.1961854306755,6.41388225146858) ellipse (0.0400308582271397 and 0.0534576528634376);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.20222880514032,6.37529006921196) ellipse (0.0329944732127739 and 0.0195360360620887);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.20222880514032,6.37529006921196) ellipse (0.0329944732127739 and 0.0195360360620887);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.20222880514032,6.37529006921196) ellipse (0.0329944732127739 and 0.0195360360620887);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.20222880514032,6.37529006921196) ellipse (0.0329944732127739 and 0.0195360360620887);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.18793505251685,6.36653295219317) ellipse (0.0251846823924234 and 0.0142171450287699);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.3739918719539,6.38569426141509) ellipse (0.0579374570345584 and 0.00925685615366418);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.63809735614469,6.25208517407741) ellipse (0.132951549025023 and 0.0348560751916678);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.76096745612349,6.16665777609048) ellipse (0.0924754915789187 and 0.0352030239051599);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.92063285544097,6.15852740356164) ellipse (0.103505046077105 and 0.062438910029195);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-3.07704191446501,6.18960763596527) ellipse (0.0934498501679803 and 0.0486296070258423);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-3.07704191446501,6.18960763596527) ellipse (0.0934498501679803 and 0.0486296070258423);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-3.13573259646474,6.24021830241207) ellipse (0.0599439223081851 and 0.0360199704694513);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-3.08612429682327,6.3356034029993) ellipse (0.0930941607758598 and 0.0449846576041679);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-3.0308409742872,6.41917114883443) ellipse (0.0991587141428569 and 0.0352750792053997);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-3.0064992510828,6.5337299617267) ellipse (0.0956342406232192 and 0.0411228114167449);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.54397742632361,6.77466506114524) ellipse (0.168583342414044 and 0.0431877261331509);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-1.74049312181063,7.09216077229149) ellipse (0.130278421628952 and 0.0256393493390684);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-0.647541864578837,7.40940529121916) ellipse (0.168774350367444 and 0.0792075237027951);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:0.95987426233614,7.64916371364373) ellipse (0.356184330161712 and 0.0807618046565646);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:3.48796611538592,7.63405142728624) ellipse (0.194472412078517 and 0.0645087194434276);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:6.06117305044057,7.17330596584855) ellipse (0.307982473645866 and 0.0821429459383103);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:7.39901191009553,6.68081420395888) ellipse (0.236403897952879 and 0.129890364187433);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:8.4310159418872,6.1765435098496) ellipse (0.244051638178074 and 0.145257113055567);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:9.06572852645631,5.7729875965632) ellipse (0.184062389827086 and 0.113682960461749);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:9.48802488199615,5.44228002051335) ellipse (0.192680278294402 and 0.091486418670885);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:9.74444880388262,5.13077814610847) ellipse (0.196153201664665 and 0.0732826791825246);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:9.86921833399071,4.96011409979712) ellipse (0.19946606640972 and 0.0693594130183015);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:9.87302133811454,4.77468972254813) ellipse (0.199362516663063 and 0.0681602017526093);
+\draw[fill=red!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:9.90549343384779,4.72958313612292) ellipse (0.129677762452892 and 0.0966585953256621);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-3.29326792529964,-3.13483191465141) ellipse (0.0624601814572714 and 0.0449989145189933);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-3.25467574304302,-3.14087528911624) ellipse (0.0719515511916313 and 0.0435785586322648);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-3.29326792529964,-3.13483191465141) ellipse (0.0624601814572714 and 0.0449989145189933);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-3.29326792529964,-3.13483191465141) ellipse (0.0624601814572714 and 0.0449989145189933);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-3.29326792529964,-3.13483191465141) ellipse (0.0624601814572714 and 0.0449989145189933);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-3.29326792529964,-3.13483191465141) ellipse (0.0624601814572714 and 0.0449989145189933);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-3.29326792529964,-3.13483191465141) ellipse (0.0624601814572714 and 0.0449989145189933);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-3.28349545725589,-3.09701157918775) ellipse (0.0714317862141129 and 0.0413887949836114);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-3.28391224475278,-3.1362969751277) ellipse (0.0582234079716786 and 0.0444328709527924);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-3.22378188811664,-3.10662736884178) ellipse (0.0396843089270782 and 0.0433335722426939);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-3.12228961111495,-3.08917366962644) ellipse (0.078572843048342 and 0.0381619941258124);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-2.98209286600214,-3.03422633591345) ellipse (0.0499229821268652 and 0.0513192912614471);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-2.77273230116175,-3.027914510428) ellipse (0.097901260563374 and 0.0186836942637858);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-2.34204229825467,-2.9649653239133) ellipse (0.070924461281648 and 0.0318556819038779);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-1.79578471384637,-2.83296965354273) ellipse (0.0934860009228495 and 0.0410718806258429);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-1.09977593923366,-2.69889319008263) ellipse (0.230926564600107 and 0.0649935332243865);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:-0.0254020412362501,-2.42832089901024) ellipse (0.149886109631802 and 0.0401848219692079);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:1.19137714173449,-1.97120480269166) ellipse (0.2849795014195 and 0.116911746074833);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:2.18947558848783,-1.51061298450972) ellipse (0.279783622155047 and 0.0952096110233351);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:2.75126350849081,-1.10768008894084) ellipse (0.189349902310368 and 0.0555548584143477);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.19566054181401,-0.774284145814108) ellipse (0.117393749121618 and 0.0653087710350653);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.39830138815261,-0.549094729466558) ellipse (0.111703372160672 and 0.00771910957243903);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.59030695327539,-0.393551207918074) ellipse (0.114004131841834 and 0.0577920706638579);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.73525086383688,-0.264741935973597) ellipse (0.0852397370893657 and 0.0502921528542416);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.73525086383688,-0.264741935973597) ellipse (0.0852397370893657 and 0.0502921528542416);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.76490853863766,-0.147819910093931) ellipse (0.114806291053128 and 0.00950751761362236);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.79445567571898,-0.155454650753198) ellipse (0.111523023828345 and 0.0178057531275118);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.75663534025531,-0.145682182709446) ellipse (0.119696440105518 and 0.00946588410640675);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.7180431579987,-0.139638808244623) ellipse (0.0726640512007096 and 0.0159049451175899);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.7180431579987,-0.139638808244623) ellipse (0.0726640512007096 and 0.0159049451175899);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.67952768780063,-0.133124404076026) ellipse (0.130995403016941 and 0.0203185170810842);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.75586349346236,-0.149411276288375) ellipse (0.0794314167393675 and 0.0244648018463943);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.75443846755052,-0.157836535393969) ellipse (0.0818419884159121 and 0.0245905755458086);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.78189789708556,-0.232562303207882) ellipse (0.114840649948184 and 0.061269838754347);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.85450302746464,-0.249501216057832) ellipse (0.150959338329424 and 0.0446973174006986);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:3.99702384635574,-0.338980659233109) ellipse (0.143257764017569 and 0.0419458498822003);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:4.2881880145523,-0.414073749252785) ellipse (0.0959237947186082 and 0.046088654088371);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:4.70823910577328,-0.577796352415886) ellipse (0.137707179841221 and 0.0405621359432326);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:5.36657341778604,-0.896244803013389) ellipse (0.200140880745017 and 0.110693381137028);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:6.46695261362636,-1.53313853771343) ellipse (0.158445741097509 and 0.0241703925606854);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:7.51258978759995,-2.36447277832969) ellipse (0.23511802081208 and 0.0631416753907205);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:8.07187208825582,-2.89940591048638) ellipse (0.197478221707078 and 0.104568202854991);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:8.49583706651993,-3.35281664070247) ellipse (0.187994847926966 and 0.134570083316365);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:8.81246871657354,-3.74397602345049) ellipse (0.139912836334143 and 0.0466422603675789);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:9.05903268651742,-4.11076352554094) ellipse (0.155624414659112 and 0.0539936360391282);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:9.22168406503767,-4.34403572216861) ellipse (0.158050077983941 and 0.0882491685665384);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:9.3435111212042,-4.48717548478355) ellipse (0.150929449120109 and 0.0618904421708258);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:9.43543889899814,-4.66274325750446) ellipse (0.137207238578391 and 0.0592274982688127);
+\draw[fill=color1,draw opacity=0,fill opacity=0.3] (axis cs:9.43384497576428,-4.70248514188386) ellipse (0.132945612933551 and 0.0874995903534627);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-11.2488822615689,-8.09276537992525) ellipse (0.0896482426236432 and 0.0942268754787359);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-11.2806592225678,-8.04440072962488) ellipse (0.0482419549822948 and 0.134540342134675);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-11.3191746927658,-8.03788632545628) ellipse (0.0454787064961645 and 0.124991273485729);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-11.3577668750225,-8.03184295099146) ellipse (0.0961166020688284 and 0.133300319515965);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-11.4034340098829,-8.06201833899519) ellipse (0.0887680910979832 and 0.095324956487414);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-11.534788563672,-8.11609337827305) ellipse (0.0921375501608013 and 0.0847349965185079);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-11.5848435309351,-8.17038164842181) ellipse (0.090433541826403 and 0.0630934653765234);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-11.6228025870415,-8.21843403229306) ellipse (0.0911194878000631 and 0.0750970373508325);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-11.6419121387698,-8.25467511826128) ellipse (0.0812445944607383 and 0.0783785588876294);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-11.6595827794159,-8.35261169463106) ellipse (0.0893921524190898 and 0.0511660171585957);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-11.533244466747,-8.51502640056654) ellipse (0.0802999262852004 and 0.0439834740823907);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-11.3418652107332,-8.71369795344697) ellipse (0.0395126094539836 and 0.0627817509457598);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-10.9105312878431,-9.05718837918651) ellipse (0.116479871484624 and 0.0317452749526932);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-10.1952321057188,-9.47495179423733) ellipse (0.180587545762517 and 0.0575307546274232);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-9.05308072696958,-10.086013355696) ellipse (0.170369484577656 and 0.0899675244235262);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-7.57201760485339,-10.5921607781561) ellipse (0.492709907100475 and 0.128420706795337);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-5.24651045753434,-11.1614612545132) ellipse (0.276765092410953 and 0.0563916951559287);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-2.68540429336972,-11.2572265394166) ellipse (0.637043407991742 and 0.0207478979131861);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:-0.620906145592567,-11.0045202838617) ellipse (0.506204034088013 and 0.0739418890199219);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:0.477256173429197,-10.7178545628514) ellipse (0.314442239829548 and 0.0630537284988154);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.12425012068853,-10.411655597835) ellipse (0.217351916943502 and 0.0390633550908499);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.45631985216923,-10.1302636216258) ellipse (0.188122785414328 and 0.0716827380527954);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.53238468420058,-9.97110445648744) ellipse (0.129812080412864 and 0.0812134989651493);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.57058939417902,-9.75918294122974) ellipse (0.120775915869638 and 0.0199781011029006);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.57058939417902,-9.75918294122974) ellipse (0.120775915869638 and 0.0199781011029006);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.58687626639137,-9.68284713556801) ellipse (0.118510883580064 and 0.0735951797620123);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.58841671321483,-9.68313959853554) ellipse (0.132295060029306 and 0.0600909678705438);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.66193184846584,-9.7448160099319) ellipse (0.12079643375966 and 0.0248580990054903);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.68551738209737,-9.78151318790691) ellipse (0.124110587491055 and 0.0279950267624296);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.7237403893279,-9.78956803889897) ellipse (0.120163947040626 and 0.0256669471134031);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.73351285737166,-9.75174770343531) ellipse (0.128670622091859 and 0.0437145328451619);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.73351285737166,-9.75174770343531) ellipse (0.128670622091859 and 0.0437145328451619);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.7237403893279,-9.78956803889897) ellipse (0.120163947040626 and 0.0256669471134031);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.73351285737166,-9.75174770343531) ellipse (0.128670622091859 and 0.0437145328451619);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.7237403893279,-9.78956803889897) ellipse (0.120163947040626 and 0.0256669471134031);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.7237403893279,-9.78956803889897) ellipse (0.120163947040626 and 0.0256669471134031);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.7237403893279,-9.78956803889897) ellipse (0.120163947040626 and 0.0256669471134031);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.7237403893279,-9.78956803889897) ellipse (0.120163947040626 and 0.0256669471134031);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.7237403893279,-9.78956803889897) ellipse (0.120163947040626 and 0.0256669471134031);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.7237403893279,-9.78956803889897) ellipse (0.120163947040626 and 0.0256669471134031);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.7237403893279,-9.78956803889897) ellipse (0.120163947040626 and 0.0256669471134031);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.7237403893279,-9.78956803889897) ellipse (0.120163947040626 and 0.0256669471134031);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.7237403893279,-9.78956803889897) ellipse (0.120163947040626 and 0.0256669471134031);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.72288278527785,-9.78943374168865) ellipse (0.119689784350677 and 0.0257713926108137);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.7237403893279,-9.78956803889897) ellipse (0.120163947040626 and 0.0256669471134031);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.68551738209737,-9.78151318790691) ellipse (0.124110587491055 and 0.0279950267624296);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.68551738209737,-9.78151318790691) ellipse (0.124110587491055 and 0.0279950267624296);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.64692519984075,-9.77546981344209) ellipse (0.108185777675941 and 0.0321754486472392);
+\draw[fill=blue!54.509803921568626!black,draw opacity=0,fill opacity=0.3] (axis cs:1.64692519984075,-9.77546981344209) ellipse (0.108185777675941 and 0.0321754486472392);
+\addplot [line width=8.0pt, red, forget plot]
+table {%
+6.34611427339446 5.67682716624372
+6.38393460885812 5.66705469819997
+6.34611427339446 5.67682716624372
+6.26900662093978 5.68938494487714
+6.0808439143289 5.75763876536337
+5.87885311876875 5.88792564603945
+5.70503691540031 5.98593017918889
+5.61195110647497 6.13998979956079
+5.57983768304239 6.22402494124133
+5.64881496296824 6.37113256192539
+5.75593853806607 6.50971430191362
+5.9157960933805 6.65001647091726
+6.24896433471914 6.82686226641284
+6.93488276396608 7.02850716912994
+8.06298278271487 7.28668215034393
+9.45950664903325 7.45847752748028
+11.5628382454938 7.46715996975116
+13.7283288401898 7.11639235150698
+15.8689865714688 6.39980058977881
+16.9206363141091 5.84353129822963
+17.6249828608706 5.39016966349207
+17.9776679313467 5.0431160555381
+18.2606693858283 4.76760409618263
+18.4843951301785 4.58280157883018
+18.4843951301785 4.58280157883018
+18.4843951301785 4.58280157883018
+18.4843951301785 4.58280157883018
+18.4843951301785 4.58280157883018
+18.4843951301785 4.58280157883018
+18.4843951301785 4.58280157883018
+18.5169439379703 4.53816602210874
+18.5146352729915 4.5780660988391
+18.5229873124352 4.57675820436536
+18.5229873124352 4.57675820436536
+18.5229873124352 4.57675820436536
+18.5229873124352 4.57675820436536
+18.4843951301785 4.58280157883018
+18.4843951301785 4.58280157883018
+18.4843951301785 4.58280157883018
+18.494421452039 4.57983493682572
+18.4843951301785 4.58280157883018
+18.4843951301785 4.58280157883018
+18.4525865804456 4.60249376972558
+18.4843951301785 4.58280157883018
+18.5229873124352 4.57675820436536
+18.4843951301785 4.58280157883018
+18.4982300634403 4.58063508609752
+18.5229873124352 4.57675820436536
+18.5229873124352 4.57675820436536
+};
+\addplot [line width=8.0pt, color0, forget plot]
+table {%
+5.71330263187905 -3.1283100372137
+5.70678822771045 -3.16682550741176
+5.68525476445914 -3.08071723370628
+5.76166728217942 -3.09653307621486
+5.7230750999228 -3.09048970175003
+5.8062261268423 -3.06445529812684
+5.86438673118094 -3.03121671244861
+6.00818779733609 -2.86491030301673
+6.1213042300212 -2.68807781806292
+6.34266065830298 -2.57508438862701
+6.53425160211314 -2.41409548391682
+6.76901414369037 -2.29767406267028
+7.13945506174808 -2.04335233616711
+7.57089344647829 -1.8122693890799
+8.22800220514469 -1.51382932234718
+8.95447419464013 -1.34503890779736
+9.95411849605945 -1.13971789907925
+10.9992496493861 -1.11097657247343
+11.7264176213011 -1.18548868850101
+12.1555960221519 -1.29717656141787
+12.3633914022943 -1.35566211458464
+12.4420168005555 -1.39170566582507
+12.5515329020529 -1.41474439329039
+12.541885641153 -1.46238229323581
+12.5369636468923 -1.49148287071899
+12.5393469654905 -1.477391845037
+12.5434780510609 -1.45296740052093
+12.5715175309247 -1.48007020555083
+12.6133761646126 -1.50729871322757
+12.6156852492558 -1.5867768329095
+12.7021821142841 -1.65823835566202
+12.7635278411995 -1.81466968549571
+12.8579722490488 -1.95462832204387
+13.0764720383533 -2.05206797521092
+13.1685431076666 -2.21670212140496
+13.4186480123271 -2.46521345508965
+13.7969092257078 -2.81776108808899
+14.3368557094223 -3.16633856129289
+15.0388118145724 -3.57143369747115
+16.0583077887666 -4.05396655716626
+16.9948189989474 -4.2802100308214
+17.5050175770664 -4.27226771682268
+17.8371074819507 -4.30136691023846
+17.9185789487861 -4.29752440048491
+18.0302432695862 -4.24845287174398
+18.0450442831203 -4.25916676852817
+18.0718130086424 -4.2634128252864
+18.1151287675386 -4.30365648592246
+18.1143909440585 -4.30991405765133
+};
+\addplot [line width=8.0pt, blue, forget plot]
+table {%
+11.211212861968 -10.1545273760591
+11.1394613393929 -10.1394250454279
+11.1394613393929 -10.1394250454279
+11.2157971450547 -10.1557119176402
+11.2157971450547 -10.1557119176402
+11.2157971450547 -10.1557119176402
+11.2157971450547 -10.1557119176402
+11.2157971450547 -10.1557119176402
+11.2540201522852 -10.1637667686323
+11.2157971450547 -10.1557119176402
+11.2157971450547 -10.1557119176402
+11.2540201522852 -10.1637667686323
+11.2157971450547 -10.1557119176402
+11.2157971450547 -10.1557119176402
+11.2157971450547 -10.1557119176402
+11.2157971450547 -10.1557119176402
+11.2157971450547 -10.1557119176402
+11.1334179649281 -10.1780172276845
+11.1765789568955 -10.1536849765249
+11.1394613393929 -10.1394250454279
+11.1772816748566 -10.1491975134716
+11.2157971450547 -10.1557119176402
+11.1394613393929 -10.1394250454279
+11.1772816748566 -10.1491975134716
+11.1772816748566 -10.1491975134716
+11.1117232083963 -10.1350813700313
+11.1008691571363 -10.1333816709631
+11.0958922605183 -10.1651634681152
+10.8027742514259 -10.2318058452383
+10.5713758862586 -10.2887316316639
+10.5263146636446 -10.4184264818048
+10.3461369949607 -10.5153411994377
+10.3333169796076 -10.6595960976365
+10.4486541459753 -10.8835375747677
+10.4718448087144 -11.0071011934326
+10.8780406446675 -11.3304992769238
+11.6634266109203 -11.7174484948153
+12.6689639329655 -12.2037634051082
+14.2440969065643 -12.7058571503257
+16.7389518397273 -13.1291466885564
+19.2893356988548 -13.0952271104391
+20.6916902400443 -12.8199498789671
+21.7873090650859 -12.5083232224974
+22.5345329898527 -12.1369288762761
+23.0002898310734 -11.8366621667129
+23.3715283537898 -11.5837964990261
+23.570791273107 -11.3745865445097
+23.9000431232795 -11.1192822815067
+23.9000431232795 -11.1192822815067
+};
+\addplot [line width=8.0pt, red!54.509803921568626!black, forget plot]
+table {%
+-2.20222880514032 6.37529006921196
+-2.20986354579954 6.34574293213082
+-2.20222880514032 6.37529006921196
+-2.20222880514032 6.37529006921196
+-2.20222880514032 6.37529006921196
+-2.15759324841888 6.40783887700375
+-2.19571440097172 6.41380553941003
+-2.20222880514032 6.37529006921196
+-2.1636366228837 6.36924669474714
+-2.17151764549957 6.33874642421215
+-2.1636366228837 6.36924669474714
+-2.1636366228837 6.36924669474714
+-2.1636366228837 6.36924669474714
+-2.1636366228837 6.36924669474714
+-2.1636366228837 6.36924669474714
+-2.1636366228837 6.36924669474714
+-2.1636366228837 6.36924669474714
+-2.20487001271977 6.36506835692425
+-2.19122693791841 6.41310282144897
+-2.1961854306755 6.41388225146858
+-2.20222880514032 6.37529006921196
+-2.20222880514032 6.37529006921196
+-2.20222880514032 6.37529006921196
+-2.20222880514032 6.37529006921196
+-2.18793505251685 6.36653295219317
+-2.3739918719539 6.38569426141509
+-2.63809735614469 6.25208517407741
+-2.76096745612349 6.16665777609048
+-2.92063285544097 6.15852740356164
+-3.07704191446501 6.18960763596527
+-3.07704191446501 6.18960763596527
+-3.13573259646474 6.24021830241207
+-3.08612429682327 6.3356034029993
+-3.0308409742872 6.41917114883443
+-3.0064992510828 6.5337299617267
+-2.54397742632361 6.77466506114524
+-1.74049312181063 7.09216077229149
+-0.647541864578837 7.40940529121916
+0.95987426233614 7.64916371364373
+3.48796611538592 7.63405142728624
+6.06117305044057 7.17330596584855
+7.39901191009553 6.68081420395888
+8.4310159418872 6.1765435098496
+9.06572852645631 5.7729875965632
+9.48802488199615 5.44228002051335
+9.74444880388262 5.13077814610847
+9.86921833399071 4.96011409979712
+9.87302133811454 4.77468972254813
+9.90549343384779 4.72958313612292
+};
+\addplot [line width=8.0pt, color1, forget plot]
+table {%
+-3.29326792529964 -3.13483191465141
+-3.25467574304302 -3.14087528911624
+-3.29326792529964 -3.13483191465141
+-3.29326792529964 -3.13483191465141
+-3.29326792529964 -3.13483191465141
+-3.29326792529964 -3.13483191465141
+-3.29326792529964 -3.13483191465141
+-3.28349545725589 -3.09701157918775
+-3.28391224475278 -3.1362969751277
+-3.22378188811664 -3.10662736884178
+-3.12228961111495 -3.08917366962644
+-2.98209286600214 -3.03422633591345
+-2.77273230116175 -3.027914510428
+-2.34204229825467 -2.9649653239133
+-1.79578471384637 -2.83296965354273
+-1.09977593923366 -2.69889319008263
+-0.0254020412362501 -2.42832089901024
+1.19137714173449 -1.97120480269166
+2.18947558848783 -1.51061298450972
+2.75126350849081 -1.10768008894084
+3.19566054181401 -0.774284145814108
+3.39830138815261 -0.549094729466558
+3.59030695327539 -0.393551207918074
+3.73525086383688 -0.264741935973597
+3.73525086383688 -0.264741935973597
+3.76490853863766 -0.147819910093931
+3.79445567571898 -0.155454650753198
+3.75663534025531 -0.145682182709446
+3.7180431579987 -0.139638808244623
+3.7180431579987 -0.139638808244623
+3.67952768780063 -0.133124404076026
+3.75586349346236 -0.149411276288375
+3.75443846755052 -0.157836535393969
+3.78189789708556 -0.232562303207882
+3.85450302746464 -0.249501216057832
+3.99702384635574 -0.338980659233109
+4.2881880145523 -0.414073749252785
+4.70823910577328 -0.577796352415886
+5.36657341778604 -0.896244803013389
+6.46695261362636 -1.53313853771343
+7.51258978759995 -2.36447277832969
+8.07187208825582 -2.89940591048638
+8.49583706651993 -3.35281664070247
+8.81246871657354 -3.74397602345049
+9.05903268651742 -4.11076352554094
+9.22168406503767 -4.34403572216861
+9.3435111212042 -4.48717548478355
+9.43543889899814 -4.66274325750446
+9.43384497576428 -4.70248514188386
+};
+\addplot [line width=8.0pt, blue!54.509803921568626!black, forget plot]
+table {%
+-11.2488822615689 -8.09276537992525
+-11.2806592225678 -8.04440072962488
+-11.3191746927658 -8.03788632545628
+-11.3577668750225 -8.03184295099146
+-11.4034340098829 -8.06201833899519
+-11.534788563672 -8.11609337827305
+-11.5848435309351 -8.17038164842181
+-11.6228025870415 -8.21843403229306
+-11.6419121387698 -8.25467511826128
+-11.6595827794159 -8.35261169463106
+-11.533244466747 -8.51502640056654
+-11.3418652107332 -8.71369795344697
+-10.9105312878431 -9.05718837918651
+-10.1952321057188 -9.47495179423733
+-9.05308072696958 -10.086013355696
+-7.57201760485339 -10.5921607781561
+-5.24651045753434 -11.1614612545132
+-2.68540429336972 -11.2572265394166
+-0.620906145592567 -11.0045202838617
+0.477256173429197 -10.7178545628514
+1.12425012068853 -10.411655597835
+1.45631985216923 -10.1302636216258
+1.53238468420058 -9.97110445648744
+1.57058939417902 -9.75918294122974
+1.57058939417902 -9.75918294122974
+1.58687626639137 -9.68284713556801
+1.58841671321483 -9.68313959853554
+1.66193184846584 -9.7448160099319
+1.68551738209737 -9.78151318790691
+1.7237403893279 -9.78956803889897
+1.73351285737166 -9.75174770343531
+1.73351285737166 -9.75174770343531
+1.7237403893279 -9.78956803889897
+1.73351285737166 -9.75174770343531
+1.7237403893279 -9.78956803889897
+1.7237403893279 -9.78956803889897
+1.7237403893279 -9.78956803889897
+1.7237403893279 -9.78956803889897
+1.7237403893279 -9.78956803889897
+1.7237403893279 -9.78956803889897
+1.7237403893279 -9.78956803889897
+1.7237403893279 -9.78956803889897
+1.7237403893279 -9.78956803889897
+1.72288278527785 -9.78943374168865
+1.7237403893279 -9.78956803889897
+1.68551738209737 -9.78151318790691
+1.68551738209737 -9.78151318790691
+1.64692519984075 -9.77546981344209
+1.64692519984075 -9.77546981344209
+};
+\addplot [line width=8.0pt, color2, dashed, forget plot]
+table {%
+21.4936062660676 -2.93340822756438
+-5.16973839603578 1.25724590141525
+};
+\addplot [semithick, red, mark=*, mark size=30, mark options={solid}, only marks, forget plot]
+table {%
+18.4843951301785 4.58280157883018
+};
+\addplot [semithick, color0, mark=*, mark size=30, mark options={solid}, only marks, forget plot]
+table {%
+11.2534162339335 -2.82424521829245
+};
+\addplot [semithick, blue, mark=*, mark size=30, mark options={solid}, only marks, forget plot]
+table {%
+10.5729241710643 -11.9455327847917
+};
+\addplot [semithick, red!54.509803921568626!black, mark=*, mark size=30, mark options={solid}, only marks, forget plot]
+table {%
+-4.78083415420519 7.95971572928408
+};
+\addplot [semithick, color1, mark=*, mark size=30, mark options={solid}, only marks, forget plot]
+table {%
+1.24400248664281 -0.475581007812955
+};
+\addplot [semithick, blue!54.509803921568626!black, mark=*, mark size=30, mark options={solid}, only marks, forget plot]
+table {%
+1.01848447515045 -10.4406458656602
+};
+\end{axis}
+
+\end{tikzpicture}
+%% End matplotlib2tikz content %% 
+\end{document}

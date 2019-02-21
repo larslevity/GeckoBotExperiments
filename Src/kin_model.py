@@ -21,7 +21,8 @@ blow, bup = 0.8, 1.5
 max_alp_dif = 20
 
 
-def extract_pose(alpha, eps, fpos, len_leg=len_leg, len_tor=len_tor):
+def extract_pose(alpha, eps, fpos, len_leg=len_leg, len_tor=len_tor,
+                 max_alp_dif=max_alp_dif):
 
     # unknown
     ell0 = [len_leg, len_leg, len_tor, len_leg, len_leg]

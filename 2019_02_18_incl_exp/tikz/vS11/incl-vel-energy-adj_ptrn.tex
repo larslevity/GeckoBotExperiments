@@ -1,0 +1,75 @@
+
+\documentclass[crop,tikz]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{groupplots}
+\begin{document}
+% This file was created by matplotlib2tikz v0.6.15.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
+
+\begin{axis}[
+xlabel={inclination angle $\delta$ ($^\circ$)},
+ylabel={mean of velocity $\Delta \bar{x} / \Delta t$ (cm/s)},
+xmin=-3.8, xmax=79.8,
+ymin=0.575710726600175, ymax=6.77033289996876,
+tick align=outside,
+tick pos=left,
+xmajorgrids,
+x grid style={lightgray!92.026143790849673!black},
+ymajorgrids,
+y grid style={lightgray!92.026143790849673!black},
+xtick={0, 28, 48, 63, 76}
+]
+\path [fill=red, fill opacity=0.5] (axis cs:0,6.28528123071327)
+--(axis cs:0,6.48875916481564)
+--(axis cs:28,5.33934266652788)
+--(axis cs:48,2.82700006592296)
+--(axis cs:63,1.86420654099743)
+--(axis cs:76,1.02842893015602)
+--(axis cs:76,0.857284461753292)
+--(axis cs:76,0.857284461753292)
+--(axis cs:63,1.60271752211544)
+--(axis cs:48,2.38682008401017)
+--(axis cs:28,5.16755408859268)
+--(axis cs:0,6.28528123071327)
+--cycle;
+
+\addplot [semithick, red, forget plot]
+table {%
+0 6.38702019776445
+28 5.25344837756028
+48 2.60691007496657
+63 1.73346203155644
+76 0.942856695954655
+};
+\end{axis}
+
+\begin{axis}[
+ylabel={Energy Consumption per shift (kJ/cm)},
+xmin=-3.8, xmax=79.8,
+ymin=20.2833153336352, ymax=93.7308324229879,
+axis y line=right,
+tick align=outside,
+xtick pos=left,
+ytick pos=right,
+x grid style={lightgray!92.026143790849673!black},
+y grid style={lightgray!92.026143790849673!black},
+xtick={0, 28, 48, 63, 76}
+]
+\addplot [semithick, color0, forget plot]
+table {%
+0 23.6218388376967
+28 28.554848657139
+48 60.1212794932252
+63 90.3923089189264
+76 51.8084415926183
+};
+\end{axis}
+
+\end{tikzpicture}
+%% End matplotlib2tikz content %% 
+\end{document}

@@ -105,6 +105,10 @@ def find_cycle_idx(data):
     return idx
 
 
+def closest_index(lis, val):
+    return min(range(len(lis)), key=lambda i: abs(lis[i]-val))
+
+
 def rm_offset(lis):
     offset = list(lis)[0]
     return [val-offset for val in lis]

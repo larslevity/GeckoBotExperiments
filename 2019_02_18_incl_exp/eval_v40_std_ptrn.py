@@ -26,8 +26,8 @@ version = 'v40'
 ptrn = 'std_ptrn'
 incls = ['00', '28', '48', '63', '76']
 Ts = 0.03
-VOLUME = {'v40': 1,
-          'vS11': .7}
+VOLUME = {'v40': 0.01105,
+          'vS11': .00376}
 
 
 DEBUG = False

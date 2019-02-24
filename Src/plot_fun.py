@@ -209,8 +209,8 @@ def plot_pressure(db, cyc, incl, prop, dirpath, ptrn, VOLUME, version, DIST,
 
     min_len = min([len(cycle) for cycle in cyc])
     n_cyc = min_len - 2  # first is skipped and last too
-    if incl == '76' and ptrn == 'adj_ptrn':
-        n_cyc = n_cyc/2  # ptrn for 76 has twice actuation of each leg
+    if int(incl) >= 76 and ptrn == 'adj_ptrn':
+        n_cyc = n_cyc*10./12.  # ptrn for 76 has twice actuation of each leg
 
     energy = (sum([val[1]*1e2 for val in MAXPressure.items()])
               * VOLUME[version] * n_cyc/DIST)

@@ -22,10 +22,11 @@ from Src import plot_fun as pf
 
 version = 'vS11'
 ptrn = 'adj_ptrn'
-incls = ['00', '28', '48', '63', '76']
+incls = ['00', '28', '48', '63', '76', '84']
+#incls = ['48']
 Ts = 0.03
-VOLUME = {'v40': 1,
-          'vS11': .7}
+VOLUME = {'v40': 0.01105,
+          'vS11': .00376}
 
 
 DEBUG = False
@@ -37,7 +38,7 @@ SIGVELX, SIGVELY, SIGENERGY = [], [], []
 for incl in incls:
     INCL.append(int(incl[:2]))
 
-    # %% ### Load Data
+    # %% ### load data
 
     dirpath = version+'/'+ptrn+'/incl_'+incl+'/'
 
@@ -51,6 +52,10 @@ for incl in incls:
     TIME = pf.plot_eps(db, cyc, incl, prop, dirpath)
 
     # %% ### Track of feet:
+#    for exp in [9]:
+#        for idx in range(6):
+#            plt.plot(db[exp]['x%i' % idx][cyc[exp][2]:],
+#                     db[exp]['y%i' % idx][cyc[exp][2]:], color=ev.get_marker_color()[idx])
     DIST = pf.plot_track(db, cyc, incl, prop, dirpath)
 
     # %% ### Alpha during cycle:

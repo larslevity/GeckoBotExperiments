@@ -1,0 +1,48 @@
+
+\documentclass[crop,tikz]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{groupplots}
+\begin{document}
+
+\begin{tikzpicture}[scale=1]
+\def\col{black}
+\def\lw{1mm}
+\def\alpi{90.000000}
+\def\beti{2.000000}
+\def\gam{-90.000000}
+\def\alpii{90.000000}
+\def\betii{2.000000}
+\def\gamh{-45.000000}
+
+\def\eps{0.000000}
+\def\ci{315.000000}
+\def\cii{46.000000}
+\def\ciii{225.000000}
+\def\civ{134.000000}
+
+\def\ri{0.636620}
+\def\rii{28.647890}
+\def\rg{-0.891268}
+\def\riii{0.636620}
+\def\riv{28.647890}
+
+\path (0.000000, 0.000000)coordinate(F1);
+
+\draw[\col, line width=\lw] (F1)arc(180+\ci:180+\ci+\alpi:\ri)coordinate(OM);
+\draw[\col, line width=\lw] (OM)arc(180+\ci+\alpi:180+\ci+\alpi+\beti:\rii)coordinate(F2);
+\draw[\col, line width=\lw] (OM)arc(90+\ci+\alpi:90+\ci+\alpi+\gam:\rg)coordinate(UM);
+\draw[\col, line width=\lw] (UM)arc(\gam+\ci+\alpi:\gam+\ci+\alpi+\alpii:\riii)coordinate(F3);
+\draw[\col, line width=\lw] (UM)arc(\gam+\ci+\alpi:\gam+\ci+\alpi-\betii:\riv)coordinate(F4);
+
+\draw[line width=\lw, fill=\col] (F1)++(405.000000 :.15) circle(.15);
+\draw[line width=\lw] (F2)++(-44.000000 :.15) circle(.15);
+\draw[line width=\lw, fill=\col] (F3)++(135.000000 :.15) circle(.15);
+\draw[line width=\lw, fill=\col] (F4)++(224.000000 :.15) circle(.15);
+% This file was created by matplotlib2tikz v0.6.18.
+
+\end{tikzpicture}
+%% End matplotlib2tikz content %% 
+\end{document}

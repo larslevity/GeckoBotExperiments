@@ -67,7 +67,7 @@ def _calc_rad(length, angle):
     return 360.*length/(2*np.pi*angle)
 
 
-def tikz_draw_gecko(alp, ell, eps, F1, col='black', linewidth='.5mm'):
+def tikz_draw_gecko(alp, ell, eps, F1, col='black', linewidth='.5mm', fix=None):
     c1, c2, c3, c4 = _calc_phi(alp, eps)
     l1, l2, lg, l3, l4 = ell
     for idx, a in enumerate(alp):
@@ -108,4 +108,16 @@ def tikz_draw_gecko(alp, ell, eps, F1, col='black', linewidth='.5mm'):
 
 """ % (col, linewidth, alp1, bet1, gam, alp2, bet2, gam*.5, eps, c1, c2, c3, c4,
        r1, r2, rg, r3, r4, F1[0], F1[1])
+    if fix:
+        for idx, fixation in enumerate(fix):
+            c = [c1, c2, c3, c4]
+            if fixation:
+                fixs = '\\draw[line width=\\lw, fill=\\col] (F%s)++(%f :.15) circle(.15);\n' % (str(idx+1), 
+                              c[idx]+90 if idx in [0, 3] else c[idx]-90)
+                elem += fixs
+            else:
+                fixs = '\\draw[line width=\\lw] (F%s)++(%f :.15) circle(.15);\n' % (str(idx+1),
+                              c[idx]+90 if idx in [0, 3] else c[idx]-90)
+                elem += fixs
+
     return elem

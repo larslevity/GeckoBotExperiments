@@ -29,16 +29,14 @@ VOLUME = {'v40': 0.01105,
           'vS11': .00376}
 
 
-DEBUG = False
 
-INCL, VELX, VELY, ENERGY = [], [], [], []
-SIGVELX, SIGVELY, SIGENERGY = [], [], []
-
+INCL, VELX, VELY, ENERGY, ALP, TIMEA, ALP_dfx_0 = [], [], [], [], {}, {}, {}
+ALP_dfx_1 = {}
+SIGVELX, SIGVELY, SIGENERGY, SIGA = [], [], [], {}
 
 for incl in incls:
-    INCL.append(int(incl[:2]))
-
-    # %% ### load data
+    INCL.append(int(incl))
+    # %% ### Load Data
 
     dirpath = version+'/'+ptrn+'/incl_'+incl+'/'
 
@@ -52,14 +50,16 @@ for incl in incls:
     TIME = pf.plot_eps(db, cyc, incl, prop, dirpath)
 
     # %% ### Track of feet:
-#    for exp in [9]:
-#        for idx in range(6):
-#            plt.plot(db[exp]['x%i' % idx][cyc[exp][2]:],
-#                     db[exp]['y%i' % idx][cyc[exp][2]:], color=ev.get_marker_color()[idx])
     DIST = pf.plot_track(db, cyc, incl, prop, dirpath)
 
     # %% ### Alpha during cycle:
-    pf.plot_alpha(db, cyc, incl, prop, dirpath)
+    ALPHA, SIGALPHA, timestamps, alp_dfx_0, alp_dfx_1 = \
+        pf.plot_alpha(db, cyc, incl, prop, dirpath)
+    ALP[incl] = ALPHA
+    SIGA[incl] = SIGALPHA
+    TIMEA[incl] = timestamps
+    ALP_dfx_0[incl] = alp_dfx_0
+    ALP_dfx_1[incl] = alp_dfx_1
 
     # %% Velocity
 
@@ -74,6 +74,11 @@ for incl in incls:
 # %% VEL and ENERGY for incl
 
 pf.plot_vel_incl(VELX, VELY, SIGVELX, SIGVELY, INCL, ENERGY, version, ptrn)
+
+
+# %% Plot Alpha INCL
+
+pf.plot_incl_alp_dfx(TIMEA, incls, ALP, ALP_dfx_0, ALP_dfx_1, version, ptrn)
 
 
 plt.show()

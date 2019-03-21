@@ -79,8 +79,6 @@ def remove_offset_time_xy(data, Ts):
     # correction of jump epsilon
     data['eps'] = shift_jump(data['eps'], 180)
 
-
-
     # resample data
     t = data['time']
     for key in data:
@@ -101,6 +99,14 @@ def find_cycle_idx(data):
     # r1 jumps from 0 to some value
     p1 = data['r1']
     idx = [i for i, e in enumerate(p1) if e != 0 and p1[i-1] == 0]
+
+    return idx
+
+
+def find_dfx_idx(data, foot='f0'):
+    # f1 jumps from 1 to some val < 1
+    f0 = data[foot]
+    idx = [i-1 for i, val in enumerate(f0) if val < 1 and f0[i-1] == 1]
 
     return idx
 
@@ -281,11 +287,11 @@ def calc_velocity(db, Ts):
 
 
 def get_marker_color():
-    return ['red', 'orange', 'blue', 'darkred', 'darkorange', 'darkblue']
+    return ['red', 'orange', 'darkred', 'blue', 'darkorange', 'darkblue']
 
 
 def get_actuator_color():
-    return ['red', 'blue', 'darkorange', 'orange', 'darkred', 'darkblue']
+    return ['red', 'darkred', 'darkorange', 'orange', 'blue', 'darkblue']
 
 
 if __name__ == '__main__':

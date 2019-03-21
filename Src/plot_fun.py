@@ -72,15 +72,34 @@ def plot_alpha(db, cyc, incl, prop, dirpath):
     col = ev.get_actuator_color()
     fig, ax = plt.subplots(nrows=2, ncols=1,
                            num='Alpha during cycle'+incl, sharex=True)
+    ALPHA, SIGALPHA = [], []
+    t, sigt = ev.calc_mean_of_axis_multi_cyc(db, cyc, 'time')
+    t_s = ev.rm_offset(ev.downsample(t, proportion=prop))
+
+    alp_dfx_0 = {}
+    for exp in range(len(db)):
+        alp_dfx_0[exp] = {}
+        dfx_0 = ev.find_dfx_idx(db[exp], 'f0')
+        for axis in range(6):
+            alp_dfx_0[exp][axis] = [db[exp]['aIMG{}'.format(axis)][idx] for idx in dfx_0]
+    alp_dfx_1 = {}
+    for exp in range(len(db)):
+        alp_dfx_1[exp] = {}
+        dfx_1 = ev.find_dfx_idx(db[exp], 'f1')
+        for axis in range(6):
+            alp_dfx_1[exp][axis] = [db[exp]['aIMG{}'.format(axis)][idx] for idx in dfx_1]
+
+    
+    TIMEA = t
     for axis in range(6):
-        alp, siga = ev.calc_mean_of_axis_multi_cyc(
+        alp_, siga_ = ev.calc_mean_of_axis_multi_cyc(
                 db, cyc, 'aIMG{}'.format(axis))
-        t, sigt = ev.calc_mean_of_axis_multi_cyc(db, cyc, 'time')
 
         # downsample for tikz
-        alp = ev.downsample(alp, proportion=prop)
-        t_s = ev.rm_offset(ev.downsample(t, proportion=prop))
-        siga = ev.downsample(siga, proportion=prop)
+        alp = ev.downsample(alp_, proportion=prop)
+        siga = ev.downsample(siga_, proportion=prop)
+        ALPHA.append(alp_)
+        SIGALPHA.append(siga_)
 
         if axis in [0, 3, 4]:
             axidx = 0
@@ -101,6 +120,7 @@ def plot_alpha(db, cyc, incl, prop, dirpath):
     kwargs = {'extra_axis_parameters': {'x=.1cm', 'y=.02cm',
                                         'ytick={-90,-45,0,45, 90}'}}
     save.save_as_tikz('tikz/'+dirpath+'alpha.tex', **kwargs)
+    return ALPHA, SIGALPHA, TIMEA, alp_dfx_0, alp_dfx_1
 
 
 def plot_velocity(db, cyc, incl, prop, dirpath, Ts, DIST, TIME, VELX, VELY,
@@ -243,6 +263,32 @@ def plot_vel_incl(VELX, VELY, SIGVELX, SIGVELY, INCL, ENERGY, version, ptrn):
                       **kwargs)
 
 
+
+def plot_alpha_incl(VELX, VELY, SIGVELX, SIGVELY, INCL, ENERGY, version, ptrn):
+    VELX = np.array(VELX)
+    VELY = np.array(VELY)
+    SIGVELX = np.array(SIGVELX)
+    SIGVELY = np.array(SIGVELY)
+
+    fig, ax = plt.subplots(num='incl - vel')
+    ax.plot(INCL, VELX, color='red')
+    ax.fill_between(INCL, VELX+SIGVELX, VELX-SIGVELX,
+                    facecolor='red', alpha=0.5)
+
+    ax.set_xlabel(r'inclination angle $\delta$ ($^\circ$)')
+    ax.set_ylabel(r'mean of velocity $\Delta \bar{x} / \Delta t$ (cm/s)')
+    ax.grid()
+
+    ax2 = ax.twinx()
+    ax2.plot(INCL, ENERGY)
+    ax2.set_ylabel(r'Energy Consumption per shift (kJ/cm)')
+
+    kwargs = {'extra_axis_parameters': {'xtick={0, 28, 48, 63, 76}'}}
+    save.save_as_tikz('tikz/'+version+'/incl-vel-energy-{}.tex'.format(ptrn),
+                      **kwargs)
+
+
+
 def calc_prop(db, cyc):
     min_len = min([len(cycle) for cycle in cyc])
     n_cyc = min_len - 1
@@ -266,3 +312,81 @@ def epsilon_correction(db, cyc):
             db[exp]['y{}'.format(marker)] = Y
         db[exp]['eps'] = ev.add_offset(db[exp]['eps'], -eps0+rotate)
     return db
+
+
+def plot_incl_alp_dfx(TIMEA, incls, ALP, ALP_dfx_0, ALP_dfx_1, version, ptrn):
+    col = ev.get_actuator_color()
+    alp_dfx = {}
+    act = {0: 0,
+           1: 1,
+           2: 1,
+           3: 0,
+           4: 0,
+           5: 1}
+    for incl in incls:
+        alp_dfx[incl] = {}
+        for axis in range(6):
+            mean_alp_dfx_0 = np.nan
+            mean_alp_dfx_1 = np.nan
+            for exp in range(len(ALP_dfx_0[incl])):
+                mean_ = np.nanmean(ALP_dfx_0[incl][exp][axis])
+                mean_alp_dfx_0 = np.nanmean([mean_alp_dfx_0, mean_])
+            for exp in range(len(ALP_dfx_1[incl])):
+                mean_ = np.nanmean(ALP_dfx_1[incl][exp][axis])
+                mean_alp_dfx_1 = np.nanmean([mean_alp_dfx_1, mean_])
+            alp_dfx[incl][axis] = {}
+            alp_dfx[incl][axis][0] = mean_alp_dfx_0
+            alp_dfx[incl][axis][1] = mean_alp_dfx_1
+#            idx = len(TIMEA['00'])
+#            if axis in [2]:
+#                t = ev.rm_offset(TIMEA[incl][:idx])
+#                plt.plot(t, ALP[incl][axis][:idx], color=col[axis])
+#                t = ev.rm_offset([TIMEA[incl][0], TIMEA[incl][idx-1]])
+#                plt.plot(t, [alp_dfx[incl][axis][act[axis]]]*2, color=col[axis])
+
+    alp_dfx_act = {}
+    alp_dfx_uact = {}
+
+    for axis in range(6):
+        alp_dfx_act[axis] = [alp_dfx[incl][axis][act[axis]] for incl in incls]
+    for axis in range(6):
+        alp_dfx_uact[axis] = [alp_dfx[incl][axis][int(not act[axis])] for incl in incls]
+
+    INCL = [float(incl) for incl in incls]
+    plt.figure('raw data')
+    for axis in [0, 1, 2, 3, 4, 5]:
+        plt.plot(INCL, alp_dfx_act[axis], color=col[axis])
+    for axis in [0, 1, 4, 5]:
+        plt.plot(INCL, alp_dfx_uact[axis], ':', color=col[axis])
+
+    plt.grid()
+    plt.xlabel(r'inclination angle $\delta$ ($^\circ$)')
+    plt.ylabel(r'bending angle just before defixation')
+
+
+    plt.figure('')
+    alp_dfx_act_ = {}
+    alp_dfx_uact_ = {}
+    sigalp_dfx_act_ = {}
+    sigalp_dfx_uact_ = {}
+    for axis in [0, 2, 4]:
+        alp_dfx_act_[axis] = np.array([np.mean([alp_dfx_act[axis][idx], alp_dfx_act[axis+1][idx]]) for idx in range(len(alp_dfx_act[axis]))])
+        sigalp_dfx_act_[axis] = np.array([np.std([alp_dfx_act[axis][idx], alp_dfx_act[axis+1][idx]]) for idx in range(len(alp_dfx_act[axis]))])
+        alp_dfx_uact_[axis] = np.array([np.mean([alp_dfx_uact[axis][idx], alp_dfx_uact[axis+1][idx]]) for idx in range(len(alp_dfx_act[axis]))])
+        sigalp_dfx_uact_[axis] = np.array([np.std([alp_dfx_uact[axis][idx], alp_dfx_uact[axis+1][idx]]) for idx in range(len(alp_dfx_act[axis]))])
+    
+        plt.plot(INCL, alp_dfx_act_[axis], color=col[axis])
+        plt.fill_between(INCL, alp_dfx_act_[axis]+sigalp_dfx_act_[axis], alp_dfx_act_[axis]-sigalp_dfx_act_[axis], facecolor=col[axis],
+                                   alpha=0.5)
+    for axis in [0, 4]:
+        plt.plot(INCL, alp_dfx_uact_[axis], ':', color=col[axis])
+        plt.fill_between(INCL, alp_dfx_uact_[axis]+sigalp_dfx_uact_[axis], alp_dfx_uact_[axis]-sigalp_dfx_uact_[axis], facecolor=col[axis],
+                                   alpha=0.5)
+    
+    plt.grid()
+    plt.xlabel(r'inclination angle $\delta$ ($^\circ$)')
+    plt.ylabel(r'bending angle $\alpha$ just before defixation ($^\circ$)')
+
+    kwargs = {'extra_axis_parameters': {'xtick={0, 28, 48, 63, 76}'}}
+    save.save_as_tikz('tikz/'+version+'/incl-alp_dfx-{}.tex'.format(ptrn),
+                      **kwargs)

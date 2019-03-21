@@ -25,6 +25,7 @@ from Src import plot_fun as pf
 version = 'v40'
 ptrn = 'std_ptrn'
 incls = ['00', '28', '48', '63', '76']
+#incls = ['76']
 Ts = 0.03
 VOLUME = {'v40': 0.01105,
           'vS11': .00376}
@@ -32,8 +33,20 @@ VOLUME = {'v40': 0.01105,
 
 DEBUG = False
 
-INCL, VELX, VELY, ENERGY = [], [], [], []
-SIGVELX, SIGVELY, SIGENERGY = [], [], []
+INCL, VELX, VELY, ENERGY, ALP, TIMEA, ALP_dfx_0 = [], [], [], [], {}, {}, {}
+ALP_dfx_1 = {}
+SIGVELX, SIGVELY, SIGENERGY, SIGA = [], [], [], {}
+
+
+def take_only(db, cyc, start, end):
+    db_out = {}
+    cyc_out = []
+    for exp in range(len(db)):
+        db_out[exp] = {}
+        for key in db[exp]:
+            db_out[exp][key] = db[exp][key][cyc[exp][start]:cyc[exp][end]]
+        cyc_out.append([0]+ev.find_cycle_idx(db_out[exp]))
+    return db_out, cyc_out
 
 
 for incl in incls:
@@ -47,6 +60,10 @@ for incl in incls:
 
     prop = pf.calc_prop(db, cyc)
     db = pf.epsilon_correction(db, cyc)
+# %%
+    if incl == '76':
+        cyc_b = cyc
+        db, cyc = take_only(db, cyc, 6, 10)
 
     # %% ### eps during cycle
     TIME = pf.plot_eps(db, cyc, incl, prop, dirpath)
@@ -55,7 +72,13 @@ for incl in incls:
     DIST = pf.plot_track(db, cyc, incl, prop, dirpath)
 
     # %% ### Alpha during cycle:
-    pf.plot_alpha(db, cyc, incl, prop, dirpath)
+    ALPHA, SIGALPHA, timestamps, alp_dfx_0, alp_dfx_1 = \
+        pf.plot_alpha(db, cyc, incl, prop, dirpath)
+    ALP[incl] = ALPHA
+    SIGA[incl] = SIGALPHA
+    TIMEA[incl] = timestamps
+    ALP_dfx_0[incl] = alp_dfx_0
+    ALP_dfx_1[incl] = alp_dfx_1
 
     # %% Velocity
 
@@ -70,5 +93,12 @@ for incl in incls:
 # %% VEL and ENERGY for incl
 
 pf.plot_vel_incl(VELX, VELY, SIGVELX, SIGVELY, INCL, ENERGY, version, ptrn)
+
+# %% Plot Alpha INCL
+
+pf.plot_incl_alp_dfx(TIMEA, incls, ALP, ALP_dfx_0, ALP_dfx_1, version, ptrn)
+
+
+
 
 plt.show()

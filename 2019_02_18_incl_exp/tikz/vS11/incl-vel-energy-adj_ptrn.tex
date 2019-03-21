@@ -6,23 +6,23 @@
 \pgfplotsset{compat=newest}
 \usepgfplotslibrary{groupplots}
 \begin{document}
-% This file was created by matplotlib2tikz v0.6.18.
+% This file was created by matplotlib2tikz v0.6.15.
 \begin{tikzpicture}
 
 \definecolor{color0}{rgb}{0.12156862745098,0.466666666666667,0.705882352941177}
 
 \begin{axis}[
+xlabel={inclination angle $\delta$ ($^\circ$)},
+ylabel={mean of velocity $\Delta \bar{x} / \Delta t$ (cm/s)},
+xmin=-4.2, xmax=88.2,
+ymin=0.41611265367773, ymax=6.77793280820316,
 tick align=outside,
 tick pos=left,
-x grid style={lightgray!92.02614379084967!black},
-xlabel={inclination angle $\delta$ ($^\circ$)},
 xmajorgrids,
-xmin=-4.2, xmax=88.2,
-xtick={0, 28, 48, 63, 76},
-y grid style={lightgray!92.02614379084967!black},
-ylabel={mean of velocity $\Delta \bar{x} / \Delta t$ (cm/s)},
+x grid style={lightgray!92.026143790849673!black},
 ymajorgrids,
-ymin=0.41611265367773, ymax=6.77793280820316
+y grid style={lightgray!92.026143790849673!black},
+xtick={0, 28, 48, 63, 76}
 ]
 \path [fill=red, fill opacity=0.5] (axis cs:0,6.28528123071327)
 --(axis cs:0,6.48875916481564)
@@ -41,36 +41,36 @@ ymin=0.41611265367773, ymax=6.77793280820316
 --cycle;
 
 \addplot [semithick, red, forget plot]
-table [row sep=\\]{%
-0	6.38702019776445 \\
-28	5.25344837756028 \\
-48	2.67909279938025 \\
-63	1.73346203155644 \\
-76	0.942856695954655 \\
-84	0.753470557591299 \\
+table {%
+0 6.38702019776445
+28 5.25344837756028
+48 2.67909279938025
+63 1.73346203155644
+76 0.942856695954655
+84 0.753470557591299
 };
 \end{axis}
 
 \begin{axis}[
+ylabel={Energy Consumption per shift (kJ/cm)},
+xmin=-4.2, xmax=88.2,
+ymin=0.101860156684419, ymax=0.652363150561867,
 axis y line=right,
 tick align=outside,
-x grid style={lightgray!92.02614379084967!black},
-xmin=-4.2, xmax=88.2,
 xtick pos=left,
-xtick={0, 28, 48, 63, 76},
-y grid style={lightgray!92.02614379084967!black},
-ylabel={Energy Consumption per shift (kJ/cm)},
-ymin=0.101860156684419, ymax=0.652363150561867,
-ytick pos=right
+ytick pos=right,
+x grid style={lightgray!92.026143790849673!black},
+y grid style={lightgray!92.026143790849673!black},
+xtick={0, 28, 48, 63, 76}
 ]
 \addplot [semithick, color0, forget plot]
-table [row sep=\\]{%
-0	0.126883020042485 \\
-28	0.153380329929775 \\
-48	0.314249760776339 \\
-63	0.485535830764519 \\
-76	0.496938113235318 \\
-84	0.627340287203801 \\
+table {%
+0 0.126883020042485
+28 0.153380329929775
+48 0.314249760776339
+63 0.485535830764519
+76 0.496938113235318
+84 0.627340287203801
 };
 \end{axis}
 

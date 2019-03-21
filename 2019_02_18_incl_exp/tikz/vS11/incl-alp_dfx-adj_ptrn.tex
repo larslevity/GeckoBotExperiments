@@ -1,0 +1,156 @@
+
+\documentclass[crop,tikz]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{groupplots}
+\begin{document}
+% This file was created by matplotlib2tikz v0.6.15.
+\begin{tikzpicture}
+
+\definecolor{color0}{rgb}{1,0.549019607843137,0}
+
+\begin{axis}[
+xlabel={inclination angle $\delta$ ($^\circ$)},
+ylabel={bending angle $\alpha$ just before defixation ($^\circ$)},
+xmin=-4.2, xmax=88.2,
+ymin=-31.983258807111, ymax=110.979404025027,
+tick align=outside,
+tick pos=left,
+xmajorgrids,
+x grid style={lightgray!92.026143790849673!black},
+ymajorgrids,
+y grid style={lightgray!92.026143790849673!black},
+xtick={0, 28, 48, 63, 76}
+]
+\path [fill=red, fill opacity=0.5] (axis cs:0,83.7458104059282)
+--(axis cs:0,94.8938526364343)
+--(axis cs:28,85.9085586432681)
+--(axis cs:48,81.3448610811659)
+--(axis cs:63,77.7212260477746)
+--(axis cs:76,87.3094807628031)
+--(axis cs:84,104.481101169021)
+--(axis cs:84,96.0112090913413)
+--(axis cs:84,96.0112090913413)
+--(axis cs:76,86.8878588472471)
+--(axis cs:63,53.7902410321631)
+--(axis cs:48,60.9146790838045)
+--(axis cs:28,75.5023640320752)
+--(axis cs:0,83.7458104059282)
+--cycle;
+
+\path [fill=color0, fill opacity=0.5] (axis cs:0,61.844168419781)
+--(axis cs:0,90.0584251316972)
+--(axis cs:28,81.1222272106654)
+--(axis cs:48,65.7705517619596)
+--(axis cs:63,57.1649928383366)
+--(axis cs:76,83.055004335023)
+--(axis cs:84,95.0153851744703)
+--(axis cs:84,68.0250057593333)
+--(axis cs:84,68.0250057593333)
+--(axis cs:76,77.4483007483299)
+--(axis cs:63,55.2121419466507)
+--(axis cs:48,60.6070335646664)
+--(axis cs:28,67.9659749528008)
+--(axis cs:0,61.844168419781)
+--cycle;
+
+\path [fill=blue, fill opacity=0.5] (axis cs:0,66.3453406465494)
+--(axis cs:0,68.9988832410952)
+--(axis cs:28,85.268189703038)
+--(axis cs:48,88.8012982885171)
+--(axis cs:63,89.2405210556401)
+--(axis cs:76,91.4856555633125)
+--(axis cs:84,91.2530591967819)
+--(axis cs:84,76.2832539848497)
+--(axis cs:84,76.2832539848497)
+--(axis cs:76,67.7842285100093)
+--(axis cs:63,75.6330169809223)
+--(axis cs:48,77.125807878908)
+--(axis cs:28,72.1465382185988)
+--(axis cs:0,66.3453406465494)
+--cycle;
+
+\path [fill=red, fill opacity=0.5] (axis cs:0,1.62183822961922)
+--(axis cs:0,25.2220045725539)
+--(axis cs:28,11.0830856557487)
+--(axis cs:48,5.57136452714172)
+--(axis cs:63,8.53589211271005)
+--(axis cs:76,9.37215870941737)
+--(axis cs:84,12.6253044451028)
+--(axis cs:84,12.3695512124459)
+--(axis cs:84,12.3695512124459)
+--(axis cs:76,8.44262774486428)
+--(axis cs:63,-3.82363030104334)
+--(axis cs:48,-4.35048731706638)
+--(axis cs:28,-2.17132936459835)
+--(axis cs:0,1.62183822961922)
+--cycle;
+
+\path [fill=blue, fill opacity=0.5] (axis cs:0,-12.895112026036)
+--(axis cs:0,-0.81729520851003)
+--(axis cs:28,9.14139989115814)
+--(axis cs:48,7.69544056329736)
+--(axis cs:63,18.7465908342368)
+--(axis cs:76,20.9728548973644)
+--(axis cs:84,22.4150074410043)
+--(axis cs:84,-3.71256648512484)
+--(axis cs:84,-3.71256648512484)
+--(axis cs:76,-11.7253241470879)
+--(axis cs:63,-25.4849559511047)
+--(axis cs:48,-16.2973200056816)
+--(axis cs:28,-9.16151029709361)
+--(axis cs:0,-12.895112026036)
+--cycle;
+
+\addplot [semithick, red, forget plot]
+table {%
+0 89.3198315211813
+28 80.7054613376716
+48 71.1297700824852
+63 65.7557335399689
+76 87.0986698050251
+84 100.246155130181
+};
+\addplot [semithick, color0, forget plot]
+table {%
+0 75.9512967757391
+28 74.5441010817331
+48 63.188792663313
+63 56.1885673924937
+76 80.2516525416764
+84 81.5201954669018
+};
+\addplot [semithick, blue, forget plot]
+table {%
+0 67.6721119438223
+28 78.7073639608184
+48 82.9635530837126
+63 82.4367690182812
+76 79.6349420366609
+84 83.7681565908158
+};
+\addplot [semithick, red, dotted, forget plot]
+table {%
+0 13.4219214010866
+28 4.45587814557516
+48 0.61043860503767
+63 2.35613090583335
+76 8.90739322714082
+84 12.4974278287743
+};
+\addplot [semithick, blue, dotted, forget plot]
+table {%
+0 -6.85620361727304
+28 -0.0100552029677345
+48 -4.30093972119211
+63 -3.36918255843395
+76 4.62376537513825
+84 9.35122047793971
+};
+\end{axis}
+
+\end{tikzpicture}
+%% End matplotlib2tikz content %% 
+\end{document}

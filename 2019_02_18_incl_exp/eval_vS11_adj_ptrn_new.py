@@ -23,7 +23,7 @@ from Src import plot_fun as pf
 
 version = 'vS11'
 ptrn = 'adj_ptrn_new'
-incls = ['00', '28', '48', '63', '76']
+incls = ['00', '28', '48', '63', '76', '83']
 #incls = ['48']
 Ts = 0.03
 VOLUME = {'v40': 0.01105,

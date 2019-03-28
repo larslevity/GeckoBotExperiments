@@ -1,0 +1,86 @@
+
+\documentclass[crop,tikz]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{groupplots}
+\begin{document}
+% This file was created by matplotlib2tikz v0.6.15.
+\begin{tikzpicture}
+
+\definecolor{color1}{rgb}{1,0.647058823529412,0}
+\definecolor{color0}{rgb}{1,0.549019607843137,0}
+
+\begin{axis}[
+xlabel={inclination angle $\delta$ ($^\circ$)},
+ylabel={$p_{\mathrm{ref}}$ (bar)},
+xmin=-4.2, xmax=88.2,
+ymin=0.617, ymax=1.123,
+tick align=outside,
+tick pos=left,
+xmajorgrids,
+x grid style={lightgray!92.026143790849673!black},
+ymajorgrids,
+y grid style={lightgray!92.026143790849673!black},
+xtick={0, 28, 48, 63, 76, 84}
+]
+\addplot [semithick, red, forget plot]
+table {%
+0 0.81
+28 0.78
+48 0.67
+63 0.64
+76 0.67
+84 0.69
+};
+\addplot [semithick, red!54.509803921568626!black, forget plot]
+table {%
+0 0.76
+28 0.74
+48 0.69
+63 0.64
+76 0.67
+84 0.69
+};
+\addplot [semithick, color0, forget plot]
+table {%
+0 0.73
+28 0.91
+48 0.96
+63 1.1
+76 1.1
+84 0.96
+};
+\addplot [semithick, color1, forget plot]
+table {%
+0 0.78
+28 0.91
+48 0.99
+63 1.1
+76 1.1
+84 0.99
+};
+\addplot [semithick, blue, forget plot]
+table {%
+0 0.73
+28 0.71
+48 0.71
+63 0.68
+76 0.66
+84 0.71
+};
+\addplot [semithick, blue!54.509803921568626!black, forget plot]
+table {%
+0 0.76
+28 0.79
+48 0.7
+63 0.68
+76 0.68
+84 0.65
+};
+\end{axis}
+
+\end{tikzpicture}
+%% End matplotlib2tikz content %% 
+\end{document}

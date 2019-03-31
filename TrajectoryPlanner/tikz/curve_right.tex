@@ -1,0 +1,146 @@
+
+\documentclass[crop,tikz]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{groupplots}
+\begin{document}
+
+\begin{tikzpicture}[scale=1]%%%% POSE 0
+\begin{scope}[xshift=0 cm]
+
+\def\col{black!50.0}
+\def\lw{1mm}
+\def\alpi{2.000000}
+\def\beti{90.000000}
+\def\gam{90.000000}
+\def\alpii{2.000000}
+\def\betii{90.000000}
+\def\gamh{45.000000}
+
+\def\eps{90.000006}
+\def\ci{44.000006}
+\def\cii{135.000006}
+\def\ciii{316.000006}
+\def\civ{225.000006}
+
+\def\ri{28.647887}
+\def\rii{0.636620}
+\def\rg{0.763944}
+\def\riii{28.647890}
+\def\riv{0.636620}
+
+\path (0.000000, -0.000000)coordinate(F1);
+
+\draw[\col, line width=\lw] (F1)arc(180+\ci:180+\ci+\alpi:\ri)coordinate(OM);
+\draw[\col, line width=\lw] (OM)arc(180+\ci+\alpi:180+\ci+\alpi+\beti:\rii)coordinate(F2);
+\draw[\col, line width=\lw] (OM)arc(90+\ci+\alpi:90+\ci+\alpi+\gam:\rg)coordinate(UM);
+\draw[\col, line width=\lw] (UM)arc(\gam+\ci+\alpi:\gam+\ci+\alpi+\alpii:\riii)coordinate(F3);
+\draw[\col, line width=\lw] (UM)arc(\gam+\ci+\alpi:\gam+\ci+\alpi-\betii:\riv)coordinate(F4);
+
+\draw[\col, line width=\lw] (F1)++(134.000006 :.15) circle(.15);
+\draw[\col, line width=\lw, fill] (F2)++(45.000006 :.15) circle(.15);
+\draw[\col, line width=\lw, fill] (F3)++(226.000006 :.15) circle(.15);
+\draw[\col, line width=\lw] (F4)++(315.000006 :.15) circle(.15);
+\path (OM)coordinate(start); 
+\draw[very thick, -latex] (OM)--++(\eps:1); 
+\draw[fill] (OM)circle(.1); 
+\end{scope} 
+
+
+
+%%%% POSE 1
+\begin{scope}[xshift=3 cm]
+
+\def\col{black!75.0}
+\def\lw{1mm}
+\def\alpi{40.000000}
+\def\beti{2.000000}
+\def\gam{-10.000000}
+\def\alpii{60.000000}
+\def\betii{10.000000}
+\def\gamh{-5.000000}
+
+\def\eps{82.301495}
+\def\ci{47.301495}
+\def\cii{88.301495}
+\def\ciii{317.301495}
+\def\civ{247.301495}
+
+\def\ri{1.354936}
+\def\rii{28.649252}
+\def\rg{-6.647699}
+\def\riii{0.954937}
+\def\riv{5.428118}
+
+\path (0.000000, -0.000000)coordinate(F1);
+
+\draw[\col, line width=\lw] (F1)arc(180+\ci:180+\ci+\alpi:\ri)coordinate(OM);
+\draw[\col, line width=\lw] (OM)arc(180+\ci+\alpi:180+\ci+\alpi+\beti:\rii)coordinate(F2);
+\draw[\col, line width=\lw] (OM)arc(90+\ci+\alpi:90+\ci+\alpi+\gam:\rg)coordinate(UM);
+\draw[\col, line width=\lw] (UM)arc(\gam+\ci+\alpi:\gam+\ci+\alpi+\alpii:\riii)coordinate(F3);
+\draw[\col, line width=\lw] (UM)arc(\gam+\ci+\alpi:\gam+\ci+\alpi-\betii:\riv)coordinate(F4);
+
+\draw[\col, line width=\lw, fill] (F1)++(137.301495 :.15) circle(.15);
+\draw[\col, line width=\lw] (F2)++(-1.698505 :.15) circle(.15);
+\draw[\col, line width=\lw] (F3)++(227.301495 :.15) circle(.15);
+\draw[\col, line width=\lw, fill] (F4)++(337.301495 :.15) circle(.15);
+\end{scope} 
+
+
+
+%%%% POSE 2
+\begin{scope}[xshift=6 cm]
+
+\def\col{black!100.0}
+\def\lw{1mm}
+\def\alpi{2.000000}
+\def\beti{90.000000}
+\def\gam{90.000000}
+\def\alpii{2.000000}
+\def\betii{90.000000}
+\def\gamh{45.000000}
+
+\def\eps{75.813613}
+\def\ci{29.813613}
+\def\cii{120.813613}
+\def\ciii{301.813613}
+\def\civ{210.813613}
+
+\def\ri{28.644973}
+\def\rii{0.655108}
+\def\rg{0.784709}
+\def\riii{30.047868}
+\def\riv{0.636596}
+
+\path (0.451460, 0.694221)coordinate(F1);
+
+\draw[\col, line width=\lw] (F1)arc(180+\ci:180+\ci+\alpi:\ri)coordinate(OM);
+\draw[\col, line width=\lw] (OM)arc(180+\ci+\alpi:180+\ci+\alpi+\beti:\rii)coordinate(F2);
+\draw[\col, line width=\lw] (OM)arc(90+\ci+\alpi:90+\ci+\alpi+\gam:\rg)coordinate(UM);
+\draw[\col, line width=\lw] (UM)arc(\gam+\ci+\alpi:\gam+\ci+\alpi+\alpii:\riii)coordinate(F3);
+\draw[\col, line width=\lw] (UM)arc(\gam+\ci+\alpi:\gam+\ci+\alpi-\betii:\riv)coordinate(F4);
+
+\draw[\col, line width=\lw] (F1)++(119.813613 :.15) circle(.15);
+\draw[\col, line width=\lw, fill] (F2)++(30.813613 :.15) circle(.15);
+\draw[\col, line width=\lw, fill] (F3)++(211.813613 :.15) circle(.15);
+\draw[\col, line width=\lw] (F4)++(300.813613 :.15) circle(.15);
+\path (OM)coordinate(end); 
+\draw[very thick, -latex] (OM)--++(\eps:1); 
+\draw[fill] (OM)circle(.1); 
+\end{scope} 
+
+
+
+\draw[line width=1mm, latex-, blue] (end)++(-9,-1)coordinate(end_)--($(start)+(-3,-1)$)coordinate(start_) ;
+\draw[-latex, red] (start_)++(90:1)arc(90:75.8136131:1);
+\path (start_)++(82.90680655000963:1)node[anchor=262.9068065500096]{$\Delta \varepsilon$};\draw[fill] (start_)circle(.1); 
+\draw[very thick, -latex] (start_)--++(90:1); 
+\draw[fill] (end_)circle(.1); 
+\draw[very thick, -latex] (end_)--++(75.8136131:1); 
+% This file was created by matplotlib2tikz v0.6.18.
+
+\end{tikzpicture}
+%% End matplotlib2tikz content %% 
+\end{document}

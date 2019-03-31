@@ -136,55 +136,90 @@ def _set_initial_pose(alpha, ell, eps, F1):
 
 def _calc_coords(x, r, f):
     alp, ell, eps = x[0:n_limbs], x[n_limbs:2*n_limbs], x[-1]
-    c1, c2, _, _ = _calc_phi(alp, eps)
+    c1, c2, c3, c4 = _calc_phi(alp, eps)
     R = [_calc_rad(ell[i], alp[i]) for i in range(5)]
-
-    if f[0]:
-        xf1, yf1 = r[0][0], r[1][0]
-        # coords cp upper left leg
-        xr1 = xf1 + np.cos(np.deg2rad(c1))*R[0]
-        yr1 = yf1 + np.sin(np.deg2rad(c1))*R[0]
+    if f[0] or f[1]:
+        if f[0]:
+            xf1, yf1 = r[0][0], r[1][0]
+            # coords cp upper left leg
+            xr1 = xf1 + np.cos(np.deg2rad(c1))*R[0]
+            yr1 = yf1 + np.sin(np.deg2rad(c1))*R[0]
+            # coords upper torso
+            xom = xr1 - np.sin(np.deg2rad(90-c1-alp[0]))*R[0]
+            yom = yr1 - np.cos(np.deg2rad(90-c1-alp[0]))*R[0]
+            # coords cp R2
+            xr2 = xom + np.cos(np.deg2rad(c1+alp[0]))*R[1]
+            yr2 = yom + np.sin(np.deg2rad(c1+alp[0]))*R[1]
+            # coords F2
+            xf2 = xr2 + np.sin(np.deg2rad(alp[1] - (90-c1-alp[0])))*R[1]
+            yf2 = yr2 - np.cos(np.deg2rad(alp[1] - (90-c1-alp[0])))*R[1]
+        elif f[1]:
+            xf2, yf2 = r[0][1], r[1][1]
+            # coords cp upper right leg
+            xr2 = xf2 - np.sin(np.deg2rad(c2-90))*R[1]
+            yr2 = yf2 + np.cos(np.deg2rad(c2-90))*R[1]
+            # coords upper torso
+            xom = xr2 - np.sin(np.deg2rad(90-c2+alp[1]))*R[1]
+            yom = yr2 - np.cos(np.deg2rad(90-c2+alp[1]))*R[1]
+            # coords cp R1
+            xr1 = xom + np.sin(np.deg2rad(90-c2+alp[1]))*R[0]
+            yr1 = yom + np.cos(np.deg2rad(90-c2+alp[1]))*R[0]
+            # coords F1
+            xf1 = xr1 - np.sin(np.deg2rad(90-c2+alp[1]+alp[0]))*R[0]
+            yf1 = yr1 - np.cos(np.deg2rad(90-c2+alp[1]+alp[0]))*R[0]
+        # coords cp torso
+        xrom = xom + np.cos(np.deg2rad(90-c1-alp[0]))*R[2]
+        yrom = yom - np.sin(np.deg2rad(90-c1-alp[0]))*R[2]
+        # coords lower torso
+        xum = xrom - np.cos(np.deg2rad(alp[2] - (90-c1-alp[0])))*R[2]
+        yum = yrom - np.sin(np.deg2rad(alp[2] - (90-c1-alp[0])))*R[2]
+        # coords cp lower right foot
+        xr4 = xum + np.sin(np.deg2rad(alp[2] - (90-c1-alp[0])))*R[4]
+        yr4 = yum - np.cos(np.deg2rad(alp[2] - (90-c1-alp[0])))*R[4]
+        # coords of F4
+        xf4 = xr4 + np.sin(np.deg2rad(alp[4] - (alp[2] - (90-c1-alp[0]))))*R[4]
+        yf4 = yr4 + np.cos(np.deg2rad(alp[4] - (alp[2] - (90-c1-alp[0]))))*R[4]
+        # coords cp R3
+        xr3 = xum + np.sin(np.deg2rad(alp[2] - (90-c1-alp[0])))*R[3]
+        yr3 = yum - np.cos(np.deg2rad(alp[2] - (90-c1-alp[0])))*R[3]
+        # coords of F3
+        xf3 = xr3 - np.cos(np.deg2rad(-alp[3] - alp[2] + 180-c1-alp[0]))*R[3]
+        yf3 = yr3 + np.sin(np.deg2rad(-alp[3] - alp[2] + 180-c1-alp[0]))*R[3]
+    elif f[2] or f[3]:
+        if f[2]:
+            xf3, yf3 = r[0][2], r[1][2]
+            # coords cp R3
+            xr3 = xf3 + np.cos(np.deg2rad(c3))*R[3]
+            yr3 = yf3 + np.sin(np.deg2rad(c3))*R[3]
+            # coords UM
+            xum = xr3 - np.cos(np.deg2rad(360-c3+alp[3]))*R[3]
+            yum = yr3 + np.sin(np.deg2rad(360-c3+alp[3]))*R[3]
+            # coords R4
+            xr4 = xum + np.sin(np.deg2rad(c3-270-alp[3]))*R[4]
+            yr4 = yum - np.cos(np.deg2rad(c3-270-alp[3]))*R[4]
+            # coords F4
+            xf4 = xr4 + np.cos(np.deg2rad(c4-180))*R[4]
+            yf4 = yr4 + np.sin(np.deg2rad(c4-180))*R[4]
+        else:
+            raise(NotImplementedError)
+        # coords cp torso
+        xrom = xum + np.cos(np.deg2rad(c3-270-alp[3]))*R[2]
+        yrom = yum + np.sin(np.deg2rad(c3-270-alp[3]))*R[2]
         # coords upper torso
-        xom = xr1 - np.sin(np.deg2rad(90-c1-alp[0]))*R[0]
-        yom = yr1 - np.cos(np.deg2rad(90-c1-alp[0]))*R[0]
+        xom = xrom - np.cos(np.deg2rad(alp[2] - (c3-270-alp[3])))*R[2]
+        yom = yrom + np.sin(np.deg2rad(alp[2] - (c3-270-alp[3])))*R[2]
         # coords cp R2
         xr2 = xom + np.cos(np.deg2rad(c1+alp[0]))*R[1]
         yr2 = yom + np.sin(np.deg2rad(c1+alp[0]))*R[1]
         # coords F2
         xf2 = xr2 + np.sin(np.deg2rad(alp[1] - (90-c1-alp[0])))*R[1]
         yf2 = yr2 - np.cos(np.deg2rad(alp[1] - (90-c1-alp[0])))*R[1]
-    elif f[1]:
-        xf2, yf2 = r[0][1], r[1][1]
-        # coords cp upper right leg
-        xr2 = xf2 - np.sin(np.deg2rad(c2-90))*R[1]
-        yr2 = yf2 + np.cos(np.deg2rad(c2-90))*R[1]
-        # coords upper torso
-        xom = xr2 - np.sin(np.deg2rad(90-c2+alp[1]))*R[1]
-        yom = yr2 - np.cos(np.deg2rad(90-c2+alp[1]))*R[1]
         # coords cp R1
         xr1 = xom + np.sin(np.deg2rad(90-c2+alp[1]))*R[0]
         yr1 = yom + np.cos(np.deg2rad(90-c2+alp[1]))*R[0]
         # coords F1
         xf1 = xr1 - np.sin(np.deg2rad(90-c2+alp[1]+alp[0]))*R[0]
         yf1 = yr1 - np.cos(np.deg2rad(90-c2+alp[1]+alp[0]))*R[0]
-    # coords cp torso
-    xrom = xom + np.cos(np.deg2rad(90-c1-alp[0]))*R[2]
-    yrom = yom - np.sin(np.deg2rad(90-c1-alp[0]))*R[2]
-    # coords lower torso
-    xum = xrom - np.cos(np.deg2rad(alp[2] - (90-c1-alp[0])))*R[2]
-    yum = yrom - np.sin(np.deg2rad(alp[2] - (90-c1-alp[0])))*R[2]
-    # coords cp lower right foot
-    xr4 = xum + np.sin(np.deg2rad(alp[2] - (90-c1-alp[0])))*R[4]
-    yr4 = yum - np.cos(np.deg2rad(alp[2] - (90-c1-alp[0])))*R[4]
-    # coords of F4
-    xf4 = xr4 + np.sin(np.deg2rad(alp[4] - (alp[2] - (90-c1-alp[0]))))*R[4]
-    yf4 = yr4 + np.cos(np.deg2rad(alp[4] - (alp[2] - (90-c1-alp[0]))))*R[4]
-    # coords cp R3
-    xr3 = xum + np.sin(np.deg2rad(alp[2] - (90-c1-alp[0])))*R[3]
-    yr3 = yum - np.cos(np.deg2rad(alp[2] - (90-c1-alp[0])))*R[3]
-    # coords of F3
-    xf3 = xr3 - np.cos(np.deg2rad(-alp[3] - alp[2] + 180-c1-alp[0]))*R[3]
-    yf3 = yr3 + np.sin(np.deg2rad(-alp[3] - alp[2] + 180-c1-alp[0]))*R[3]
 
     return ([xf1, xf2, xf3, xf4], [yf1, yf2, yf3, yf4],
             [xf1, xom, xf2, xf3, xum, xf4], [yf1, yom, yf2, yf3, yum, yf4])
@@ -296,6 +331,9 @@ def plot_gait(data_xy, data_fp, data_nfp, data_x):
 
 
 def marker_history(marks):
+    """ formats the marks from predictpose to:
+        marks[marker_idx][x/y][pose_idx]
+    """
     markers = [([], []), ([], []), ([], []), ([], []), ([], []), ([], [])]
     for pose in range(len(marks)):
         x, y = marks[pose]
@@ -303,6 +341,22 @@ def marker_history(marks):
             markers[idx][0].append(xm)
             markers[idx][1].append(ym)
     return markers
+
+
+def extract_eps(data):
+    (data_, data_fp, data_nfp, data_x) = data
+    eps = []
+    for pose_idx in range(len(data_x)):
+        eps.append(data_x[pose_idx][-1])
+    return eps
+
+
+def extract_ell(data):
+    (data_, data_fp, data_nfp, data_x) = data
+    ell = []
+    for pose_idx in range(len(data_x)):
+        ell.append(data_x[pose_idx][n_limbs:2*n_limbs])
+    return ell
 
 
 def start_end(data_xy, data_fp, data_nfp, data_x):

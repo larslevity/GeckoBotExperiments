@@ -23,11 +23,11 @@ from Src import plot_fun as pf
 
 
 # %% LOAD
-versions = ['v40', 'vS11']
-styles = ['-', '-']
-rots = [5.5, 9]
-len_legs = [13, 9]
-len_tors = [14, 10]
+versions = ['vS11']
+styles = ['-']
+rots = [9]
+len_legs = [9]
+len_tors = [10]
 
 DRAW_SHOTS = False
 
@@ -84,6 +84,7 @@ for version in versions:
     col = ev.get_marker_color()
     positions = [{}, {}]
     alpha = {}
+    pressure = {}
     SIGXY = [{}, {}]
 
     for axis in range(6):
@@ -103,7 +104,9 @@ for version in versions:
                 axtrack.add_artist(el)
 
         a, siga = ev.calc_mean_of_axis(db, cyc, 'aIMG{}'.format(axis), [1])
+        p, sigp = ev.calc_mean_of_axis(db, cyc, 'p{}'.format(axis), [1])
         alpha[axis] = a
+        pressure[axis] = p
         positions[0][axis] = x
         positions[1][axis] = y
         SIGXY[0][axis] = sigx
@@ -114,7 +117,27 @@ for version in versions:
     axtrack.set_ylim((-20, 15))
     axtrack.grid()
     kwargs = {'extra_axis_parameters': {'x=.15cm', 'y=.15cm'}}
-    save.save_as_tikz('pics/'+version+'_track.tex', **kwargs)
+#    save.save_as_tikz('pics/'+version+'_track.tex', **kwargs)
+
+    # %% Pressure-alpha relation
+    for axis in range(6):
+        deg = 3
+        coef = np.polyfit(alpha[axis], pressure[axis], deg)
+        coef_s = ['%1.3e' % c for c in coef]
+        print('Actuator %s:\t%s' % (axis, coef_s))
+        poly = np.poly1d(coef)
+        if axis in [2, 3]:
+            alp = np.linspace(-100, 100, 100)
+        else:
+            alp = np.linspace(-10, 100, 100)
+
+        plt.figure(axis)
+        plt.plot(alpha[axis], pressure[axis])
+        plt.plot(alp, poly(alp))
+#        
+#        plt.figure(1)
+#        plt.plot(pressure[axis], alpha[axis])
+
 
     # %% ####### plot eps inclination
 #    for x1, y1, x4, y4, i in zip(positions[0][1], positions[1][1],
@@ -156,64 +179,64 @@ for version in versions:
 #    for idx, marker in enumerate(markers):
 #        x, y = marker
 #        plt.plot(x, y, '-', color=col[idx])
-    # %% SINGLE SHOTS
-    if DRAW_SHOTS:
-        shots_at_time = [0, 29, 50, 75, 100]
-        indexes = [ev.closest_index(t, val/100.) for val in shots_at_time]
-        for shot, idx in enumerate(indexes):
-            fig, ax = plt.subplots(num='Shot' + version + '{}'.format(idx),
-                                   subplot_kw=dict(aspect='equal'))
-            for axis in range(6):
-                x, y = positions[0][axis], positions[1][axis]
-                sigx, sigy = SIGXY[0][axis], SIGXY[1][axis]
-                # downsample for tikz
-                prop = .1
-                x, y = ev.downsample(x, prop), ev.downsample(y, prop)
-                sigx, sigy = ev.downsample(sigx, prop), ev.downsample(sigy, prop)
-                # plot xy
-                ax.plot(x, y, color=col[axis], linewidth=20)
-#                # plot sigma xy
-#                for xx, yy, sigxx, sigyy in zip(x, y, sigx, sigy):
-#                    el = pat.Ellipse((xx, yy), sigxx*2, sigyy*2,
-#                                     facecolor=col[axis], alpha=.3)
-#                    ax.add_artist(el)
-            # plot eps inclination
-            x1, y1, x4, y4 = (positions[0][1][idx], positions[1][1][idx],
-                              positions[0][4][idx], positions[1][4][idx])
-            dx = x4 - x1
-            dy = y4 - y1
-            plt.plot([x1-dx, x4+dx], [y1-dy, y4+dy],
-                     '--', color='mediumpurple', linewidth=20)
-            # draw best fit gecko
-            pos = ([positions[0][axis][idx] for axis in range(6)],
-                   [positions[1][axis][idx] for axis in range(6)])
-            alp = [alpha[axis][idx] for axis in range(6)]
-            alp_ = alp[0:2] + [-alp[3]] + alp[4:6]
-            eps_ = eps[idx]
-    
-            pose, marks, ell, alp__ = kin_model.extract_pose(
-                    alp_, eps_, pos, len_leg=len_leg[version],
-                    len_tor=len_tor[version])
-            for jdx in range(6):
-                plt.plot(marks[0][jdx], marks[1][jdx], 'o',
-                         markersize=60, color=col[jdx])
-    
-            gecko_tikz_str = save.tikz_draw_gecko(alp__, ell, eps_,
-                                                  (marks[0][0], marks[1][0]),
-                                                  linewidth='2mm')
-    
-    #        plt.plot(pose[0], pose[1], '.', color='gray', markersize=1)
-            plt.axis('off')
-            save.save_as_tikz('pics/shots/'+version+'shot_{}.tex'.format(shots_at_time[shot]),
-                              gecko_tikz_str, scale=.2)
-
-# %%
-
-plt.figure('Epsilon corrected')
-plt.grid()
-plt.xlabel(r'time in cycle $t/t_{cyc}$ (1)')
-plt.ylabel(r'orientation angle epsilon $\varepsilon$ (deg)')
-save.save_as_tikz('pics/eps.tex')
+#    # %% SINGLE SHOTS
+#    if DRAW_SHOTS:
+#        shots_at_time = [0, 29, 50, 75, 100]
+#        indexes = [ev.closest_index(t, val/100.) for val in shots_at_time]
+#        for shot, idx in enumerate(indexes):
+#            fig, ax = plt.subplots(num='Shot' + version + '{}'.format(idx),
+#                                   subplot_kw=dict(aspect='equal'))
+#            for axis in range(6):
+#                x, y = positions[0][axis], positions[1][axis]
+#                sigx, sigy = SIGXY[0][axis], SIGXY[1][axis]
+#                # downsample for tikz
+#                prop = .1
+#                x, y = ev.downsample(x, prop), ev.downsample(y, prop)
+#                sigx, sigy = ev.downsample(sigx, prop), ev.downsample(sigy, prop)
+#                # plot xy
+#                ax.plot(x, y, color=col[axis], linewidth=20)
+##                # plot sigma xy
+##                for xx, yy, sigxx, sigyy in zip(x, y, sigx, sigy):
+##                    el = pat.Ellipse((xx, yy), sigxx*2, sigyy*2,
+##                                     facecolor=col[axis], alpha=.3)
+##                    ax.add_artist(el)
+#            # plot eps inclination
+#            x1, y1, x4, y4 = (positions[0][1][idx], positions[1][1][idx],
+#                              positions[0][4][idx], positions[1][4][idx])
+#            dx = x4 - x1
+#            dy = y4 - y1
+#            plt.plot([x1-dx, x4+dx], [y1-dy, y4+dy],
+#                     '--', color='mediumpurple', linewidth=20)
+#            # draw best fit gecko
+#            pos = ([positions[0][axis][idx] for axis in range(6)],
+#                   [positions[1][axis][idx] for axis in range(6)])
+#            alp = [alpha[axis][idx] for axis in range(6)]
+#            alp_ = alp[0:2] + [-alp[3]] + alp[4:6]
+#            eps_ = eps[idx]
+#    
+#            pose, marks, ell, alp__ = kin_model.extract_pose(
+#                    alp_, eps_, pos, len_leg=len_leg[version],
+#                    len_tor=len_tor[version])
+#            for jdx in range(6):
+#                plt.plot(marks[0][jdx], marks[1][jdx], 'o',
+#                         markersize=60, color=col[jdx])
+#    
+#            gecko_tikz_str = save.tikz_draw_gecko(alp__, ell, eps_,
+#                                                  (marks[0][0], marks[1][0]),
+#                                                  linewidth='2mm')
+#    
+#    #        plt.plot(pose[0], pose[1], '.', color='gray', markersize=1)
+#            plt.axis('off')
+#            save.save_as_tikz('pics/shots/'+version+'shot_{}.tex'.format(shots_at_time[shot]),
+#                              gecko_tikz_str, scale=.2)
+#
+## %%
+#
+#plt.figure('Epsilon corrected')
+#plt.grid()
+#plt.xlabel(r'time in cycle $t/t_{cyc}$ (1)')
+#plt.ylabel(r'orientation angle epsilon $\varepsilon$ (deg)')
+#save.save_as_tikz('pics/eps.tex')
 
 
 

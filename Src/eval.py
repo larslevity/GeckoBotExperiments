@@ -52,7 +52,10 @@ def resample(t, x, Ts=.03):
 
 def remove_offset_time_xy(data, Ts):
     # remove time offset
-    start_idx = data['f0'].index(1)  # upper left foot attached 1st time
+    try:
+        start_idx = data['f0'].index(1)  # upper left foot attached 1st time
+    except ValueError:  # no left foot is fixed
+        start_idx = 0
     start_time = data['time'][start_idx]
     data['time'] = \
         [round(data_time - start_time, 3) for data_time in data['time']]

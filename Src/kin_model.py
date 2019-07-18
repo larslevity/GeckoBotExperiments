@@ -61,7 +61,8 @@ def extract_pose(alpha, eps, fpos, len_leg=len_leg, len_tor=len_tor,
     return (xa, ya), (xpos_est, ypos_est), ell, alp
 
 
-def _calc_coords2(x, alp, eps, (xf1, yf1)):
+def _calc_coords2(x, alp, eps, xf1):
+    xf1, yf1 = xf1
     ell, _ = x[0:n_limbs], x[n_limbs:]
     c1, c2, _, _ = _calc_phi(alp, eps)
     R = [_calc_rad(ell[i], alp[i]) for i in range(5)]

@@ -11,7 +11,11 @@ from scipy import signal
 from itertools import islice
 import traces
 
-import load
+import sys
+from os import path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+from Src import load
 
 
 def shift_jump(xlist, jump, minmax=360):

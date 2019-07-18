@@ -136,9 +136,14 @@ for version in versions:
         else:
             alp = np.linspace(-10, 130, 100)
 
-        plt.figure(axis)
+        plt.figure('CLB'+str(axis))
         plt.plot(alpha[axis], pressure[axis])
         plt.plot(alp, poly(alp))
+        plt.grid()
+        plt.xlabel(r'bending angle $\alpha$ ($^\circ$)')
+        plt.ylabel(r'pressure $p$ (bar)')
+        plt.legend(['measured', 'fitted'])
+        save.save_as_tikz('pics/'+version+'_clb_'+str(axis)+'.tex')
 #        
 #        plt.figure(1)
 #        plt.plot(pressure[axis], alpha[axis])

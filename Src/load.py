@@ -17,7 +17,7 @@ except ImportError:
 def read_csv(filename):
     dic = {}
     mapping = {}
-    with open(filename, 'rb') as csvfile:
+    with open(filename, 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter='\t')
         for idx, row in enumerate(reader):
             # print ', '.join(row)

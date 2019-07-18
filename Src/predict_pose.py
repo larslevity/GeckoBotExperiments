@@ -101,18 +101,18 @@ def predict_pose(pattern, initial_pose, stats=False, debug=False,
         xlast = x
         rlast = (rx, ry)
         if debug:
-            print '\n\nPOSE ', idx, '\n'
-            print 'constraint function: \t', round(constraint1(x), 2)
-            print 'objective function: \t', round(objective(x), 2)
-            print 'alpref: \t\t', [round(xx, 2) for xx in alpref]
-            print 'alp: \t\t\t', [round(xx, 2) for xx in alp]
-            print 'ell: \t\t\t', [round(xx, 2) for xx in ell], '\n'
+            print('\n\nPOSE ', idx, '\n')
+            print('constraint function: \t', round(constraint1(x), 2))
+            print('objective function: \t', round(objective(x), 2))
+            print('alpref: \t\t', [round(xx, 2) for xx in alpref])
+            print('alp: \t\t\t', [round(xx, 2) for xx in alp])
+            print('ell: \t\t\t', [round(xx, 2) for xx in ell], '\n')
 
-            print 'rx: \t\t\t', [round(xx, 2) for xx in rx]
-            print 'ry: \t\t\t', [round(xx, 2) for xx in ry]
-            print 'phi: \t\t\t', [round(xx, 2) for xx in phi], '\n'
+            print('rx: \t\t\t', [round(xx, 2) for xx in rx])
+            print('ry: \t\t\t', [round(xx, 2) for xx in ry])
+            print('phi: \t\t\t', [round(xx, 2) for xx in phi], '\n')
 
-            print 'eps: \t\t\t', round(eps, 2)
+            print('eps: \t\t\t', round(eps, 2))
         if stats:
             costs.append(objective(x))
             (xa, ya), (fpx, fpy), (nfpx, nfpy) = get_repr(x, (rx, ry), f)

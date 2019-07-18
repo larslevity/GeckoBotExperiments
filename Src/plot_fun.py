@@ -9,8 +9,12 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as pat
 import numpy as np
 
-import eval as ev
-import save
+import sys
+from os import path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+from Src import eval as ev
+from Src import save
 
 
 def plot_track(db, cyc, incl, prop, dirpath):

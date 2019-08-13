@@ -277,6 +277,25 @@ def load_data(exp_name, exp_idx=['00'], Ts=.03):
     return dset, Cycles
 
 
+def load_data_pathPlanner(exp_name, exp_idx=['00'], Ts=.03):
+    dataBase = []
+    for exp in exp_idx:
+        data = load.read_csv(exp_name+"{}.csv".format(exp))
+
+        try:
+            start_idx = data['f0'].index(1)  # upper left foot attached 1sttime
+        except ValueError:  # no left foot is fixed
+            start_idx = 0
+        start_time = data['time'][start_idx]
+        data['time'] = \
+            [round(data_time - start_time, 3) for data_time in data['time']]
+
+        dataBase.append(data)
+
+    return dataBase
+
+
+
 def calc_velocity(db, Ts):
     b, a = signal.butter(3, 0.05)
     for exp in range(len(db)):

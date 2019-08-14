@@ -279,6 +279,9 @@ def load_data(exp_name, exp_idx=['00'], Ts=.03):
 
 def load_data_pathPlanner(exp_name, exp_idx=['00'], Ts=.03):
     dataBase = []
+    xscale = 145./1000  # 1000px -> 145cm
+    xshift = -22  # cm
+    yshift = -63  # cm
     for exp in exp_idx:
         data = load.read_csv(exp_name+"{}.csv".format(exp))
 
@@ -289,6 +292,10 @@ def load_data_pathPlanner(exp_name, exp_idx=['00'], Ts=.03):
         start_time = data['time'][start_idx]
         data['time'] = \
             [round(data_time - start_time, 3) for data_time in data['time']]
+        for key in data:
+            if key[0] in ['x', 'y']:
+                shift = xshift if key[0] == 'x' else yshift
+                data[key] = [i*xscale + shift for i in data[key]]
 
         dataBase.append(data)
 

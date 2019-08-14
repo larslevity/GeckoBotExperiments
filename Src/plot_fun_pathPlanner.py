@@ -28,7 +28,10 @@ def plot_track(db, run, prop, dirpath):
             y = dset['y{}'.format(idx)]
             x = ev.downsample(x, proportion=prop)
             y = ev.downsample(y, proportion=prop)
-            plt.plot(x, y, 'o', color=col[exp_idx])
+            if idx == 8:
+                plt.plot(x, y, 'o', color=col[exp_idx])
+            else:
+                plt.plot(x, y, '-', color=col[exp_idx])
         #    plt.plot(x[0], y[0], 'o', markersize=20, color=col[idx])
 #            for xx, yy, sigxx, sigyy in zip(x, y, sigx, sigy):
 #                if not np.isnan(xx):
@@ -40,8 +43,8 @@ def plot_track(db, run, prop, dirpath):
     ax.set_ylabel('y position (cm)')
 #    ax.set_xlim((-20, 65))
 #    ax.set_ylim((-20, 20))
-#    kwargs = {'extra_axis_parameters': {'x=.1cm', 'y=.1cm'}}
-#    save.save_as_tikz('tikz/'+dirpath+'track.tex', **kwargs)
+    kwargs = {'extra_axis_parameters': {'x=.1cm', 'y=.1cm', 'anchor=origin'}}
+    save.save_as_tikz('tikz/track_'+run+'.tex', **kwargs)
     print(run)
     plt.show()
 

@@ -28,10 +28,18 @@ def plot_track(db, run, prop, dirpath):
             y = dset['y{}'.format(idx)]
             x = ev.downsample(x, proportion=prop)
             y = ev.downsample(y, proportion=prop)
+
+            # remove double entries
+            x_, y_ = [], []
+            for xi, xj, yi in zip(x, x[1:], y):
+                if round(xi, 2) != round(xj, 2) and not np.isnan(xi):
+                    x_.append(xi)
+                    y_.append(yi)
+
             if idx == 8:
-                plt.plot(x, y, 'o', color=col[exp_idx])
+                plt.plot(x_, y_, 'o', color=col[exp_idx])
             else:
-                plt.plot(x, y, '-', color=col[exp_idx])
+                plt.plot(x_, y_, '-', color=col[exp_idx])
         #    plt.plot(x[0], y[0], 'o', markersize=20, color=col[idx])
 #            for xx, yy, sigxx, sigyy in zip(x, y, sigx, sigy):
 #                if not np.isnan(xx):

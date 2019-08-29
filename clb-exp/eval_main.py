@@ -39,7 +39,10 @@ color_eps = {version: val for val, version in zip(
         ['mediumpurple', 'darkmagenta'], versions)}
 
 
+clb = {}
+
 for version in versions:
+    clb[version] = {}
     dirpath = version + '/'
     sets = load.get_csv_set(dirpath)
     db = ev.load_data_pathPlanner(dirpath, sets)
@@ -72,7 +75,11 @@ for version in versions:
                 idx[iidx] = False
         # only vals with ref[i] > ref[i-1]
         for iidx in range(len(idx))[1:]:
-            if reference[axis][iidx] < reference[axis][iidx-1]:
+            if reference[axis][iidx] <= reference[axis][iidx-1]:
+                idx[iidx] = False
+        # only vals with alpha[i] > 0
+        for iidx in enumerate(idx):
+            if alpha[axis][iidx] < 0:
                 idx[iidx] = False
 
         alp_f = alpha[axis][idx]
@@ -83,6 +90,7 @@ for version in versions:
         alp_f = alp_f + shift
 
         coef = np.polyfit(alp_f, p_f, deg)
+        clb[version][axis] = list(coef)
 
         coef_s = ['%1.3e' % c for c in coef]
         print('Actuator %s:\t%s' % (axis, coef_s))
@@ -105,3 +113,5 @@ for version in versions:
 
 
 plt.show()
+
+print(clb)

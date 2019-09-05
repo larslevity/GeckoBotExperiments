@@ -23,6 +23,7 @@ from Src import plot_fun_pathPlanner as pf
 
 version = 'vS11'
 runs = ['n1_x1_50', 'n2_x1_50', 'n2_x1_90', 'n3_x1_90']
+runs = ['improved_clb']
 #runs = ['180']
 
 

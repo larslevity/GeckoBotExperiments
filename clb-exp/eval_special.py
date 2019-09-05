@@ -23,19 +23,7 @@ from Src import plot_fun as pf
 
 
 # %% LOAD
-versions = ['vS11_special2']
-styles = ['-']
-rots = [9]
-len_legs = [9]
-len_tors = [10]
-
-
-ls = {version: style for style, version in zip(styles, versions)}
-rotation = {version: rot for rot, version in zip(rots, versions)}
-len_leg = {version: val for val, version in zip(len_legs, versions)}
-len_tor = {version: val for val, version in zip(len_tors, versions)}
-color_eps = {version: val for val, version in zip(
-        ['mediumpurple', 'darkmagenta'], versions)}
+versions = ['vS11_special3']
 
 
 clb = {}

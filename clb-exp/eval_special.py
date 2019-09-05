@@ -23,7 +23,7 @@ from Src import plot_fun as pf
 
 
 # %% LOAD
-versions = ['vS11']
+versions = ['vS11_special2']
 styles = ['-']
 rots = [9]
 len_legs = [9]
@@ -51,18 +51,17 @@ for version in versions:
     alpha = {}
     pressure = {}
     reference = {}
+    reference_ = {}
 
     for exp in range(len(db)):
         for axis in range(6):
             alpha[axis] = np.array(db[exp]['aIMG{}'.format(axis)])
             pressure[axis] = np.array(db[exp]['p{}'.format(axis)])
-            reference[axis] = np.array(db[exp]['r{}'.format(axis)])
-        # remove all nans:
-        pressure[axis] = pressure[axis][~np.isnan(alpha[axis])]
-        reference[axis] = reference[axis][~np.isnan(alpha[axis])]
-        alpha[axis] = alpha[axis][~np.isnan(alpha[axis])]
-
-#    save.save_as_tikz('pics/'+version+'_track.tex', **kwargs)
+            reference_[axis] = np.array(db[exp]['r{}'.format(axis)])
+            # remove all nans:
+            pressure[axis] = pressure[axis][~np.isnan(alpha[axis])]
+            reference[axis] = reference_[axis][~np.isnan(alpha[axis])]
+            alpha[axis] = alpha[axis][~np.isnan(alpha[axis])]
 
     # %% Pressure-alpha relation
     for axis in range(6):
@@ -70,13 +69,10 @@ for version in versions:
 
         # only vals with ref!=0
         idx = reference[axis] != 0
-        # only vals with alp != nan
-        for iidx in enumerate(idx):
-            if np.isnan(alpha[axis][iidx]):
-                idx[iidx] = False
-        # only vals with ref[i] > ref[i-1]
-        for iidx in range(len(idx))[1:]:
-            if reference[axis][iidx] <= reference[axis][iidx-1]:
+
+        # only vals with ref[i] > ref[i+1]
+        for iidx in range(len(idx))[:-1]:
+            if reference[axis][iidx] <= reference[axis][iidx+1]:
                 idx[iidx] = False
         # only vals with alpha[i] > 0
         for iidx in enumerate(idx):
@@ -85,10 +81,6 @@ for version in versions:
 
         alp_f = alpha[axis][idx]
         p_f = pressure[axis][idx]
-
-        # shift
-        shift = 0  # -min(alp_f)
-        alp_f = alp_f + shift
 
         coef = np.polyfit(alp_f, p_f, deg)
         clb[version][axis] = list(coef)
@@ -99,7 +91,7 @@ for version in versions:
         alp = np.linspace(min(alp_f)-2, max(alp_f)+2, 100)
 
         plt.figure('CLB'+str(axis))
-        plt.plot(alpha[axis]+shift, pressure[axis], ':',
+        plt.plot(alpha[axis], pressure[axis], ':',
                  label='measurements')
         plt.plot(alp_f, p_f, 'o', label='used measurements')
         plt.plot(alp, poly(alp), '-x', label='fitted')

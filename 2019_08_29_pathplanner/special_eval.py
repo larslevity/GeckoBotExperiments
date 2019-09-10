@@ -20,7 +20,7 @@ from Src import predict_pose as pp
 from Src import plot_fun_pathPlanner as pf
 
 
-version = 'vS11'
+modes = ['without_eps_correction']
 
 runs = ['special3_x1_60', 'special3_x1_60_px_shift_RPi']
 runs = ['special3_x1_60_px_shift_RPi']

@@ -9,19 +9,26 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as pat
 import numpy as np
 
-import sys
-from os import path
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-
 from Src import eval as ev
 from Src import save
 
 
-def plot_track(db, run, prop, dirpath):
-    col = ev.get_marker_color()
-    col += ['black']*3
-    fig, ax = plt.subplots(subplot_kw=dict(aspect='equal'),
-                           num='Track of feet '+run)
+def get_run_color():
+    cols = {'180': 'orange',
+            'L': 'blue',            # Left
+            'RL': 'darkblue',       # reverse Left
+            'RFL': 'lightblue',     # reverse far left
+            'R': 'red',
+            'RR': 'darkred',
+            'RFR': 'lightred'
+            }
+    return cols
+
+
+def plot_track(db, run, prop, mode):
+    col = get_run_color()
+
+    plt.figure('Track'+mode)
     for exp_idx, dset in enumerate(db):
         for idx in [1, 8]:  # pos torso front & ref
             x = dset['x{}'.format(idx)]
@@ -37,24 +44,20 @@ def plot_track(db, run, prop, dirpath):
                     y_.append(yi)
 
             if idx == 8:
-                plt.plot(x_, y_, 'o', color=col[exp_idx])
+                plt.plot(x_, y_, 'o', color=col[run])
             else:
-                plt.plot(x_, y_, '-', color=col[exp_idx])
-        #    plt.plot(x[0], y[0], 'o', markersize=20, color=col[idx])
-#            for xx, yy, sigxx, sigyy in zip(x, y, sigx, sigy):
-#                if not np.isnan(xx):
-#                    el = pat.Ellipse((xx, yy), sigxx*2, sigyy*2,
-#                                     facecolor=col[idx], alpha=.3)
-#                    ax.add_artist(el)
-    ax.grid()
-    ax.set_xlabel('x position (cm)')
-    ax.set_ylabel('y position (cm)')
-#    ax.set_xlim((-20, 65))
-#    ax.set_ylim((-20, 20))
+                plt.plot(x_, y_, '-', color=col[run])
+
+    plt.grid(1)
+    plt.xlabel('x position (cm)')
+    plt.ylabel('y position (cm)')
+    plt.axis('equal')
+    plt.xlim(-10, 165)
+    plt.ylim(-60, 60)
     kwargs = {'extra_axis_parameters': {'x=.1cm', 'y=.1cm', 'anchor=origin'}}
-    save.save_as_tikz('tikz/track_'+run+'.tex', **kwargs)
+    save.save_as_tikz('tikz/track_'+mode+'.tex', **kwargs)
     print(run)
-    plt.show()
+#    plt.show()
 
 
 def calc_prop(db):

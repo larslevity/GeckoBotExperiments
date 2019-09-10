@@ -282,9 +282,9 @@ def load_data_pathPlanner(exp_name, exp_idx=['00'], Ts=.03):
 #    xscale = 145./1000  # 1000px -> 145cm
 #    xshift = -22  # cm
 #    yshift = -63  # cm
-    xscale = 113./1000  # after changing resolution of RPi
-    xshift = -18  # cm
-    yshift = -40  # cm
+    xscale = 112./1000  # after changing resolution of RPi
+    xshift = -12  # cm
+    yshift = -45  # cm
 
     for exp in exp_idx:
         data = load.read_csv(exp_name+"{}.csv".format(exp))

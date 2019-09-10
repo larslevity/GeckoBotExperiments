@@ -23,7 +23,8 @@ from Src import plot_fun as pf
 
 
 # %% LOAD
-versions = ['vS11_special3']
+versions = ['vS11_special3', 'vS11_special2', 'vS11_special']
+#versions = ['vS11']
 
 
 clb = {}
@@ -78,16 +79,18 @@ for version in versions:
         poly = np.poly1d(coef)
         alp = np.linspace(min(alp_f)-2, max(alp_f)+2, 100)
 
-        plt.figure('CLB'+str(axis))
+        plt.figure('CLB'+version+'_'+str(axis))
         plt.plot(alpha[axis], pressure[axis], ':',
                  label='measurements')
         plt.plot(alp_f, p_f, 'o', label='used measurements')
         plt.plot(alp, poly(alp), '-x', label='fitted')
 
         plt.grid()
+        plt.xlim((-20, 150))
+        plt.ylim((-.1, 1.3))
         plt.xlabel(r'bending angle $\alpha$ ($^\circ$)')
         plt.ylabel(r'pressure $p$ (bar)')
-        plt.legend()
+        plt.legend(loc='lower right')
         save.save_as_tikz('pics/'+version+'_clb_'+str(axis)+'.tex')
 
 #        plt.figure(1)

@@ -105,9 +105,11 @@ for version in versions:
         plt.plot(alp, poly(alp), '-x', label='fitted')
 
         plt.grid()
+        plt.xlim((-20, 150))
+        plt.ylim((-.1, 1.3))
         plt.xlabel(r'bending angle $\alpha$ ($^\circ$)')
         plt.ylabel(r'pressure $p$ (bar)')
-        plt.legend()
+        plt.legend(loc='lower right')
         save.save_as_tikz('pics/'+version+'_clb_'+str(axis)+'.tex')
 
 #        plt.figure(1)

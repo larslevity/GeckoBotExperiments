@@ -10,7 +10,7 @@ import numpy as np
 from Src import load
 
 
-def load_data_pathPlanner(exp_name, exp_idx=['00'], Ts=.03):
+def load_data_pathPlanner(path, sets):
     dataBase = []
 #    xscale = 145./1000  # 1000px -> 145cm
 #    xshift = -22  # cm
@@ -19,8 +19,8 @@ def load_data_pathPlanner(exp_name, exp_idx=['00'], Ts=.03):
     xshift = -12  # cm
     yshift = -45  # cm
 
-    for exp in exp_idx:
-        data = load.read_csv(exp_name+"{}.csv".format(exp))
+    for exp in sets:
+        data = load.read_csv(path+"{}.csv".format(exp))
 
         try:
             start_idx = data['f0'].index(1)  # upper left foot attached 1sttime
@@ -37,3 +37,51 @@ def load_data_pathPlanner(exp_name, exp_idx=['00'], Ts=.03):
         dataBase.append(data)
 
     return dataBase
+
+
+def find_poses_idx(db, r3_init=.44, neighbors=5):
+    IDX = []
+    failed = 0
+    for exp_idx in range(len(db)):
+        pose_idx = []
+        start_idx = db[exp_idx]['r3'].index(r3_init)
+        for idx in range(start_idx, len(db[exp_idx]['r3'])-1, 1):
+            if db[exp_idx]['r3'][idx] != db[exp_idx]['r3'][idx+1]:
+                if not pose_idx:  # empty list
+                    pose_idx.append(idx)
+                else:
+                    for jdx in range(idx, idx-neighbors, -1):  # look the last neigbors
+                        if not np.isnan(db[exp_idx]['aIMG2'][jdx]):
+                            # check
+                            dr = db[exp_idx]['r2'][idx] - db[exp_idx]['r2'][jdx]
+                            if abs(dr) > .1:
+                                failed +=1
+                                pose_idx.append(idx)  # append ori
+                                break
+                            else:
+                                pose_idx.append(jdx)
+                                break
+                        elif jdx == idx-neighbors+1:
+                            failed += 1
+                            pose_idx.append(idx)  # append ori
+        #last#
+        idx = len(db[exp_idx]['r3'])-1
+        for jdx in range(idx, idx-100, -1):  # look the last neigbors
+            if not np.isnan(db[exp_idx]['aIMG2'][jdx]):
+                # check
+                dr = db[exp_idx]['r2'][idx] - db[exp_idx]['r2'][jdx]
+                if abs(dr) > .1:
+                    failed +=1
+                    pose_idx.append(idx)  # append ori
+                    break
+                else:
+                    pose_idx.append(jdx)
+                    break
+        IDX.append(pose_idx)
+        print('failed:', failed)
+    return IDX
+
+
+
+
+

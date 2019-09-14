@@ -18,12 +18,42 @@ def get_run_color():
     cols = {'180': 'orange',
             'L': 'blue',            # Left
             'RL': 'darkblue',       # reverse Left
+            'SL': 'darkblue',
             'RFL': 'lightblue',     # reverse far left
             'R': 'red',
+            'SR': 'darkred',
             'RR': 'darkred',
             'RFR': 'lightred'
             }
     return cols
+
+
+def get_mode_color():
+    cols = { 
+        'without_eps_correction_x1_90': 'red',
+        'without_eps_correction_x1_70': 'salmon',
+        'without_eps_correction_x1_50': 'lightsalmon',
+        'eps_corrected_x1_50': 'deepskyblue',
+        'eps_corrected_x1_70': 'cornflowerblue',
+        'eps_corrected_x1_90': 'royalblue',
+            }
+    return cols
+
+
+def rotate(vec, theta):
+    c, s = np.cos(theta), np.sin(theta)
+    return np.r_[c*vec[0]-s*vec[1], s*vec[0]+c*vec[1]]
+
+
+def calc_xbar(xref, xbot, epsbot):
+    """ maps the reference point in global COS to robot COS """
+    xref = np.array([[xref[0]], [xref[1]]])
+    xbot = np.array([[xbot[0]], [xbot[1]]])
+    return rotate(xref - xbot, np.deg2rad(-epsbot))
+
+
+def calc_deps(xbar):
+    return np.rad2deg(np.arctan2(xbar[1], xbar[0]))
 
 
 def plot_track(db, POSE_IDX, run, mode, save_as_tikz=False):
@@ -82,33 +112,95 @@ def downsample(rows, proportion=.1):
 
 
 
-def plot_needed_steps(needed_steps, runs):
-    width = 0.35  # the width of the bars
+def plot_needed_steps(needed_steps, runs, modes, save_as_tikz=False):
+    colors = get_mode_color()
+    
+    width_mode = .9
     
     fig, ax = plt.subplots()
-    rects = {}
-    for idx, key in enumerate(needed_steps):
-        n = len(needed_steps[key])
-        x = np.linspace(idx - width/2, idx + width/2, n)
-        rects[idx] = ax.bar(x, needed_steps[key], width/n)
+    
+    rectdic = {}
+    lentries = []
+    for jdx, mode in enumerate(modes):
+        rectdic[mode] = {}
+        N = len(modes)
+        col = colors[mode]
+        for idx, key in enumerate(needed_steps[mode]):
+            n = len(needed_steps[mode][key])
+            width = width_mode/(N)  # the width of the bars
+            x = np.array([idx - width/2 + ii*width/n for ii in range(n)])
+            if N > 1:
+                aux = width_mode - width
+                shift = -aux/2 + (jdx)*aux/(N-1)
+                x = x + shift
+            rectdic[mode][idx] = ax.bar(x, needed_steps[mode][key], width/n*1,
+                   color=col)
+        patch = pat.Patch(color=col, label=mode[-5:])  # last 5 chars
+        lentries.append(patch)
 
-    # Add some text for labels, title and custom x-axis tick labels, etc.
+    plt.legend(handles=lentries)
     ax.set_ylabel('Number of steps')
+    ax.set_xlabel('Set Point')
     ax.set_xticks([i for i in range(len(runs))])
     ax.set_xticklabels(runs)
     
     def autolabel(rectdic):
         """Attach a text label above each bar in *rects*, displaying its height."""
-        for key in rectdic:
-            for rect in rectdic[key]:
-                height = rect.get_height()
-                ax.annotate('{}'.format(height),
-                            xy=(rect.get_x() + rect.get_width() / 2, height),
-                            xytext=(0, 3),  # 3 points vertical offset
-                            textcoords="offset points",
-                            ha='center', va='bottom')
-    autolabel(rects)
+        for mode in rectdic:
+            for key in rectdic[mode]:
+                for rect in rectdic[mode][key]:
+                    height = rect.get_height()
+                    ax.annotate('{}'.format(height),
+                                xy=(rect.get_x() + rect.get_width() / 2, height),
+                                xytext=(0, 3),  # 3 points vertical offset
+                                textcoords="offset points",
+                                ha='center', va='bottom')
+#    autolabel(rectdic)
+    if save_as_tikz:
+        save.save_as_tikz('tikz/needed_steps.tex')
 
 
+def calc_mean_stddev(mat):
+    mu1 = np.nanmean(mat, axis=1)
+    sigma1 = np.nanstd(mat, axis=1)
+    return mu1, sigma1
 
+def plot_deps(db, POSE_IDX, run, mode, save_as_tikz=False):
+    plt.figure('Deps'+run)
+    plt.title(run)
+    col = get_mode_color()
+    
+    max_poses = max([len(pidx) for pidx in POSE_IDX])
+    DEPSMAT = np.empty((max_poses, len(db)))
+    DEPSMAT[:] = np.nan
+    XBAR = np.empty((max_poses, len(db)))
+    YBAR = np.empty((max_poses, len(db)))
+    XBAR[:] = np.nan
+    YBAR[:] = np.nan
+    
 
+    for exp_idx, dset in enumerate(db):        
+        EPS = np.take(dset['eps'], POSE_IDX[exp_idx])
+        X1 = np.take(dset['x1'], POSE_IDX[exp_idx])
+        Y1 = np.take(dset['y1'], POSE_IDX[exp_idx])
+        XREF = np.take(dset['x8'], POSE_IDX[exp_idx])
+        YREF = np.take(dset['y8'], POSE_IDX[exp_idx])
+
+        for pidx, (eps, x1, y1, xref, yref) in enumerate(
+                zip(EPS, X1, Y1, XREF, YREF)):
+            xbar = calc_xbar((xref, yref), (x1, y1), eps)
+            deps = calc_deps(xbar)
+            XBAR[pidx][exp_idx] = xbar[0]
+            YBAR[pidx][exp_idx] = xbar[1]
+            DEPSMAT[pidx][exp_idx] = deps
+
+    mx, _ = calc_mean_stddev(XBAR)
+    my, _ = calc_mean_stddev(YBAR)
+    d = -np.linalg.norm([mx, my], axis=0)
+
+    mu, sig = calc_mean_stddev(DEPSMAT)
+    plt.plot(d, mu, color=col[mode])
+    plt.fill_between(d, mu+sig, mu-sig,
+                     facecolor=col[mode], alpha=0.5)
+
+    return DEPSMAT    

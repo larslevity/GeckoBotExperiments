@@ -14,15 +14,15 @@ from Src import plot_fun_pathPlanner as pf
 
 
 modes = [
-        'without_eps_correction_x1_50',
+#        'without_eps_correction_x1_50',
         'eps_corrected_x1_50',
-        'without_eps_correction_x1_70',
-        'eps_corrected_x1_70',
-        'without_eps_correction_x1_90',
-        'eps_corrected_x1_90',
+#        'without_eps_correction_x1_70',
+#        'eps_corrected_x1_70',
+#        'without_eps_correction_x1_90',
+#        'eps_corrected_x1_90',
         ]
-runs = ['L', 'SL', 'R', 'SR']
-#runs = ['R']
+#runs = ['L', 'SL', 'R', 'SR']
+runs = ['R']
 
 
 needed_steps = {}
@@ -44,6 +44,9 @@ for mode in modes:
         # %% Plot DEPS
         mat = pf.plot_deps(db, POSE_IDX, run, mode, save_as_tikz=False)
 
+
+        # %%
+        alp_err = ev.calc_errors(db, POSE_IDX)
 
         # %% play
 

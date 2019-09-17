@@ -8,6 +8,15 @@ Created on Tue Sep 10 18:04:03 2019
 import numpy as np
 
 from Src import load
+from Src import inverse_kinematics
+from Src import kin_model
+from Src import calibration
+
+
+f_l = 100.      # factor on length objective
+f_o = 0.1     # .0003     # factor on orientation objective
+f_a = 10        # factor on angle objective
+
 
 
 def load_data_pathPlanner(path, sets):
@@ -81,6 +90,58 @@ def find_poses_idx(db, r3_init=.44, neighbors=5):
         print('failed:', failed)
     return IDX
 
+
+
+
+
+def extract_measurement(measurement, idx):
+    alp = [measurement['aIMG{}'.format(j)][idx] for j in range(6)]
+    fposx = [measurement['x{}'.format(j)][idx] for j in range(6)]
+    fposy = [measurement['y{}'.format(j)][idx] for j in range(6)]
+    p = [measurement['p{}'.format(j)][idx] for j in range(6)]
+    fix = [measurement['f{}'.format(j)][idx] for j in range(4)]
+    eps = measurement['eps'][idx]
+    xref = measurement['x7'][idx]
+    yref = measurement['y7'][idx]
+    return (alp, eps, (fposx, fposy), p, fix, (xref,yref))
+
+
+
+def error_of_prediction(db, current_pose_idx, next_pose_idx, version='vS11'):
+    len_leg, len_tor = calibration.get_len(version)
+    alp, eps, fpos, _, _, _ = extract_measurement(db, current_pose_idx)
+
+    alp_c, eps_, fpos_c = inverse_kinematics.correct_measurement(
+            alp, eps, fpos, len_leg=len_leg, len_tor=len_tor)
+
+    alp_n, eps_n, fpos_n, p_n, fix_n, _ = extract_measurement(db, next_pose_idx)
+    alpref_n = calibration.get_alpha(p_n, version)
+    alp = alp[:3] + alp[-2:]
+    alp_n = alp_n[:3] + alp_n[-2:]
+    x = alp + [len_leg, len_leg, len_tor, len_leg, len_leg] + [eps]
+    reference = (alpref_n, fix_n)
+    
+    x, fpos_p, fix, constraint, cost = \
+        kin_model.predict_next_pose(reference, x, fpos_n, f=[f_l, f_o, f_a],
+                      len_leg=len_leg, len_tor=len_tor)
+    alp_p, ell_p, eps_p = x[0:5], x[5:2*5], x[-1]
+    
+    
+    alp_err = np.array(alp_n) - np.array(alp_p)
+    print('alperr:', alp_err)
+    alp_err = np.linalg.norm(alp_err)
+    
+    return alp_err
+
+
+def calc_errors(db, POSE_IDX):
+    for exp_idx in [0]:
+        dset = db[exp_idx]
+        pose_idx = POSE_IDX[exp_idx]
+        for idx in  [2]:  # range(len(pose_idx)-1):
+            alp_err = error_of_prediction(dset, pose_idx[idx], pose_idx[idx+1])
+            print('alp prediction error:', alp_err)
+    return alp_err
 
 
 

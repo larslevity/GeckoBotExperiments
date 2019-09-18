@@ -54,9 +54,6 @@ def correct_measurement(alpha, eps, fpos, len_leg=len_leg, len_tor=len_tor):
     alpha_opt = alpha_opt[0:3] + [-alpha_opt[2]] + alpha_opt[3:]
     eps_opt = round(eps_opt, 2)
 
-    xpos_est = [int(xx) for xx in xpos_est]
-    ypos_est = [int(yy) for yy in ypos_est]
-
     return (alpha_opt, eps_opt, (xpos_est, ypos_est))
 
 

@@ -20,7 +20,7 @@ clb = {
 
 
 clb_len = {
-    'vS11': [7, 9]}
+    'vS11': [9.1, 10.3]}
 
 
 def get_len(version):

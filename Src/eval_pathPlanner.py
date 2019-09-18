@@ -6,11 +6,15 @@ Created on Tue Sep 10 18:04:03 2019
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 from Src import load
 from Src import inverse_kinematics
 from Src import kin_model
 from Src import calibration
+from Src import roboter_repr
+from Src import plot_fun_pathPlanner as pf
 
 
 f_l = 100.      # factor on length objective
@@ -64,7 +68,7 @@ def find_poses_idx(db, r3_init=.44, neighbors=5):
                             # check
                             dr = db[exp_idx]['r2'][idx] - db[exp_idx]['r2'][jdx]
                             if abs(dr) > .1:
-                                failed +=1
+                                failed += 1
                                 pose_idx.append(idx)  # append ori
                                 break
                             else:
@@ -73,14 +77,14 @@ def find_poses_idx(db, r3_init=.44, neighbors=5):
                         elif jdx == idx-neighbors+1:
                             failed += 1
                             pose_idx.append(idx)  # append ori
-        #last#
+        # last#
         idx = len(db[exp_idx]['r3'])-1
         for jdx in range(idx, idx-100, -1):  # look the last neigbors
             if not np.isnan(db[exp_idx]['aIMG2'][jdx]):
                 # check
                 dr = db[exp_idx]['r2'][idx] - db[exp_idx]['r2'][jdx]
                 if abs(dr) > .1:
-                    failed +=1
+                    failed += 1
                     pose_idx.append(idx)  # append ori
                     break
                 else:
@@ -98,51 +102,106 @@ def extract_measurement(measurement, idx):
     alp = [measurement['aIMG{}'.format(j)][idx] for j in range(6)]
     fposx = [measurement['x{}'.format(j)][idx] for j in range(6)]
     fposy = [measurement['y{}'.format(j)][idx] for j in range(6)]
-    p = [measurement['p{}'.format(j)][idx] for j in range(6)]
+    p = [measurement['r{}'.format(j)][idx] for j in range(6)]
     fix = [measurement['f{}'.format(j)][idx] for j in range(4)]
     eps = measurement['eps'][idx]
     xref = measurement['x7'][idx]
     yref = measurement['y7'][idx]
-    return (alp, eps, (fposx, fposy), p, fix, (xref,yref))
-
+    return (alp, eps, (fposx, fposy), p, fix, (xref, yref))
 
 
 def error_of_prediction(db, current_pose_idx, next_pose_idx, version='vS11'):
     len_leg, len_tor = calibration.get_len(version)
-    alp, eps, fpos, _, _, _ = extract_measurement(db, current_pose_idx)
+    ell_n = [len_leg, len_leg, len_tor, len_leg, len_leg]
 
-    alp_c, eps_, fpos_c = inverse_kinematics.correct_measurement(
-            alp, eps, fpos, len_leg=len_leg, len_tor=len_tor)
+    # current pose
+    alp, eps, fpos, _, fix, _ = extract_measurement(db, current_pose_idx)
+    x = alp[:3] + alp[-2:] + ell_n + [eps]
+    plot_pose(x, fpos, fix, col='black')
 
-    alp_n, eps_n, fpos_n, p_n, fix_n, _ = extract_measurement(db, next_pose_idx)
+#    # corrected current_pose
+#    alp_c, eps_c, fpos_c = inverse_kinematics.correct_measurement(
+#            alp, eps, fpos, len_leg=len_leg, len_tor=len_tor)
+#    x_c = alp_c[:3] + alp_c[-2:] + ell_n + [eps_c]
+#    plot_pose(x_c, fpos_c, fix, col='gray')
+
+    # next pose
+    alp_n, eps_n, fpos_n, p_n, fix_n, _ = \
+        extract_measurement(db, next_pose_idx)
     alpref_n = calibration.get_alpha(p_n, version)
-    alp = alp[:3] + alp[-2:]
+#    if alpref_n[2] < 0:
+#        alpref_n[2] += 15
     alp_n = alp_n[:3] + alp_n[-2:]
-    x = alp + [len_leg, len_leg, len_tor, len_leg, len_leg] + [eps]
-    reference = (alpref_n, fix_n)
+    x_n = alp_n[:3] + alp_n[-2:] + ell_n + [eps_n]
+    plot_pose(x_n, fpos_n, fix_n, col='blue')
+
+    if not np.isnan(fpos[0]).any():
+        # predicted next pose
+        reference = (alpref_n, fix)
+    #    print('reference:', reference)
+        x_p, fpos_p, fix_p, constraint, cost = \
+            kin_model.predict_next_pose(reference, x, fpos, f=[f_l, f_o, f_a],
+                          len_leg=len_leg, len_tor=len_tor)
+        alp_p, ell_p, eps_p = x_p[0:5], x_p[5:2*5], x_p[-1]
+        plot_pose(x_p, fpos_p, fix_p, col='red')
     
-    x, fpos_p, fix, constraint, cost = \
-        kin_model.predict_next_pose(reference, x, fpos_n, f=[f_l, f_o, f_a],
-                      len_leg=len_leg, len_tor=len_tor)
-    alp_p, ell_p, eps_p = x[0:5], x[5:2*5], x[-1]
-    
-    
-    alp_err = np.array(alp_n) - np.array(alp_p)
-    print('alperr:', alp_err)
-    alp_err = np.linalg.norm(alp_err)
-    
-    return alp_err
+        # errs
+        alp_err = np.array(alp_n) - np.array(alp_p)
+        x_err = np.array(fpos_n[0]) - np.array(fpos_p[0])
+        y_err = np.array(fpos_n[1]) - np.array(fpos_p[1])
+        p_err = np.linalg.norm([x_err, y_err], axis=0)/len_tor
+        eps_err = eps_n - eps_p
+
+        return alp_err, p_err, eps_err, cost, (x_err, y_err)
+    else:
+        return [np.nan]*5, [np.nan]*6, np.nan, np.nan, ([np.nan]*6, [np.nan]*6)
 
 
 def calc_errors(db, POSE_IDX):
-    for exp_idx in [0]:
+    max_poses = max([len(pidx) for pidx in POSE_IDX])
+    ALPERR = {i: np.empty((max_poses, len(db))) for i in range(5)}
+    PERR = {i: np.empty((max_poses, len(db))) for i in range(6)}
+    EPSERR = np.empty((max_poses, len(db)))
+    for i in range(6):
+        if i < 5:
+            ALPERR[i][:] = np.nan
+        PERR[i][:] = np.nan
+    EPSERR[:] = np.nan
+
+    for exp_idx, dset in enumerate(db):
         dset = db[exp_idx]
-        pose_idx = POSE_IDX[exp_idx]
-        for idx in  [2]:  # range(len(pose_idx)-1):
-            alp_err = error_of_prediction(dset, pose_idx[idx], pose_idx[idx+1])
-            print('alp prediction error:', alp_err)
-    return alp_err
+        for pidx, pose_idx in enumerate(POSE_IDX[exp_idx][:-1]):
+            alp_err, p_err, eps_err, cost, (x_err, y_err) = \
+                error_of_prediction(dset, pose_idx, POSE_IDX[exp_idx][pidx+1])
+            for idx in range(6):
+                if idx < 5:
+                    ALPERR[idx][pidx][exp_idx] = alp_err[idx]
+                PERR[idx][pidx][exp_idx] = p_err[idx]
+            EPSERR[pidx][exp_idx] = eps_err
+            print('p_err: ', [round(p, 2) for p in p_err])
+
+    ERR_alp_m = {}
+    ERR_p_m = {}
+    ERR_alp_sig = {}
+    ERR_p_sig = {}
+    ERR_eps_m, ERR_eps_sig = calc_mean_stddev(EPSERR)
+    for i in range(6):
+        if i < 5:
+            ERR_alp_m[i], ERR_alp_sig[i] = calc_mean_stddev(ALPERR[i])
+        ERR_p_m[i], ERR_p_sig[i] = calc_mean_stddev(PERR[i])
+
+    return ERR_alp_m, ERR_p_m, ERR_eps_m, ERR_alp_sig, ERR_p_sig, ERR_eps_sig
 
 
+def plot_pose(x, marks, fix, col='k'):
+    pose = roboter_repr.GeckoBotPose(x, marks, fix)
+    pose.plot_markers(col=col)
+    pose.plot(col)
+
+
+def calc_mean_stddev(mat):
+    mu1 = np.nanmean(mat, axis=1)
+    sigma1 = np.nanstd(mat, axis=1)
+    return mu1, sigma1
 
 

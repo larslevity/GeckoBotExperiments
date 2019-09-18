@@ -40,6 +40,10 @@ def get_mode_color():
     return cols
 
 
+def get_marker_color():
+    return ['red', 'orange', 'darkred', 'blue', 'darkorange', 'darkblue']
+
+
 def rotate(vec, theta):
     c, s = np.cos(theta), np.sin(theta)
     return np.r_[c*vec[0]-s*vec[1], s*vec[0]+c*vec[1]]
@@ -165,11 +169,12 @@ def calc_mean_stddev(mat):
     sigma1 = np.nanstd(mat, axis=1)
     return mu1, sigma1
 
+
 def plot_deps(db, POSE_IDX, run, mode, save_as_tikz=False):
     plt.figure('Deps'+run)
     plt.title(run)
     col = get_mode_color()
-    
+
     max_poses = max([len(pidx) for pidx in POSE_IDX])
     DEPSMAT = np.empty((max_poses, len(db)))
     DEPSMAT[:] = np.nan

@@ -23,9 +23,10 @@ from Src import plot_fun as pf
 
 
 # %% LOAD
-versions = ['vS11_special3', 'vS11_special2', 'vS11_special']
+#versions = ['vS11_special3', 'vS11_special2', 'vS11_special']
 #versions = ['vS11']
 
+versions = ['v40_2']
 
 clb = {}
 
@@ -68,6 +69,12 @@ for version in versions:
             if alpha[axis][iidx] < 0:
                 idx[iidx] = False
 
+        # only vals with p[i] > 0.2
+        for iidx in enumerate(idx):
+            if pressure[axis][iidx] < 0.1:
+                idx[iidx] = False
+
+
         alp_f = alpha[axis][idx]
         p_f = pressure[axis][idx]
 
@@ -91,7 +98,7 @@ for version in versions:
         plt.xlabel(r'bending angle $\alpha$ ($^\circ$)')
         plt.ylabel(r'pressure $p$ (bar)')
         plt.legend(loc='lower right')
-        save.save_as_tikz('pics/'+version+'_clb_'+str(axis)+'.tex')
+#        save.save_plt_as_tikz('pics/'+version+'_clb_'+str(axis)+'.tex')
 
 #        plt.figure(1)
 #        plt.plot(pressure[axis], alpha[axis])

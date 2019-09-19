@@ -1,62 +1,27 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Sep 10 18:04:03 2019
+Created on Thu Sep 19 16:45:41 2019
 
 @author: AmP
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-
-
-from Src import load
-from Src import inverse_kinematics
-from Src import kin_model
+import numpy as np
 from Src import calibration
+from Src import kin_model
 from Src import roboter_repr
-from Src import plot_fun_pathPlanner as pf
+from Src import inverse_kinematics
 
 
-f_l = 100.      # factor on length objective
-f_o = 0.1     # .0003     # factor on orientation objective
-f_a = 10        # factor on angle objective
+f_l, f_o, f_a = calibration.get_kin_model_params()
 
 
-def load_data_pathPlanner(path, sets, version='vS11'):
-    dataBase = []
-#    xscale = 145./1000  # 1000px -> 145cm
-#    xshift = -22  # cm
-#    yshift = -63  # cm
-    xscale = 112./1000  # after changing resolution of RPi
-    xshift = -12  # cm
-    yshift = -45  # cm
-
-    for exp in sets:
-        data = load.read_csv(path+"{}.csv".format(exp))
-
-        try:
-            start_idx = data['f0'].index(1)  # upper left foot attached 1sttime
-        except ValueError:  # no left foot is fixed
-            start_idx = 0
-        start_time = data['time'][start_idx]
-        data['time'] = \
-            [round(data_time - start_time, 3) for data_time in data['time']]
-        for key in data:
-            if key[0] in ['x', 'y']:
-                shift = xshift if key[0] == 'x' else yshift
-                data[key] = [i*xscale + shift for i in data[key]]
-
-        dataBase.append(data)
-
-    return dataBase
-
-
-def find_poses_idx(db, r3_init=.44, neighbors=5):
+def ieee_find_poses_idx(db, neighbors=5):
     IDX = []
     failed = 0
     for exp_idx in range(len(db)):
         pose_idx = []
-        start_idx = db[exp_idx]['r3'].index(r3_init)
+        start_idx = db[exp_idx]['f1'].index(1)
         for idx in range(start_idx, len(db[exp_idx]['r3'])-1, 1):
             if db[exp_idx]['r3'][idx] != db[exp_idx]['r3'][idx+1]:
                 if not pose_idx:  # empty list
@@ -94,9 +59,6 @@ def find_poses_idx(db, r3_init=.44, neighbors=5):
     return IDX
 
 
-
-
-
 def extract_measurement(measurement, idx):
     alp = [measurement['aIMG{}'.format(j)][idx] for j in range(6)]
     fposx = [measurement['x{}'.format(j)][idx] for j in range(6)]
@@ -109,14 +71,13 @@ def extract_measurement(measurement, idx):
     return (alp, eps, (fposx, fposy), p, fix, (xref, yref))
 
 
-def error_of_prediction(db, current_pose_idx, next_pose_idx, version='vS11'):
+def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11'):
     len_leg, len_tor = calibration.get_len(version)
     ell_n = [len_leg, len_leg, len_tor, len_leg, len_leg]
 
     # current pose
-    alp, eps, fpos, _, fix, _ = extract_measurement(db, current_pose_idx)
+    alp, eps, fpos, _, fix, _ = extract_measurement(db, IDX[start_idx])
     x = alp[:3] + alp[-2:] + ell_n + [eps]
-    
 
     # corrected current_pose
     alp_c, eps_c, fpos_c = inverse_kinematics.correct_measurement(
@@ -127,15 +88,19 @@ def error_of_prediction(db, current_pose_idx, next_pose_idx, version='vS11'):
     # plot currentpose
     plot_pose(x, fpos, fix, col='gray')
 
-    # next pose
+    # end pose
     alp_n, eps_n, fpos_n, p_n, fix_n, _ = \
-        extract_measurement(db, next_pose_idx)
-    alpref_n = calibration.get_alpha(p_n, version)
-#    if alpref_n[2] < 0:
-#        alpref_n[2] += 15
-    alp_n = alp_n[:3] + alp_n[-2:]
+        extract_measurement(db, IDX[start_idx+n_predictions])
     x_n = alp_n[:3] + alp_n[-2:] + ell_n + [eps_n]
     plot_pose(x_n, fpos_n, fix_n, col='black')
+
+
+
+    # reference
+    REF = []
+    for d_idx in range(n_predictions):
+        _, _, _, p_i, fix_i, _ = extract_measurement(db, IDX[start_idx+d_idx])
+        a_i = calibration.get_alpha(p_i, version)
 
     if not np.isnan(fpos[0]).any():
         # predicted next pose
@@ -143,10 +108,10 @@ def error_of_prediction(db, current_pose_idx, next_pose_idx, version='vS11'):
     #    print('reference:', reference)
         x_p, fpos_p, fix_p, constraint, cost = \
             kin_model.predict_next_pose(reference, x, fpos, f=[f_l, f_o, f_a],
-                          len_leg=len_leg, len_tor=len_tor)
+                                        len_leg=len_leg, len_tor=len_tor)
         alp_p, ell_p, eps_p = x_p[0:5], x_p[5:2*5], x_p[-1]
         plot_pose(x_p, fpos_p, fix_p, col='red')
-    
+
         # errs
         alp_err = np.array(alp_n) - np.array(alp_p)
         x_err = np.array(fpos_n[0]) - np.array(fpos_p[0])
@@ -159,8 +124,8 @@ def error_of_prediction(db, current_pose_idx, next_pose_idx, version='vS11'):
         return [np.nan]*5, [np.nan]*6, np.nan, np.nan, ([np.nan]*6, [np.nan]*6)
 
 
-def calc_errors(db, POSE_IDX, version='vS11', runs=None):
-    max_poses = max([len(pidx) for pidx in POSE_IDX])
+def calc_errors(db, POSE_IDX, version='vS11', runs=None, predict_poses=1):
+    max_poses = max([len(pidx) for pidx in POSE_IDX]) - predict_poses
     ALPERR = {i: np.empty((max_poses, len(db))) for i in range(5)}
     PERR = {i: np.empty((max_poses, len(db))) for i in range(6)}
     EPSERR = np.empty((max_poses, len(db)))
@@ -176,10 +141,10 @@ def calc_errors(db, POSE_IDX, version='vS11', runs=None):
         data = db
     for exp_idx, dset in enumerate(data):
         dset = db[exp_idx]
-        for pidx, pose_idx in enumerate(POSE_IDX[exp_idx][:-1]):
+        for pidx, pose_idx in enumerate(POSE_IDX[exp_idx][:-predict_poses]):
             plt.figure('Prediction'+str(exp_idx)+'_'+str(pidx))
             alp_err, p_err, eps_err, cost, (x_err, y_err) = \
-                error_of_prediction(dset, pose_idx, POSE_IDX[exp_idx][pidx+1],
+                error_of_prediction(dset, POSE_IDX[exp_idx], pidx, predict_poses,
                                     version)
             for idx in range(6):
                 if idx < 5:
@@ -213,5 +178,3 @@ def calc_mean_stddev(mat):
     mu1 = np.nanmean(mat, axis=1)
     sigma1 = np.nanstd(mat, axis=1)
     return mu1, sigma1
-
-

@@ -202,10 +202,13 @@ def plot_deps(db, POSE_IDX, run, mode, save_as_tikz=False):
     mx, _ = calc_mean_stddev(XBAR)
     my, _ = calc_mean_stddev(YBAR)
     d = -np.linalg.norm([mx, my], axis=0)
-
+    try:
+        color = col[mode]
+    except KeyError:
+        color = 'black'
     mu, sig = calc_mean_stddev(DEPSMAT)
-    plt.plot(d, mu, color=col[mode])
+    plt.plot(d, mu, color=color)
     plt.fill_between(d, mu+sig, mu-sig,
-                     facecolor=col[mode], alpha=0.5)
+                     facecolor=color, alpha=0.5)
 
     return DEPSMAT    

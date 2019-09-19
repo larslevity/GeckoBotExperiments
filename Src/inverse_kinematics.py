@@ -19,6 +19,9 @@ n_limbs = 5
 
 
 def correct_measurement(alpha, eps, fpos, len_leg=len_leg, len_tor=len_tor):
+    if np.isnan(np.array(alpha)).any():
+        return [np.nan]*6, np.nan, ([np.nan]*6, [np.nan]*6)
+
     alpha = alpha[0:3] + alpha[4:]  # remove double torso measurement
     xpos, ypos = fpos[0], fpos[1]
     ell0 = [len_leg, len_leg, len_tor, len_leg, len_leg]

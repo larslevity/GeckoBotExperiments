@@ -22,7 +22,7 @@ import utils as uti
 
 modes = [
         'straight_1',
-#        'curve_1',
+#        'curve_2',
         ]
 
 version = 'v40'
@@ -47,7 +47,8 @@ for mode in modes:
 
     # %%
     ALPERR, PERR, EPSERR, alpsig, psig, epsig = \
-        uti.calc_errors(db, POSE_IDX, version , runs=1, predict_poses=2)
+        uti.calc_errors(db, POSE_IDX, version, mode=mode[-1],
+                        nexps=None, predict_poses=6, n_runs=None, start_idx=0)
     # %%
     col = pf.get_marker_color()
     plt.figure('PredictionErrors-P')

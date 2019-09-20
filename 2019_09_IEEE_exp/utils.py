@@ -13,7 +13,7 @@ from Src import roboter_repr
 from Src import inverse_kinematics
 
 
-f_l, f_o, f_a = calibration.get_kin_model_params()
+
 
 
 def ieee_find_poses_idx(db, neighbors=5):
@@ -68,21 +68,28 @@ def extract_measurement(measurement, idx):
     eps = measurement['eps'][idx]
     xref = measurement['x7'][idx]
     yref = measurement['y7'][idx]
+    if p[2] > 0:  # left elly actuated
+        alp = alp[0:2] + alp[-3:]
+    else:  # right belly
+        alp = alp[0:2] + [-alp[3]] + alp[-2:]
+
     return (alp, eps, (fposx, fposy), p, fix, (xref, yref))
 
 
-def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11'):
+def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11',
+                        mode='1'):
     len_leg, len_tor = calibration.get_len(version)
     ell_n = [len_leg, len_leg, len_tor, len_leg, len_leg]
 
     # current pose
     alp, eps, fpos, _, fix, _ = extract_measurement(db, IDX[start_idx])
-    x = alp[:3] + alp[-2:] + ell_n + [eps]
+    x = alp + ell_n + [eps]
+    print('start pos alp:', [round(a, 2) for a in x[:5]])
 
     # corrected current_pose
     alp_c, eps_c, fpos_c = inverse_kinematics.correct_measurement(
             alp, eps, fpos, len_leg=len_leg, len_tor=len_tor)
-    x_c = alp_c[:3] + alp_c[-2:] + ell_n + [eps_c]
+    x_c = alp_c + ell_n + [eps_c]
     plot_pose(x_c, fpos_c, fix, col='silver')
 
     # plot currentpose
@@ -91,29 +98,42 @@ def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11'):
     # end pose
     alp_n, eps_n, fpos_n, p_n, fix_n, _ = \
         extract_measurement(db, IDX[start_idx+n_predictions])
-    x_n = alp_n[:3] + alp_n[-2:] + ell_n + [eps_n]
+    x_n = alp_n + ell_n + [eps_n]
     plot_pose(x_n, fpos_n, fix_n, col='black')
+    print('end pos alp:', [round(a, 2) for a in x_n[:5]])
 
 
 
     # reference
-    REF = []
+    REF, F = [], [fix]
     for d_idx in range(n_predictions):
-        _, _, _, p_i, fix_i, _ = extract_measurement(db, IDX[start_idx+d_idx])
-        a_i = calibration.get_alpha(p_i, version)
+        aa, _, _, p_i, fix_i, _ = extract_measurement(db, IDX[start_idx+d_idx+1])
+        a_i = [round(a, 2) for a in calibration.get_alpha(p_i, version)]
+        for idx_a, a in enumerate(a_i):
+            if np.isnan(a):
+                a_i[idx_a] = aa[idx_a]  # if inv clb not possible, take measured angle
+            
+        print('ref angle:', a_i)
+        print('ref pressure:', [round(p,2) for p in p_i])
+        REF.append([a_i, F[d_idx]])
+        F.append(fix_i)
+    f_l, f_o, f_a = calibration.get_kin_model_params(mode)
 
     if not np.isnan(fpos[0]).any():
-        # predicted next pose
-        reference = (alpref_n, fix)
-    #    print('reference:', reference)
-        x_p, fpos_p, fix_p, constraint, cost = \
-            kin_model.predict_next_pose(reference, x, fpos, f=[f_l, f_o, f_a],
-                                        len_leg=len_leg, len_tor=len_tor)
-        alp_p, ell_p, eps_p = x_p[0:5], x_p[5:2*5], x_p[-1]
+        # init loop
+        x_p, fpos_p = x, fpos
+        for d_idx in range(n_predictions):
+            # predicted next pose
+            reference = REF[d_idx]
+            x_p, fpos_p, fix_p, constraint, cost = \
+                kin_model.predict_next_pose(reference, x_p, fpos_p,
+                                            f=[f_l, f_o, f_a],
+                                            len_leg=len_leg, len_tor=len_tor)
         plot_pose(x_p, fpos_p, fix_p, col='red')
 
         # errs
-        alp_err = np.array(alp_n) - np.array(alp_p)
+        alp_p, _, eps_p = x_p[0:5], x_p[5:2*5], x_p[-1]
+        alp_err = np.array(x_n[:5]) - np.array(alp_p)
         x_err = np.array(fpos_n[0]) - np.array(fpos_p[0])
         y_err = np.array(fpos_n[1]) - np.array(fpos_p[1])
         p_err = np.linalg.norm([x_err, y_err], axis=0)/len_tor
@@ -124,7 +144,8 @@ def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11'):
         return [np.nan]*5, [np.nan]*6, np.nan, np.nan, ([np.nan]*6, [np.nan]*6)
 
 
-def calc_errors(db, POSE_IDX, version='vS11', runs=None, predict_poses=1):
+def calc_errors(db, POSE_IDX, version='vS11', nexps=None, predict_poses=1,
+                n_runs=None, start_idx=0, mode='1'):
     max_poses = max([len(pidx) for pidx in POSE_IDX]) - predict_poses
     ALPERR = {i: np.empty((max_poses, len(db))) for i in range(5)}
     PERR = {i: np.empty((max_poses, len(db))) for i in range(6)}
@@ -135,17 +156,20 @@ def calc_errors(db, POSE_IDX, version='vS11', runs=None, predict_poses=1):
         PERR[i][:] = np.nan
     EPSERR[:] = np.nan
 
-    if runs:
-        data = db[:runs]
+    if nexps:
+        data = db[:nexps]
     else:
         data = db
+
     for exp_idx, dset in enumerate(data):
         dset = db[exp_idx]
-        for pidx, pose_idx in enumerate(POSE_IDX[exp_idx][:-predict_poses]):
+        if not n_runs:
+            n_runs = len(POSE_IDX[exp_idx]) - predict_poses - start_idx - 1
+        for pidx in range(start_idx, start_idx+n_runs):
             plt.figure('Prediction'+str(exp_idx)+'_'+str(pidx))
             alp_err, p_err, eps_err, cost, (x_err, y_err) = \
                 error_of_prediction(dset, POSE_IDX[exp_idx], pidx, predict_poses,
-                                    version)
+                                    version, mode)
             for idx in range(6):
                 if idx < 5:
                     ALPERR[idx][pidx][exp_idx] = alp_err[idx]

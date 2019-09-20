@@ -33,10 +33,15 @@ clb_len = {
     }
 
 
-def get_kin_model_params():
-    f_l = 100.      # factor on length objective
-    f_o = 0.1     # .0003     # factor on orientation objective
-    f_a = 10   # factor on angle objective
+clb_param = {  # f_l, f_o, f_a
+    '1': [.1, 10, 10],
+    '2': [.1, 1, 10],
+    '3': [.1, .1, 10],
+    }
+
+
+def get_kin_model_params(mode):
+    f_l, f_o, f_a = clb_param[mode]
     return (f_l, f_o, f_a)
 
 
@@ -51,7 +56,7 @@ def get_pressure(alpha, version, max_pressure=1):
 
     def cut_off(p):
         if p > max_pressure:
-            # Warning('clb pressure > max_presse: I cutted it off')
+            # Warning('clb pressure > max_presse: cutted it off')
             p_ = max_pressure
         elif p < 0:
             p_ = 0.00
@@ -96,7 +101,18 @@ def get_alpha(pressure, version):
         if len(roots) == 1:
             alp.append(roots[0])
         elif len(roots) == 0:
-            alp.append(0)
+            if p > 0:
+                print('Channel {}: Cannot find alpha for p={}'. format(idx, p))
+                if p == 1 and idx == 1:
+                    alp.append(124)
+                elif p == 1 and idx == 4:
+                    alp.append(221)
+#                elif p == .93 and idx == 4:
+#                    alp.append(124)
+                else:
+                    alp.append(np.nan)
+            else:
+                alp.append(0)
         else:
             alp.append(np.mean(roots))
     if sign_alp < 0:
@@ -119,9 +135,9 @@ def eval_poly(coef, x):
 if __name__ == '__main__':
     from matplotlib import pyplot as plt
 
-    version = 'vS11'
+    version = 'v40'
 
-    alp = [30, 45, -100, 45, 45]
+    alp = [30, 160, -100, 45, 45]
     print('alp:\t', alp)
     p = get_pressure(alp, version=version)
     print('p:\t', p)
@@ -136,25 +152,25 @@ if __name__ == '__main__':
     print('alp_:\t', [round(a) for a in alp_])
 
 
-    for alpha in np.linspace(-120, 120, 50):
-        alp = [alpha]*5
-        p = get_pressure(alp, version=version)
-        alp_ = get_alpha(p, version)
-
-        for idx, alp__ in enumerate(alp_):
-            plt.figure(idx)
-            if idx > 2:
-                plt.plot(alp[idx], p[idx+1]*100, 'r.')
-            else:
-                plt.plot(alp[idx], p[idx]*100, 'r.')
-            if idx == 2:
-                plt.plot(alp[idx], p[idx+1]*100, 'r.')
-
-            plt.plot(alp[idx], alp__, 'k.')
-    for idx, _ in enumerate(alp_):
-        plt.figure(idx)
-        plt.xlabel('alpha [deg]')
-        plt.ylabel('pressure(alpha) [bar*100] / alpha_ [deg]')
-        plt.plot(0, 0, 'r.', label='p(alp) * 100')
-        plt.plot(0, 0, 'k.', label='alp_(p(alp))')
-        plt.legend()
+#    for alpha in np.linspace(-120, 120, 50):
+#        alp = [alpha]*5
+#        p = get_pressure(alp, version=version)
+#        alp_ = get_alpha(p, version)
+#
+#        for idx, alp__ in enumerate(alp_):
+#            plt.figure(idx)
+#            if idx > 2:
+#                plt.plot(alp[idx], p[idx+1]*100, 'r.')
+#            else:
+#                plt.plot(alp[idx], p[idx]*100, 'r.')
+#            if idx == 2:
+#                plt.plot(alp[idx], p[idx+1]*100, 'r.')
+#
+#            plt.plot(alp[idx], alp__, 'k.')
+#    for idx, _ in enumerate(alp_):
+#        plt.figure(idx)
+#        plt.xlabel('alpha [deg]')
+#        plt.ylabel('pressure(alpha) [bar*100] / alpha_ [deg]')
+#        plt.plot(0, 0, 'r.', label='p(alp) * 100')
+#        plt.plot(0, 0, 'k.', label='alp_(p(alp))')
+#        plt.legend()

@@ -10,28 +10,21 @@ import numpy as np
 from scipy.optimize import minimize
 
 
-
-
-len_leg = 79
-len_tor = 92
-
 n_limbs = 5
 
 
-def correct_measurement(alpha, eps, fpos, len_leg=len_leg, len_tor=len_tor):
+def correct_measurement(alpha, eps, fpos, len_leg, len_tor):
     if np.isnan(np.array(alpha)).any():
-        return [np.nan]*6, np.nan, ([np.nan]*6, [np.nan]*6)
+        return [np.nan]*5, np.nan, ([np.nan]*6, [np.nan]*6)
 
-    alpha = alpha[0:3] + alpha[4:]  # remove double torso measurement
     xpos, ypos = fpos[0], fpos[1]
     ell0 = [len_leg, len_leg, len_tor, len_leg, len_leg]
     # unknown
-    
+
     X10 = [xpos[1], ypos[1]]
     beta0 = [0, 0, 0, 0, 0]
     eps0 = eps
     x0 = X10 + beta0 + [eps0]
-
 
     wx, walp, weps = 1, .01, .01
 
@@ -53,8 +46,7 @@ def correct_measurement(alpha, eps, fpos, len_leg=len_leg, len_tor=len_tor):
     alpha_opt = np.array(alpha) + np.array(bet)
     alpha_opt = [round(a, 2) for a in alpha_opt]
     xpos_est, ypos_est = _calc_coords2(ell0, alpha_opt, eps_opt, X1_opt)
-    # add additional bending angle
-    alpha_opt = alpha_opt[0:3] + [-alpha_opt[2]] + alpha_opt[3:]
+
     eps_opt = round(eps_opt, 2)
 
     return (alpha_opt, eps_opt, (xpos_est, ypos_est))

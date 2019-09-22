@@ -21,7 +21,7 @@ arc_res = 40    # resolution of arcs
 
 class GeckoBotPose(object):
     def __init__(self, x, marks, f, constraint=0, cost=0,
-                 len_leg=1, len_tor=1.2):
+                 len_leg=1, len_tor=1.2, fpos_real=None):
         self.x = x
         self.markers = marks
         self.f = f
@@ -30,6 +30,7 @@ class GeckoBotPose(object):
         self.alp = self.x[0:n_limbs]
         self.ell = self.x[n_limbs:2*n_limbs]
         self.eps = self.x[-1]
+        self.fpos_real = fpos_real
 
     def get_eps(self):
         return self.x[-1]
@@ -38,13 +39,17 @@ class GeckoBotPose(object):
         mx, my = self.markers
         return (mx[1], my[1])
 
-    def plot(self, col='k'):
+    def plot(self, col='k', ax=None):
         (x, y), (fpx, fpy), (nfpx, nfpy) = \
             get_point_repr(self.x, self.markers, self.f)
-        plt.plot(x, y, '.', color=col)
-        plt.plot(fpx, fpy, 'o', markersize=10, color=col)
-        plt.plot(nfpx, nfpy, 'x', markersize=10, color=col)
-        plt.axis('equal')
+        if ax:
+            ax.plot(x, y, '.', color=col)
+            ax.plot(fpx, fpy, 'o', markersize=10, color=col)
+            ax.plot(nfpx, nfpy, 'x', markersize=10, color=col)
+        else:
+            plt.plot(x, y, '.', color=col)
+            plt.plot(fpx, fpy, 'o', markersize=10, color=col)
+            plt.plot(nfpx, nfpy, 'x', markersize=10, color=col)
 
     def get_tikz_repr(self, col='black', shift=None):
         alp, ell, eps = (self.x[0:n_limbs], self.x[n_limbs:2*n_limbs],
@@ -94,7 +99,24 @@ class GeckoBotPose(object):
             col = [col]*6
         for idx, (x, y) in enumerate(zip(mx, my)):
             plt.plot(x, y, 'd', color=col[idx])
-        plt.axis('equal')
+
+    def plot_real_markers(self, col=None, markernum=range(6), ax=None):
+        """plots the history of markers in *markernum*"""
+        if type(markernum) == int:
+            markernum = [markernum]
+        try:
+            mx, my = self.fpos_real
+            if not col:
+                col = markers_color()
+            else:
+                col = [col]*6
+            for idx, (x, y) in enumerate(zip(mx, my)):
+                if ax:
+                    ax.plot(x, y, 'd', color=col[idx])
+                else:
+                    plt.plot(x, y, 'd', color=col[idx])
+        except TypeError:
+            pass
 
 
 class GeckoBotGait(object):
@@ -106,12 +128,14 @@ class GeckoBotGait(object):
     def append_pose(self, pose):
         self.poses.append(pose)
 
-    def plot_gait(self, fignum='', figname='GeckoBotGait'):
-        plt.figure(figname+fignum)
+    def plot_gait(self, fignum='', figname='GeckoBotGait', g=0, ax=None):
+        if fignum:
+            plt.figure(figname+fignum)
         for idx, pose in enumerate(self.poses):
             c = (1-float(idx)/len(self.poses))*.8
-            col = (c, c, c)
-            pose.plot(col)
+            col = (c, c, g)
+            pose.plot(col, ax=ax)
+            pose.plot_real_markers(col, ax=ax)
 
     def get_tikz_repr(self, shift=None):
         gait_str = ''
@@ -134,7 +158,6 @@ class GeckoBotGait(object):
             if idx in markernum:
                 x, y = marker
                 plt.plot(x, y, color=col[idx])
-        plt.axis('equal')
 
     def plot_com(self, markernum=range(6)):
         """plots the history of center of markers in *markernum*"""
@@ -153,7 +176,6 @@ class GeckoBotGait(object):
         x = x/len(markernum)
         y = y/len(markernum)
         plt.plot(x, y, color='purple')
-        plt.axis('equal')
 
     def plot_markers2(self, markernum=range(6)):
         """
@@ -172,7 +194,6 @@ class GeckoBotGait(object):
             if idx in markernum:
                 x, y = marker
                 plt.plot(x, y, color=col[idx])
-        plt.axis('equal')
 
     def get_travel_distance(self):
         last = self.poses[-1].get_m1_pos()
@@ -376,7 +397,6 @@ def plot_gait(data_xy, data_fp, data_nfp, data_x):
         plt.plot(x, y, '.', color=col)
         plt.plot(fpx, fpy, 'o', markersize=10, color=col)
         plt.plot(nfpx, nfpy, 'x', markersize=10, color=col)
-    plt.axis('equal')
 
 
 def tikz_draw_gecko(alp, ell, eps, F1, col='black',

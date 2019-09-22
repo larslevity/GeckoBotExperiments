@@ -102,15 +102,14 @@ def get_alpha(pressure, version):
             alp.append(roots[0])
         elif len(roots) == 0:
             if p > 0:
-                print('Channel {}: Cannot find alpha for p={}'. format(idx, p))
-                if p == 1 and idx == 1:
-                    alp.append(124)
-                elif p == 1 and idx == 4:
-                    alp.append(221)
-#                elif p == .93 and idx == 4:
-#                    alp.append(124)
-                else:
-                    alp.append(np.nan)
+                if version == 'v40':
+                    if p == 1 and idx == 1:
+                        alp.append(125.1)
+                    elif p == 1 and idx == 4:
+                        alp.append(154.4)
+                    else:
+                        print('Channel {}: Cannot find alpha for p={}'. format(idx, p))
+                        alp.append(np.nan)
             else:
                 alp.append(0)
         else:

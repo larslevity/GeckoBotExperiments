@@ -68,93 +68,153 @@ def extract_measurement(measurement, idx):
     eps = measurement['eps'][idx]
     xref = measurement['x7'][idx]
     yref = measurement['y7'][idx]
-    if p[2] > 0:  # left elly actuated
-        alp = alp[0:2] + alp[-3:]
-    else:  # right belly
+    if p[2] == 0:  # right elly actuated
         alp = alp[0:2] + [-alp[3]] + alp[-2:]
+    else:  # left belly
+        alp = alp[0:3] + alp[-2:]
 
     return (alp, eps, (fposx, fposy), p, fix, (xref, yref))
 
 
 def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11',
-                        mode='1'):
+                        mode='1', exp_idx=0):
+
+    # init
+    ALPERR = {i: np.empty((n_predictions)) for i in range(5)}
+    PERR = {i: np.empty((n_predictions)) for i in range(6)}
+    XERR = {i: np.empty((n_predictions)) for i in range(6)}
+    YERR = {i: np.empty((n_predictions)) for i in range(6)}
+    EPSERR = np.empty((n_predictions))
+    for i in range(6):
+        if i < 5:
+            ALPERR[i][:] = np.nan
+        PERR[i][:] = np.nan
+        XERR[i][:] = np.nan
+        YERR[i][:] = np.nan
+    EPSERR[:] = np.nan
+
     len_leg, len_tor = calibration.get_len(version)
     ell_n = [len_leg, len_leg, len_tor, len_leg, len_leg]
 
     # current pose
-    alp, eps, fpos, _, fix, _ = extract_measurement(db, IDX[start_idx])
+    alp, eps, fpos, p, fix, _ = extract_measurement(db, IDX[start_idx])
     x = alp + ell_n + [eps]
-    print('start pos alp:', [round(a, 2) for a in x[:5]])
+    plot_pose(x, fpos, fix, col='gray')
+
+    print('\n\nstart pos alp:', [round(a, 2) for a in x[:5]])
+    print('start p:', p)
 
     # corrected current_pose
     alp_c, eps_c, fpos_c = inverse_kinematics.correct_measurement(
             alp, eps, fpos, len_leg=len_leg, len_tor=len_tor)
     x_c = alp_c + ell_n + [eps_c]
     plot_pose(x_c, fpos_c, fix, col='silver')
+    
+    # init gaits
+    gait_predicted = roboter_repr.GeckoBotGait(
+            roboter_repr.GeckoBotPose(x_c, fpos_c, fix))
+    gait_measured = roboter_repr.GeckoBotGait(
+            roboter_repr.GeckoBotPose(x_c, fpos_c, fix, fpos_real=fpos))
 
-    # plot currentpose
-    plot_pose(x, fpos, fix, col='gray')
-
+    
     # end pose
     alp_n, eps_n, fpos_n, p_n, fix_n, _ = \
         extract_measurement(db, IDX[start_idx+n_predictions])
     x_n = alp_n + ell_n + [eps_n]
     plot_pose(x_n, fpos_n, fix_n, col='black')
-    print('end pos alp:', [round(a, 2) for a in x_n[:5]])
+    print('end pos alp:', [round(a, 2) for a in x_n[:5]], '\n')
 
 
 
-    # reference
+    # reference & in-between poses
     REF, F = [], [fix]
     for d_idx in range(n_predictions):
-        aa, _, _, p_i, fix_i, _ = extract_measurement(db, IDX[start_idx+d_idx+1])
+        alp_i, eps_i, fpos_i, p_i, fix_i, _ = extract_measurement(db, IDX[start_idx+d_idx+1])
+        # collect references
         a_i = [round(a, 2) for a in calibration.get_alpha(p_i, version)]
         for idx_a, a in enumerate(a_i):
             if np.isnan(a):
-                a_i[idx_a] = aa[idx_a]  # if inv clb not possible, take measured angle
-            
-        print('ref angle:', a_i)
-        print('ref pressure:', [round(p,2) for p in p_i])
+                a_i[idx_a] = alp_i[idx_a]  # if inv clb not possible, take measured angle
         REF.append([a_i, F[d_idx]])
         F.append(fix_i)
-    f_l, f_o, f_a = calibration.get_kin_model_params(mode)
+        # collect in between poses
+        alp_ic, eps_ic, fpos_ic = inverse_kinematics.correct_measurement(
+            alp_i, eps_i, fpos_i, len_leg=len_leg, len_tor=len_tor)
+        x_ic = alp_ic + ell_n + [eps_ic]
+        gait_measured.append_pose(roboter_repr.GeckoBotPose(
+                x_ic, fpos_ic, F[-2], fpos_real=fpos_i))
 
+    f_l, f_o, f_a = calibration.get_kin_model_params(mode[-1])
+
+
+    # Prediction loop
     if not np.isnan(fpos[0]).any():
         # init loop
-        x_p, fpos_p = x, fpos
-        for d_idx in range(n_predictions):
-            # predicted next pose
+        x_p, fpos_p = x_c, fpos_c  # predict from the corrected pose
+        for d_idx in range(n_predictions): # predicted next pose
             reference = REF[d_idx]
             x_p, fpos_p, fix_p, constraint, cost = \
                 kin_model.predict_next_pose(reference, x_p, fpos_p,
                                             f=[f_l, f_o, f_a],
                                             len_leg=len_leg, len_tor=len_tor)
+            gait_predicted.append_pose(roboter_repr.GeckoBotPose(x_p, fpos_p, fix_p))
+            plot_pose(x_p, fpos_p, fix_p, col='coral')
+            
+            # calc error
+            alp_p, eps_p = x_p[0:5], x_p[-1]
+            alp_i = gait_measured.poses[d_idx+1].get_alpha()
+            alp_err = np.array(alp_i) - np.array(alp_p)
+            fpos_i = gait_measured.poses[d_idx+1].fpos_real
+            x_err = np.array(fpos_i[0]) - np.array(fpos_p[0])
+            y_err = np.array(fpos_i[1]) - np.array(fpos_p[1])
+            p_err = np.linalg.norm([x_err, y_err], axis=0)/len_tor
+            eps_err = gait_measured.poses[d_idx+1].get_eps() - eps_p
+            # flip eps
+            eps_err = np.mod(eps_err + 180, 360) - 180
+            print('eps_err:', eps_err)
+
+            
+            # save error            
+            for idx in range(6):
+                if idx < 5:
+                    ALPERR[idx][d_idx] = alp_err[idx]
+                PERR[idx][d_idx] = p_err[idx]
+                XERR[idx][d_idx] = x_err[idx]
+                YERR[idx][d_idx] = y_err[idx]
+            EPSERR[d_idx] = eps_err
+            
+            
         plot_pose(x_p, fpos_p, fix_p, col='red')
+        
+        # plot gaits
+        f, axes = plt.subplots(nrows=2, sharex=True, sharey=True)
+        plt.setp(axes.flat, aspect=1.0, adjustable='box-forced')
+        gait_predicted.plot_gait(fignum=None, ax=axes[1], g=0)
+        gait_measured.plot_gait(fignum=None, ax=axes[0], g=1)
 
-        # errs
-        alp_p, _, eps_p = x_p[0:5], x_p[5:2*5], x_p[-1]
-        alp_err = np.array(x_n[:5]) - np.array(alp_p)
-        x_err = np.array(fpos_n[0]) - np.array(fpos_p[0])
-        y_err = np.array(fpos_n[1]) - np.array(fpos_p[1])
-        p_err = np.linalg.norm([x_err, y_err], axis=0)/len_tor
-        eps_err = eps_n - eps_p
+        plt.savefig('Out/EXP_'+mode+'_EXPIDX_'+str(exp_idx)+'_startIDX_'+str(start_idx)+'.png', dpi=300)
 
-        return alp_err, p_err, eps_err, cost, (x_err, y_err)
-    else:
-        return [np.nan]*5, [np.nan]*6, np.nan, np.nan, ([np.nan]*6, [np.nan]*6)
 
+    return ALPERR, PERR, EPSERR, (XERR, YERR)
+    
 
 def calc_errors(db, POSE_IDX, version='vS11', nexps=None, predict_poses=1,
-                n_runs=None, start_idx=0, mode='1'):
-    max_poses = max([len(pidx) for pidx in POSE_IDX]) - predict_poses
-    ALPERR = {i: np.empty((max_poses, len(db))) for i in range(5)}
-    PERR = {i: np.empty((max_poses, len(db))) for i in range(6)}
-    EPSERR = np.empty((max_poses, len(db)))
+                start_idx=0, mode='1'):
+    ALPERR = {i: np.empty((predict_poses+1, len(db))) for i in range(5)}
+    PERR = {i: np.empty((predict_poses+1, len(db))) for i in range(6)}
+    EPSERR = np.empty((predict_poses+1, len(db)))
     for i in range(6):
         if i < 5:
             ALPERR[i][:] = np.nan
         PERR[i][:] = np.nan
     EPSERR[:] = np.nan
+    for exp_idx in range(len(db)):
+        EPSERR[0][exp_idx] = 0
+        for i in range(6):
+            if i < 5:
+                ALPERR[i][0][exp_idx] = 0
+            PERR[i][0][exp_idx] = 0
+    
 
     if nexps:
         data = db[:nexps]
@@ -163,21 +223,19 @@ def calc_errors(db, POSE_IDX, version='vS11', nexps=None, predict_poses=1,
 
     for exp_idx, dset in enumerate(data):
         dset = db[exp_idx]
-        if not n_runs:
-            n_runs = len(POSE_IDX[exp_idx]) - predict_poses - start_idx - 1
-        for pidx in range(start_idx, start_idx+n_runs):
-            plt.figure('Prediction'+str(exp_idx)+'_'+str(pidx))
-            alp_err, p_err, eps_err, cost, (x_err, y_err) = \
-                error_of_prediction(dset, POSE_IDX[exp_idx], pidx, predict_poses,
-                                    version, mode)
-            for idx in range(6):
+
+       
+        plt.figure('Prediction'+str(exp_idx)+'_'+str(start_idx))
+        alp_err, p_err, eps_err, (x_err, y_err) = \
+            error_of_prediction(dset, POSE_IDX[exp_idx], start_idx, predict_poses,
+                                version, mode, exp_idx)
+        for idx in range(6):
+            for p_i in range(predict_poses):
                 if idx < 5:
-                    ALPERR[idx][pidx][exp_idx] = alp_err[idx]
-                PERR[idx][pidx][exp_idx] = p_err[idx]
-            EPSERR[pidx][exp_idx] = eps_err
-            print('p_err: ', [round(p, 2) for p in p_err])
-            plt.savefig('Out/Prediction'+str(exp_idx)+'_'+str(pidx)+'png',
-                        dpi=300)
+                    ALPERR[idx][p_i+1][exp_idx] = alp_err[idx][p_i]
+                PERR[idx][p_i+1][exp_idx] = p_err[idx][p_i]
+        for p_i in range(predict_poses):
+            EPSERR[p_i+1][exp_idx] = eps_err[p_i]
 
     ERR_alp_m = {}
     ERR_p_m = {}
@@ -196,6 +254,7 @@ def plot_pose(x, marks, fix, col='k'):
     pose = roboter_repr.GeckoBotPose(x, marks, fix)
     pose.plot_markers(col=col)
     pose.plot(col)
+    plt.axis('equal')
 
 
 def calc_mean_stddev(mat):

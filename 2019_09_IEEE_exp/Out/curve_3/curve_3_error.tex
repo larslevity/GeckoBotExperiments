@@ -1,0 +1,88 @@
+\documentclass[crop,tikz]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{groupplots}
+\begin{document}
+% This file was created by tikzplotlib v0.8.2.
+\begin{tikzpicture}
+\definecolor{color0}{rgb}{1,0.647058823529412,0}
+\definecolor{color1}{rgb}{0.501960784313725,0,0.501960784313725}
+\begin{axis}[
+tick align=outside,
+tick pos=both,
+x grid style={white!69.01960784313725!black},
+xmin=-0.2, xmax=4.2,
+xtick style={color=black},
+y grid style={white!69.01960784313725!black},
+ylabel={Prediction Error of Position |p\_m  p\_p|},
+ymin=-0.0713484186249426, ymax=1.49831679112379,
+ytick style={color=color0},
+ytick={-0.2,0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6},
+yticklabels={−0.2,0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6}
+]
+\path [fill=color0, fill opacity=0.5]
+(axis cs:0,0)
+--(axis cs:0,0)
+--(axis cs:1,0.563057240054082)
+--(axis cs:2,0.933618824431245)
+--(axis cs:3,1.07206327708798)
+--(axis cs:4,1.42696837249885)
+--(axis cs:4,1.31142595137776)
+--(axis cs:4,1.31142595137776)
+--(axis cs:3,0.97492297073841)
+--(axis cs:2,0.912478906776308)
+--(axis cs:1,0.537549079549924)
+--(axis cs:0,0)
+--cycle;
+\addplot [semithick, color0]
+table {%
+0 0
+1 0.550303159802003
+2 0.923048865603777
+3 1.0234931239132
+4 1.3691971619383
+};
+\end{axis}
+\begin{axis}[
+axis y line=right,
+tick align=outside,
+tick pos=both,
+x grid style={white!69.01960784313725!black},
+xlabel={Step count},
+xmajorgrids,
+xmin=-0.2, xmax=4.2,
+xtick style={color=black},
+y grid style={white!69.01960784313725!black},
+ylabel={Prediction Error of EPS |e\_m  e\_p|},
+ymajorgrids,
+ymin=-99.077367771633, ymax=4.71796989388728,
+ytick style={color=color1}
+]
+\path [fill=color1, fill opacity=0.5]
+(axis cs:0,0)
+--(axis cs:0,0)
+--(axis cs:1,-27.8116614983633)
+--(axis cs:2,-46.4793312375488)
+--(axis cs:3,-68.8193391543064)
+--(axis cs:4,-86.0983051458253)
+--(axis cs:4,-94.3593978777457)
+--(axis cs:4,-94.3593978777457)
+--(axis cs:3,-79.2170588392484)
+--(axis cs:2,-49.8014730662489)
+--(axis cs:1,-31.7899762090003)
+--(axis cs:0,0)
+--cycle;
+\addplot [semithick, color1]
+table {%
+0 0
+1 -29.8008188536818
+2 -48.1404021518989
+3 -74.0181989967774
+4 -90.2288515117855
+};
+\end{axis}
+\end{tikzpicture}
+%% End matplotlib2tikz content %% 
+\end{document}

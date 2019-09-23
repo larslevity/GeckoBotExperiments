@@ -55,6 +55,9 @@ class GeckoBotPose(object):
         alp, ell, eps = (self.x[0:n_limbs], self.x[n_limbs:2*n_limbs],
                          self.x[-1])
         mx, my = self.markers
+
+#        ell = [l/10. for l in ell]
+
         if shift:
             geckostring = '\\begin{scope}[xshift=%scm]' % str(shift)
         else:
@@ -258,8 +261,8 @@ class GeckoBotGait(object):
         return sum(stress)
 
     def save_as_tikz(self, filename):
-        direc = path.dirname(path.dirname(path.dirname(
-                    path.abspath(__file__)))) + '/tikz/'
+        direc = path.dirname(path.dirname(
+                    path.abspath(__file__))) + '/2019_09_IEEE_exp/Out/'
         name = direc+filename+'.tex'
         out_dir = os.path.dirname(name)
         gstr = ''
@@ -271,7 +274,7 @@ class GeckoBotGait(object):
                 col = 'black!{}'.format(c)
             gstr += pose.get_tikz_repr(col)
         mysave.save_geckostr_as_tikz(name, gstr)
-        os.system('pdflatex -output-directory {} {}'.format(out_dir, name))
+#        os.system('pdflatex -output-directory {} {}'.format(out_dir, name))
         print('Done')
 
 
@@ -431,6 +434,8 @@ def tikz_draw_gecko(alp, ell, eps, F1, col='black',
 \\def\\riii{%f}
 \\def\\riv{%f}
 
+\\def\\R{1.2}
+
 \\path (%f, %f)coordinate(F1);
 
 \\draw[\\col, line width=\\lw] (F1)arc(180+\\ci:180+\\ci+\\alpi:\\ri)coordinate(OM);
@@ -445,11 +450,11 @@ def tikz_draw_gecko(alp, ell, eps, F1, col='black',
         for idx, fixation in enumerate(fix):
             c = [c1, c2, c3, c4]
             if fixation:
-                fixs = '\\draw[\\col, line width=\\lw, fill] (F%s)++(%f :.15) circle(.15);\n' % (str(idx+1), 
+                fixs = '\\draw[\\col, line width=\\lw, fill] (F%s)++(%f :\\R) circle(\\R);\n' % (str(idx+1), 
                               c[idx]+90 if idx in [0, 3] else c[idx]-90)
                 elem += fixs
             else:
-                fixs = '\\draw[\\col, line width=\\lw] (F%s)++(%f :.15) circle(.15);\n' % (str(idx+1),
+                fixs = '\\draw[\\col, line width=\\lw] (F%s)++(%f :\\R) circle(\\R);\n' % (str(idx+1),
                               c[idx]+90 if idx in [0, 3] else c[idx]-90)
                 elem += fixs
 

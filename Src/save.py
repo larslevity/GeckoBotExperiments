@@ -5,7 +5,7 @@ Created on Wed Jan 30 17:18:20 2019
 @author: AmP
 """
 
-from matplotlib2tikz import save as tikz_save
+from tikzplotlib import save as tikz_save
 import fileinput
 from PIL import Image, ImageChops
 import os
@@ -16,18 +16,18 @@ import sys
 def save_plt_as_tikz(filename, additional_tex_code=None, scale=1, scope=None,
                      **kwargs):
 
-    wdir = sys.path[0].replace('\\', '/')
-#    mdir = os.path.dirname(os.path.abspath(__name__)).replace('\\', '/')
+#    wdir = sys.path[0].replace('\\', '/')
+    mdir = os.path.dirname(os.path.abspath(__name__)).replace('\\', '/')
 #    print('main dir:' , mdir)
 #    print('wdir dir:' , wdir)
-    filename = wdir + '/' + filename
+    filename = mdir + '/' + filename
 
     print('Saving as TikZ-Picture...', filename)
     aux_fn = filename + '_aux'
     if additional_tex_code:
         kwargs = {'extra_axis_parameters':
                   {'anchor=origin', 'disabledatascaling', 'x=1cm', 'y=1cm'}}
-    tikz_save(aux_fn, **kwargs)
+    tikz_save(aux_fn, encoding='utf-8', **kwargs)
     insert_tex_header(aux_fn, additional_tex_code, scale, scope)
 
     # remove blank lines:
@@ -58,7 +58,7 @@ def save_geckostr_as_tikz(filename, additional_tex_code):
 \\usepackage[utf8]{inputenc}
 \\usepackage{tikz}
 \\begin{document}
-\\begin{tikzpicture}[scale=1]
+\\begin{tikzpicture}[scale=.12]
 """
     ending = """
 %% End geckostr %%
@@ -81,9 +81,9 @@ def insert_tex_header(filename, additional_tex_code=None, scale=1, scope=None):
 """
     if additional_tex_code:
         # remove \begin{tikzpicture}
-        with open(filename, 'r') as fin:
+        with open(filename, 'r', newline='\r\n') as fin:
             data = fin.read().splitlines(True)
-        with open(filename, 'w') as fout:
+        with open(filename, 'w', newline='\r\n') as fout:
             fout.writelines([data[0]] + data[2:])
         # add geckostr between header and matplotlib2tikz data
         header = (header + '\n\\begin{tikzpicture}[scale=%s]' % (scale)
@@ -93,7 +93,7 @@ def insert_tex_header(filename, additional_tex_code=None, scale=1, scope=None):
     line_pre_adder(filename, header)
     # Append Ending
     ending = "\n%% End matplotlib2tikz content %% \n\\end{document}"
-    with open(filename, "a") as myfile:
+    with open(filename, "a", newline='\n') as myfile:
         myfile.write(ending)
 
 

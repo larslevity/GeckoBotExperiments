@@ -98,7 +98,7 @@ for mode in modes:
                               (int(X1_opt[0]), h-int(X1_opt[1])+200),
                                    (1,0,0, 1), 2)
 
-    cv2.imwrite(mode+'.png', img_exp*255)
+    cv2.imwrite('Out/'+mode+'.png', img_exp*255)
 
 #    cv2.imshow('frame', img_exp)
 #    cv2.waitKey(0)

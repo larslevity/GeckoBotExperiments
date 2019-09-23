@@ -17,8 +17,8 @@ from Src import roboter_repr
 from Src import plot_fun_pathPlanner as pf
 
 
-f_l = 100.      # factor on length objective
-f_o = 0.1     # .0003     # factor on orientation objective
+f_l = .1      # factor on length objective
+f_o = 1     # .0003     # factor on orientation objective
 f_a = 10        # factor on angle objective
 
 

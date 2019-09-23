@@ -75,6 +75,7 @@ def insert_tex_header(filename, additional_tex_code=None, scale=1, scope=None):
 \\usepackage[utf8]{inputenc}
 \\usepackage{tikz}
 \\usepackage{pgfplots}
+\\usepackage{bm}
 \\pgfplotsset{compat=newest}
 \\usepgfplotslibrary{groupplots}
 \\begin{document}

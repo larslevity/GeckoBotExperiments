@@ -12,6 +12,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib2tikz import save as tikz_save
 
+from matplotlib import rc
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+## for Palatino and other serif fonts use:
+#rc('font',**{'family':'serif','serif':['Palatino']})
+rc('text', usetex=True)
+
+
 import sys
 from os import path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
@@ -29,8 +36,8 @@ import utils as uti
 
 modes = [
 #        'straight_1',
-#        'straight_2',
-        'straight_3',
+        'straight_2',
+#        'straight_3',
 #        'curve_1',
 #        'curve_2',
 #        'curve_3',
@@ -115,6 +122,63 @@ for mode in modes:
 #    fdir = path.dirname(path.abspath(__file__))
     my_save.save_plt_as_tikz('/Out/' + mode + '_error.tex')
 #    tikz_save(mode + '_error.tex')
+
+# %%
+    col = pf.get_marker_color()
+    markers = [1]
+    for idx in markers:
+        mu = PERR[idx][1:]
+        sig = psig[idx][1:]
+        fig, ax = plt.subplots()
+        ax.bar(range(len(mu)), mu,
+               yerr=sig,
+               align='edge',
+               width=-.4,
+               alpha=0.5,
+               ecolor='black', color=col[idx],
+               capsize=10)
+        ax.tick_params('y', colors=col[idx])
+        ax.set_ylabel('$|\\bm{p}_m - \\bm{p}_p|/\\ell_{\\textnormal{n}}$ (\\%)',
+                      {'color': col[idx]})
+        ax.set_ylim((-.5, 4))
+        ax.set_xticks(range(len(mu)))
+        ax.set_xticklabels([' ' for i in range(len(mu))])
+#        ax.yaxis.grid(True)
+    # eps
+    mu = EPSERR[1:]
+    sig = epsig[1:]
+    ax = ax.twinx()
+    ax.bar(range(len(mu)), -mu,
+           yerr=-sig,
+           align='edge',
+           width=.4,
+           alpha=0.5,
+           ecolor='black', color='purple',
+           capsize=10)
+    ax.tick_params('y', colors='purple')
+    ax.yaxis.set_label_position("right")
+    ax.yaxis.tick_right()
+    ax.set_ylabel('$\\varepsilon_m - \\varepsilon_p$ ($^\circ$)',
+                  {'color': 'purple'})
+    ax.set_xlabel('Pose Count')
+    ax.set_ylim((-10, 80))
+    ax.set_xticks(range(len(mu)))
+    ax.set_xticklabels([int(i+1) for i in range(len(mu))])
+    ax.yaxis.grid(True)
+    
+    kwargs = {'extra_axis_parameters':
+                  {'anchor=origin', 'axis line style={draw=none}',
+                   'xtick style={draw=none}', 'ytick pos=right',
+                   'ytick pos=left',
+                   'ytick style={color=color0}',
+                   'yticklabel style={color=color0}',
+                   'ylabel style={color=color0}'
+                   }
+            }
+    my_save.save_plt_as_tikz('/Out/' + mode + '_error_bar.tex',
+                             **kwargs)
+
+
 
 
 # %%

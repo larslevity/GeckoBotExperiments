@@ -33,6 +33,11 @@ clb_len = {
     }
 
 
+clb_len_px = {
+    'v40': [110, 130]
+    }
+
+
 clb_param = {  # f_l, f_o, f_a
     '1': [.1, 10, 10],
     '2': [.1, 1, 10],
@@ -49,6 +54,9 @@ def get_kin_model_params(mode):
 def get_len(version):
     return clb_len[version]
 
+
+def get_len_px(version):
+    return clb_len_px[version]
 
 def get_pressure(alpha, version, max_pressure=1):
     pressure = []

@@ -7,13 +7,13 @@ Created on Thu Sep 19 16:45:41 2019
 
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.patches as pat
+
 from Src import calibration
 from Src import kin_model
 from Src import roboter_repr
 from Src import inverse_kinematics
-
-
-
+from Src import save as my_save
 
 
 def ieee_find_poses_idx(db, neighbors=5):
@@ -165,10 +165,10 @@ def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11',
             alp_i = gait_measured.poses[d_idx+1].get_alpha()
             alp_err = np.array(alp_i) - np.array(alp_p)
             fpos_i = gait_measured.poses[d_idx+1].fpos_real
-            x_err = np.array(fpos_i[0]) - np.array(fpos_p[0])
-            y_err = np.array(fpos_i[1]) - np.array(fpos_p[1])
-            p_err = np.linalg.norm([x_err, y_err], axis=0)/len_tor
-            eps_err = gait_measured.poses[d_idx+1].get_eps() - eps_p
+            x_err = np.array(fpos_p[0]) - np.array(fpos_i[0])
+            y_err = np.array(fpos_p[1]) - np.array(fpos_i[1])
+            p_err = np.linalg.norm([x_err, y_err], axis=0)/len_tor*100
+            eps_err = eps_p - gait_measured.poses[d_idx+1].get_eps() 
             # flip eps
             eps_err = np.mod(eps_err + 180, 360) - 180
             print('eps_err:', eps_err)
@@ -262,3 +262,54 @@ def calc_mean_stddev(mat):
     mu1 = np.nanmean(mat, axis=1)
     sigma1 = np.nanstd(mat, axis=1)
     return mu1, sigma1
+
+
+def barplot(mu, modes, labels, colors, sig=None,
+            save_as_tikz=False, num='errros'):
+
+    width_step = .9
+    N = len(modes)
+
+    fig, ax = plt.subplots(num=num)
+
+    rectdic = {}
+    lentries = []
+    X = np.arange(len(labels))
+
+    for jdx, mode in enumerate(modes):
+        w = width_step/N
+        x = X + (jdx - (N-1)/2)*w
+        col = colors[mode]
+        rectdic[mode] = ax.bar(x, mu[mode],
+                               yerr=sig[mode],
+                               align='center',
+                               width=w,
+                               ecolor='black', color=col,
+                               capsize=10)
+
+        patch = pat.Patch(color=col, label=mode[-5:])  # last 5 chars
+        lentries.append(patch)
+
+    plt.legend(handles=lentries)
+#    ax.set_ylabel('Number of steps')
+#    ax.set_xlabel('Set Point')
+    ax.set_xticks([i for i in range(len(labels))])
+    ax.set_xticklabels(labels)
+
+    def autolabel(rectdic):
+        """Attach a text label above each bar in *rects*,
+        displaying its height."""
+        for mode in rectdic:
+            for rect in rectdic[mode]:
+                height = round(rect.get_height(), 1)
+                ax.annotate('{}'.format(height),
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+#                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+    autolabel(rectdic)
+    if save_as_tikz:
+        my_save.save_plt_as_tikz('Out/needed_steps.tex')
+    return ax
+
+

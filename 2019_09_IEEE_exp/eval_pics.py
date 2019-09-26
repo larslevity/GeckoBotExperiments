@@ -7,7 +7,7 @@ Created on Mon Sep 23 11:11:35 2019
 
 import cv2
 
-
+import numpy as np
 
 import sys
 from os import path
@@ -23,12 +23,12 @@ import merge_img
 
 
 modes = [
-        'straight_1',
-        'straight_2',
+#        'straight_1',
+#        'straight_2',
         'straight_3',
-        'curve_1',
-        'curve_2',
-        'curve_3',
+#        'curve_1',
+#        'curve_2',
+#        'curve_3',
         ]
 
 version = 'v40'
@@ -42,11 +42,12 @@ ell0 = [len_leg, len_leg, len_tor, len_leg, len_leg]
 
 
 n_poses = 5
+start_idx = 2
 
 
 for mode in modes:
     for idx in range(n_poses):
-        frame = cv2.imread('pics/'+mode+'/'+mode+'_({}).jpg'.format(idx+1), 1)
+        frame = cv2.imread('pics/'+mode+'/'+mode+'_({}).jpg'.format(idx+start_idx), 1)
 
         # measure
         alpha, eps, positions, xref = IMGprocessing.detect_all(frame)
@@ -70,7 +71,11 @@ for mode in modes:
         
     
         col = (10, 100, 200)
-        X1_opt = (int(positions_opt[0][1]), int(positions_opt[1][1]))
+        if np.isnan(positions_opt[0][1]):
+            X1_opt = X1
+            eps_opt = eps
+        else:
+            X1_opt = (int(positions_opt[0][1]), int(positions_opt[1][1]))
         if idx == 0:
             x1_0 = X1_opt
         
@@ -97,7 +102,21 @@ for mode in modes:
             cv2.line(img_exp, (int(x1_0[0]), h-int(x1_0[1])+200),
                               (int(X1_opt[0]), h-int(X1_opt[1])+200),
                                    (1,0,0, 1), 2)
+            def line_normal(point, eps, col=(.5,.5,.5,1)):
+                point0 = (int(point[0]+np.sin(np.deg2rad(eps))*1000),
+                          int(point[1]+np.cos(np.deg2rad(eps))*1000))
+                point1 = (int(point[0]-np.sin(np.deg2rad(eps))*1000),
+                          int(point[1]-np.cos(np.deg2rad(eps))*1000))
+                cv2.line(img_exp, point0, point1, col, 2)
+            line_normal(x1_0, eps_opt)
+            line_normal(X1_opt, eps_opt)
 
+    # %% rotate
+    h, w = img_exp.shape[:2]
+    center = (w/2, h/2)
+    M = cv2.getRotationMatrix2D(center, -eps_opt, 1)
+
+    img_exp = cv2.warpAffine(img_exp, M, (h,w))
     cv2.imwrite('Out/'+mode+'.png', img_exp*255)
 
 #    cv2.imshow('frame', img_exp)

@@ -61,20 +61,20 @@ def merge_pics(fg, bg=None, fg_opa=1):
     return outImage
 
 
-
-mode = 'straight_1'
-bg = cv2.imread('pics/'+mode+'/'+mode+'_(1).jpg', 1)
-fg = cv2.imread('pics/'+mode+'/'+mode+'_(2).jpg', 1)
-
-
-outImage = merge_pics(bg, fg_opa=.0001)
-
-outImage = merge_pics(fg, outImage, fg_opa=.9)
-
-
-# Display image
-#cv2.imshow("out", outImage)
-#cv2.waitKey(0)
-#cv2.destroyAllWindows()
-
-cv2.imwrite('test.png', outImage*255)
+if __name__ == '__main__':
+    mode = 'straight_1'
+    bg = cv2.imread('pics/'+mode+'/'+mode+'_(1).jpg', 1)
+    fg = cv2.imread('pics/'+mode+'/'+mode+'_(2).jpg', 1)
+    
+    
+    outImage = merge_pics(bg, fg_opa=.0001)
+    
+    outImage = merge_pics(fg, outImage, fg_opa=.9)
+    
+    
+    # Display image
+    #cv2.imshow("out", outImage)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
+    
+    cv2.imwrite('test.png', outImage*255)

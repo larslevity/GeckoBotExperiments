@@ -42,7 +42,7 @@ ell0 = [len_leg, len_leg, len_tor, len_leg, len_leg]
 
 
 n_poses = 5
-start_idx = 2
+start_idx = 0
 
 
 for mode in modes:
@@ -78,6 +78,7 @@ for mode in modes:
             X1_opt = (int(positions_opt[0][1]), int(positions_opt[1][1]))
         if idx == 0:
             x1_0 = X1_opt
+            eps0 = eps_opt
         
 #        IMGprocessing.draw_pose(frame, alpha_opt, eps_opt, positions_opt, ell0,
 #                                col=col)
@@ -108,13 +109,13 @@ for mode in modes:
                 point1 = (int(point[0]-np.sin(np.deg2rad(eps))*1000),
                           int(point[1]-np.cos(np.deg2rad(eps))*1000))
                 cv2.line(img_exp, point0, point1, col, 2)
-            line_normal(x1_0, eps_opt)
-            line_normal(X1_opt, eps_opt)
+            line_normal(x1_0, eps0)
+            line_normal(X1_opt, eps0)
 
     # %% rotate
     h, w = img_exp.shape[:2]
     center = (w/2, h/2)
-    M = cv2.getRotationMatrix2D(center, -eps_opt, 1)
+    M = cv2.getRotationMatrix2D(center, -eps0, 1)
 
     img_exp = cv2.warpAffine(img_exp, M, (h,w))
     cv2.imwrite('Out/'+mode+'.png', img_exp*255)

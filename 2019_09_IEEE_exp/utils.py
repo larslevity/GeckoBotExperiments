@@ -85,21 +85,47 @@ def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11',
     XERR = {i: np.empty((n_predictions)) for i in range(6)}
     YERR = {i: np.empty((n_predictions)) for i in range(6)}
     EPSERR = np.empty((n_predictions))
+    DEPS = np.empty((n_predictions))
+    DEPS_SIM = np.empty((n_predictions))
+    DX = {i: np.empty((n_predictions)) for i in range(6)}
+    DY = {i: np.empty((n_predictions)) for i in range(6)}
+    DX_SIM = {i: np.empty((n_predictions)) for i in range(6)}
+    DY_SIM = {i: np.empty((n_predictions)) for i in range(6)}
     for i in range(6):
         if i < 5:
             ALPERR[i][:] = np.nan
         PERR[i][:] = np.nan
+        DX[i][:] = np.nan
+        DY[i][:] = np.nan
+        DX_SIM[i][:] = np.nan
+        DY_SIM[i][:] = np.nan
         XERR[i][:] = np.nan
         YERR[i][:] = np.nan
     EPSERR[:] = np.nan
+    DEPS[:] = np.nan
+    DEPS_SIM[:] = np.nan
 
     len_leg, len_tor = calibration.get_len(version)
     ell_n = [len_leg, len_leg, len_tor, len_leg, len_leg]
 
     # current pose
     alp, eps, fpos, p, fix, _ = extract_measurement(db, IDX[start_idx])
-    x = alp + ell_n + [eps]
 #    plot_pose(x, fpos, fix, col='gray')
+    eps0 = eps
+    x0 = np.array(fpos[0])
+    y0 = np.array(fpos[1])
+
+    # ### if straight 3 and left rear foot is not visible
+    if np.isnan(fpos[0][3]) and mode == 'straight_3':
+        alp3 = 4
+        alp[3] = alp3
+        X1 = (fpos[0][1], fpos[1][1])
+        fpos_ = inverse_kinematics._calc_coords2(ell_n, alp, eps, X1)
+        fpos[0][3] = fpos_[0][3]
+        fpos[1][3] = fpos_[1][3]
+    ##############
+    x = alp + ell_n + [eps]
+    ##############
 
     print('\n\nstart pos alp:', [round(a, 2) for a in x[:5]])
     print('start p:', p)
@@ -109,22 +135,19 @@ def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11',
             alp, eps, fpos, len_leg=len_leg, len_tor=len_tor)
     x_c = alp_c + ell_n + [eps_c]
 #    plot_pose(x_c, fpos_c, fix, col='silver')
-    
+
     # init gaits
     gait_predicted = roboter_repr.GeckoBotGait(
             roboter_repr.GeckoBotPose(x_c, fpos_c, fix))
     gait_measured = roboter_repr.GeckoBotGait(
             roboter_repr.GeckoBotPose(x_c, fpos_c, fix, fpos_real=fpos))
 
-    
     # end pose
     alp_n, eps_n, fpos_n, p_n, fix_n, _ = \
         extract_measurement(db, IDX[start_idx+n_predictions])
     x_n = alp_n + ell_n + [eps_n]
 #    plot_pose(x_n, fpos_n, fix_n, col='black')
     print('end pos alp:', [round(a, 2) for a in x_n[:5]], '\n')
-
-
 
     # reference & in-between poses
     REF, F = [], [fix]
@@ -143,6 +166,7 @@ def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11',
         x_ic = alp_ic + ell_n + [eps_ic]
         gait_measured.append_pose(roboter_repr.GeckoBotPose(
                 x_ic, fpos_ic, F[-2], fpos_real=fpos_i))
+    
 
     f_l, f_o, f_a = calibration.get_kin_model_params(mode[-1])
 
@@ -159,7 +183,7 @@ def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11',
                                             len_leg=len_leg, len_tor=len_tor)
             gait_predicted.append_pose(roboter_repr.GeckoBotPose(x_p, fpos_p, fix_p))
 #            plot_pose(x_p, fpos_p, fix_p, col='coral')
-            
+
             # calc error
             alp_p, eps_p = x_p[0:5], x_p[-1]
             alp_i = gait_measured.poses[d_idx+1].get_alpha()
@@ -168,65 +192,94 @@ def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11',
             x_err = np.array(fpos_p[0]) - np.array(fpos_i[0])
             y_err = np.array(fpos_p[1]) - np.array(fpos_i[1])
             p_err = np.linalg.norm([x_err, y_err], axis=0)/len_tor*100
-            eps_err = eps_p - gait_measured.poses[d_idx+1].get_eps() 
+            eps_err = eps_p - gait_measured.poses[d_idx+1].get_eps()
+
+            # absolute vals
+            deps_m = gait_measured.poses[d_idx+1].get_eps() - eps0
+            deps_sim = eps_p - eps0
+            dx = np.array(fpos_i[0]) - x0
+            dy = np.array(fpos_i[1]) - y0
+            dx_sim = np.array(fpos_p[0]) - x0
+            dy_sim = np.array(fpos_p[1]) - y0
+
+            dx = np.linalg.norm([dx, dy], axis=0)/len_tor*100
+            dx_sim = np.linalg.norm([dx_sim, dy_sim], axis=0)/len_tor*100
+
             # flip eps
             eps_err = np.mod(eps_err + 180, 360) - 180
             print('eps_err:', eps_err)
 
-            
-            # save error            
+            # save error
             for idx in range(6):
                 if idx < 5:
                     ALPERR[idx][d_idx] = alp_err[idx]
                 PERR[idx][d_idx] = p_err[idx]
                 XERR[idx][d_idx] = x_err[idx]
                 YERR[idx][d_idx] = y_err[idx]
+                DX[idx][d_idx] = dx[idx]
+                DY[idx][d_idx] = dy[idx]
+                DX_SIM[idx][d_idx] = dx_sim[idx]
+                DY_SIM[idx][d_idx] = dy_sim[idx]
             EPSERR[d_idx] = eps_err
-            
-            
+            DEPS[d_idx] = deps_m
+            DEPS_SIM[d_idx] = deps_sim
+
 #        plot_pose(x_p, fpos_p, fix_p, col='red')
-        
+
         # plot gaits
         f, axes = plt.subplots(nrows=2, sharex=True, sharey=True)
         plt.setp(axes.flat, aspect=1.0, adjustable='box-forced')
         gait_predicted.plot_gait(fignum=None, ax=axes[1], g=0)
         gait_measured.plot_gait(fignum=None, ax=axes[0], g=1)
 
-        plt.savefig('Out/EXP_'+mode+'_EXPIDX_'+str(exp_idx)+'_startIDX_'+str(start_idx)+'.png', dpi=300)
+        plt.savefig('Out/EXP_'+mode+'_EXPIDX_'+str(exp_idx)
+                    + '_startIDX_' + str(start_idx)+'.png', dpi=300)
 
+    return (ALPERR, PERR, EPSERR, (XERR, YERR), gait_predicted, DEPS, DX, DY,
+            DEPS_SIM, DX_SIM, DY_SIM)
 
-    return ALPERR, PERR, EPSERR, (XERR, YERR), gait_predicted
-    
 
 def calc_errors(db, POSE_IDX, version='vS11', nexps=None, predict_poses=1,
                 start_idx=0, mode='1'):
     ALPERR = {i: np.empty((predict_poses+1, len(db))) for i in range(5)}
     PERR = {i: np.empty((predict_poses+1, len(db))) for i in range(6)}
     EPSERR = np.empty((predict_poses+1, len(db)))
+    DEPS = np.empty((predict_poses+1, len(db)))
+    DX = {i: np.empty((predict_poses+1, len(db))) for i in range(6)}
+    DY = {i: np.empty((predict_poses+1, len(db))) for i in range(6)}
+    DEPS_SIM = np.empty((predict_poses+1, len(db)))
+    DX_SIM = {i: np.empty((predict_poses+1, len(db))) for i in range(6)}
+    DY_SIM = {i: np.empty((predict_poses+1, len(db))) for i in range(6)}
     for i in range(6):
         if i < 5:
             ALPERR[i][:] = np.nan
         PERR[i][:] = np.nan
+        DX[i][:] = np.nan
+        DY[i][:] = np.nan
+        DX_SIM[i][:] = np.nan
+        DY_SIM[i][:] = np.nan
     EPSERR[:] = np.nan
+    DEPS[:] = np.nan
+    DEPS_SIM[:] = np.nan
     for exp_idx in range(len(db)):
         EPSERR[0][exp_idx] = 0
         for i in range(6):
             if i < 5:
                 ALPERR[i][0][exp_idx] = 0
             PERR[i][0][exp_idx] = 0
-    
 
     if nexps:
         data = [db[i] for i in nexps]
+        POSE_IDX = [POSE_IDX[i] for i in nexps]
     else:
         data = db
 
     for exp_idx, dset in enumerate(data):
-        dset = db[exp_idx]
+        dset = data[exp_idx]
 
-       
         plt.figure('Prediction'+str(exp_idx)+'_'+str(start_idx))
-        alp_err, p_err, eps_err, (x_err, y_err), gait_predicted = \
+        (alp_err, p_err, eps_err, (x_err, y_err), gait_predicted, deps, dx,
+         dy, deps_sim, dx_sim, dy_sim) = \
             error_of_prediction(dset, POSE_IDX[exp_idx], start_idx, predict_poses,
                                 version, mode, exp_idx)
         for idx in range(6):
@@ -234,21 +287,37 @@ def calc_errors(db, POSE_IDX, version='vS11', nexps=None, predict_poses=1,
                 if idx < 5:
                     ALPERR[idx][p_i+1][exp_idx] = alp_err[idx][p_i]
                 PERR[idx][p_i+1][exp_idx] = p_err[idx][p_i]
+                DX[idx][p_i+1][exp_idx] = dx[idx][p_i]
+                DY[idx][p_i+1][exp_idx] = dy[idx][p_i]
+                DX_SIM[idx][p_i+1][exp_idx] = dx_sim[idx][p_i]
+                DY_SIM[idx][p_i+1][exp_idx] = dy_sim[idx][p_i]
         for p_i in range(predict_poses):
             EPSERR[p_i+1][exp_idx] = eps_err[p_i]
+            DEPS[p_i+1][exp_idx] = deps[p_i]
+            DEPS_SIM[p_i+1][exp_idx] = deps_sim[p_i]
 
     ERR_alp_m = {}
     ERR_p_m = {}
     ERR_alp_sig = {}
     ERR_p_sig = {}
+    DX_m = {}
+    DX_sig = {}
+    DXsim_m = {}
+    DXsim_sig = {}
     ERR_eps_m, ERR_eps_sig = calc_mean_stddev(EPSERR)
+    deps_m, deps_sig = calc_mean_stddev(DEPS)
+    deps_sim_m, deps_sim_sig = calc_mean_stddev(DEPS_SIM)
     for i in range(6):
         if i < 5:
             ERR_alp_m[i], ERR_alp_sig[i] = calc_mean_stddev(ALPERR[i])
         ERR_p_m[i], ERR_p_sig[i] = calc_mean_stddev(PERR[i])
+        DX_m[i], DX_sig[i] = calc_mean_stddev(DX[i])
+        DXsim_m[i], DXsim_sig[i] = calc_mean_stddev(DX_SIM[i])
 
     return (ERR_alp_m, ERR_p_m, ERR_eps_m, ERR_alp_sig,
-            ERR_p_sig, ERR_eps_sig, gait_predicted)
+            ERR_p_sig, ERR_eps_sig, gait_predicted, DX_m, DX_sig,
+            deps_m, deps_sig, deps_sim_m, deps_sim_sig,
+            DXsim_m, DXsim_sig)
 
 
 def plot_pose(x, marks, fix, col='k'):
@@ -281,7 +350,7 @@ def barplot(mu, modes, labels, colors, sig=None,
         x = X + (jdx - (N-1)/2)*w
         col = colors[mode]
         rectdic[mode] = ax.bar(x, mu[mode],
-                               yerr=sig[mode],
+                               yerr=sig[mode] if sig else None,
                                align='center',
                                width=w,
                                ecolor='black', color=col,

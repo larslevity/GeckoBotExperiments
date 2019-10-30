@@ -22,6 +22,7 @@ modes = [
 #        'eps_corrected_x1_90',
         ]
 #runs = ['L', 'SL', 'R', 'SR']
+#runs = ['L', 'R', 'RFL', '180']
 runs = ['R']
 
 
@@ -39,36 +40,36 @@ for mode in modes:
         needed_steps[mode][run] = [len(idx)-1 for idx in POSE_IDX]
 
         # %% ### Track of feet:
-        pf.plot_track(db, POSE_IDX, run, mode, save_as_tikz=False)
+        pf.plot_track(db, POSE_IDX, run, mode, save_as_tikz=True, show_cycles=0)
 
         # %% Plot DEPS
-        mat = pf.plot_deps(db, POSE_IDX, run, mode, save_as_tikz=False)
+        mat = pf.plot_deps_over_steps(db, POSE_IDX, run, mode, save_as_tikz=True)
 
         # %%
-        ALPERR, PERR, EPSERR, alpsig, psig, epsig = ev.calc_errors(db, POSE_IDX)
+#        ALPERR, PERR, EPSERR, alpsig, psig, epsig = ev.calc_errors(db, POSE_IDX)
         # %%
-        col = pf.get_marker_color()
-        plt.figure('PredictionErrors-P')
-        markers = [1]
-        for idx in markers:
-            plt.plot(PERR[idx], label='marker {}'.format(idx), color=col[idx])
-            mu, sig = PERR[idx], psig[idx]
-            plt.fill_between(range(len(mu)), mu+sig, mu-sig,
-                             facecolor=col[idx], alpha=0.5)
-        plt.xlabel('Step count')
-        plt.ylabel('Prediction Error of Position |p_m - p_p|')
+#        col = pf.get_marker_color()
+#        plt.figure('PredictionErrors-P')
+#        markers = [1]
+#        for idx in markers:
+#            plt.plot(PERR[idx], label='marker {}'.format(idx), color=col[idx])
+#            mu, sig = PERR[idx], psig[idx]
+#            plt.fill_between(range(len(mu)), mu+sig, mu-sig,
+#                             facecolor=col[idx], alpha=0.5)
+#        plt.xlabel('Step count')
+#        plt.ylabel('Prediction Error of Position |p_m - p_p|')
 
 # %%
-        plt.figure('PredictionErrors-ALP')
-        for idx in range(len(ALPERR)):
-            plt.plot(ALPERR[idx], label='marker {}'.format(idx))
-        plt.xlabel('Step count')
-        plt.ylabel('Prediction Error of Angle |a_m - a_p|')
-
-        plt.figure('PredictionErrors-EPS')
-        plt.plot(EPSERR, label='eps')
-        plt.xlabel('Step count')
-        plt.ylabel('Prediction Error of EPS |e_m - e_p|')
+#        plt.figure('PredictionErrors-ALP')
+#        for idx in range(len(ALPERR)):
+#            plt.plot(ALPERR[idx], label='marker {}'.format(idx))
+#        plt.xlabel('Step count')
+#        plt.ylabel('Prediction Error of Angle |a_m - a_p|')
+#
+#        plt.figure('PredictionErrors-EPS')
+#        plt.plot(EPSERR, label='eps')
+#        plt.xlabel('Step count')
+#        plt.ylabel('Prediction Error of EPS |e_m - e_p|')
 
 
         # %% play
@@ -84,5 +85,5 @@ for mode in modes:
 #        plt.plot(POSE_IDX[0], vals, 'o')
 # %% 
 
-pf.plot_needed_steps(needed_steps, runs, modes, save_as_tikz=False)
-plt.show()
+pf.plot_needed_steps(needed_steps, runs, modes, save_as_tikz=True)
+#plt.show()

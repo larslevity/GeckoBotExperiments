@@ -60,7 +60,7 @@ def calc_deps(xbar):
     return np.rad2deg(np.arctan2(xbar[1], xbar[0]))
 
 
-def plot_track(db, POSE_IDX, run, mode, save_as_tikz=False):
+def plot_track(db, POSE_IDX, run, mode, save_as_tikz=False, show_cycles=1):
     prop = calc_prop(db)
     col = get_run_color()
 
@@ -84,10 +84,10 @@ def plot_track(db, POSE_IDX, run, mode, save_as_tikz=False):
                 plt.plot(x_, y_, 'o', color=col[run])
             else:
                 plt.plot(x_, y_, '-', color=col[run])
-            
-        x = [dset['x1'][pose_idx] for pose_idx in POSE_IDX[exp_idx]]
-        y = [dset['y1'][pose_idx] for pose_idx in POSE_IDX[exp_idx]]
-        plt.plot(x, y, 'o', color=col[run])
+        if show_cycles:
+            x = [dset['x1'][pose_idx] for pose_idx in POSE_IDX[exp_idx]]
+            y = [dset['y1'][pose_idx] for pose_idx in POSE_IDX[exp_idx]]
+            plt.plot(x, y, 'o', color=col[run])
 
     plt.grid(1)
     plt.xlabel('x position (cm)')
@@ -98,7 +98,7 @@ def plot_track(db, POSE_IDX, run, mode, save_as_tikz=False):
     if save_as_tikz:
         kwargs = {'extra_axis_parameters':
             {'x=.1cm', 'y=.1cm', 'anchor=origin'}}
-        save.save_as_tikz('tikz/track_'+mode+'.tex', **kwargs)
+        save.save_plt_as_tikz('tikz/track_'+mode+'_'+run+'.tex', **kwargs)
         print(run)
 #    plt.show()
 
@@ -139,7 +139,7 @@ def plot_needed_steps(needed_steps, runs, modes, save_as_tikz=False):
                 x = x + shift
             rectdic[mode][idx] = ax.bar(x, needed_steps[mode][key], width/n*1,
                    color=col)
-        patch = pat.Patch(color=col, label=mode[-5:])  # last 5 chars
+        patch = pat.Patch(color=col, label=mode[-5:].replace('_', ''))  # last 5 chars
         lentries.append(patch)
 
     plt.legend(handles=lentries)
@@ -161,7 +161,7 @@ def plot_needed_steps(needed_steps, runs, modes, save_as_tikz=False):
                                 ha='center', va='bottom')
 #    autolabel(rectdic)
     if save_as_tikz:
-        save.save_as_tikz('tikz/needed_steps.tex')
+        save.save_plt_as_tikz('tikz/needed_steps.tex')
 
 
 def calc_mean_stddev(mat):
@@ -172,7 +172,7 @@ def calc_mean_stddev(mat):
 
 def plot_deps(db, POSE_IDX, run, mode, save_as_tikz=False):
     plt.figure('Deps'+run)
-    plt.title(run)
+    plt.title('RUN: ' + run + ' - Delta Eps')
     col = get_mode_color()
 
     max_poses = max([len(pidx) for pidx in POSE_IDX])
@@ -182,9 +182,8 @@ def plot_deps(db, POSE_IDX, run, mode, save_as_tikz=False):
     YBAR = np.empty((max_poses, len(db)))
     XBAR[:] = np.nan
     YBAR[:] = np.nan
-    
 
-    for exp_idx, dset in enumerate(db):        
+    for exp_idx, dset in enumerate(db):
         EPS = np.take(dset['eps'], POSE_IDX[exp_idx])
         X1 = np.take(dset['x1'], POSE_IDX[exp_idx])
         Y1 = np.take(dset['y1'], POSE_IDX[exp_idx])
@@ -210,5 +209,71 @@ def plot_deps(db, POSE_IDX, run, mode, save_as_tikz=False):
     plt.plot(d, mu, color=color)
     plt.fill_between(d, mu+sig, mu-sig,
                      facecolor=color, alpha=0.5)
+    plt.xlabel('distance to goal')
+    plt.ylabel('relative angle between robot orientation and goal')
 
-    return DEPSMAT    
+    return DEPSMAT
+
+
+def plot_deps_over_steps(db, POSE_IDX, run, mode, save_as_tikz=False):
+    fig, ax1 = plt.subplots(num='Deps'+run)
+    ax1.set_title('RUN: ' + run + ' - Delta Eps')
+    col = get_mode_color()
+
+    max_poses = max([len(pidx) for pidx in POSE_IDX])
+    DEPSMAT = np.empty((max_poses, len(db)))
+    DEPSMAT[:] = np.nan
+    XBAR = np.empty((max_poses, len(db)))
+    YBAR = np.empty((max_poses, len(db)))
+    XBAR[:] = np.nan
+    YBAR[:] = np.nan
+
+    for exp_idx, dset in enumerate(db):
+        EPS = np.take(dset['eps'], POSE_IDX[exp_idx])
+        X1 = np.take(dset['x1'], POSE_IDX[exp_idx])
+        Y1 = np.take(dset['y1'], POSE_IDX[exp_idx])
+        XREF = np.take(dset['x8'], POSE_IDX[exp_idx])
+        YREF = np.take(dset['y8'], POSE_IDX[exp_idx])
+
+        for pidx, (eps, x1, y1, xref, yref) in enumerate(
+                zip(EPS, X1, Y1, XREF, YREF)):
+            xbar = calc_xbar((xref, yref), (x1, y1), eps)
+            deps = calc_deps(xbar)
+            XBAR[pidx][exp_idx] = xbar[0]
+            YBAR[pidx][exp_idx] = xbar[1]
+            DEPSMAT[pidx][exp_idx] = deps
+
+    mx, sigx = calc_mean_stddev(XBAR)
+    my, sigy = calc_mean_stddev(YBAR)
+    d = np.linalg.norm([mx, my], axis=0)
+    dsig = np.linalg.norm([sigx, sigy], axis=0)
+    try:
+        color = col[mode]
+    except KeyError:
+        color = 'black'
+    color='blue'
+    mu, sig = calc_mean_stddev(DEPSMAT)
+    ax1.plot(mu, color=color)
+    ax1.fill_between(range(len(mu)), mu+sig, mu-sig,
+                     facecolor=color, alpha=0.5)
+    ax1.set_xlabel('step index $i$')
+    ax1.set_ylabel('relative angle between robot orientation and goal $\Delta eps_i$',
+                   color=color)
+    ax1.tick_params('y', colors=color)
+
+    color='red'
+    ax2 = ax1.twinx()
+    ax2.plot(d, ':', color=color)
+    ax2.fill_between(range(len(mu)), d+dsig, d-dsig,
+                     facecolor=color, alpha=0.5)
+    ax2.set_ylabel('distance to goal $|x_i|$', color=color)
+    ax2.tick_params('y', colors=color)
+    
+    if save_as_tikz:
+        save.save_plt_as_tikz('tikz/deps_'+mode+'_'+run+'.tex')
+
+    return DEPSMAT  
+
+
+
+

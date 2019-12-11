@@ -22,7 +22,7 @@ f_o = 1     # .0003     # factor on orientation objective
 f_a = 10        # factor on angle objective
 
 
-def load_data_pathPlanner(path, sets, version='vS11'):
+def load_data_pathPlanner(path, sets):
     dataBase = []
 #    xscale = 145./1000  # 1000px -> 145cm
 #    xshift = -22  # cm

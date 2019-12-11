@@ -98,7 +98,7 @@ class GeckoBotPose(object):
         mx, my = self.markers
         if not col:
             col = markers_color()
-        elif type(col) == str:
+        elif type(col) == str or len(col) == 3:
             col = [col]*6
         for idx, (x, y) in enumerate(zip(mx, my)):
             plt.plot(x, y, 'd', color=col[idx])

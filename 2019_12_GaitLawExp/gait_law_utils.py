@@ -64,7 +64,7 @@ def load_data(path, sets):
                 shift = xshift if key[0] == 'x' else yshift
                 data[key] = [i*xscale + shift for i in data[key]]
             if key == 'eps':
-                data[key] = [np.mod(e+180-start_eps, 360)-180+90 for e in data[key]]
+                data['eps'] = [np.mod(e+180-start_eps, 360)-180+90 for e in data['eps']]
         # rotate:
         for idx in range(6):
             x = data['x{}'.format(idx)]
@@ -122,7 +122,8 @@ def find_poses_idx(db, neighbors=5):
                     pose_idx.append(jdx)
                     break
         IDX.append(pose_idx)
-        print('failed:', failed)
+        if failed > 0:
+            print('failed:', failed)
     return IDX
 
 

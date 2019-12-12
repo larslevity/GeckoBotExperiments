@@ -32,6 +32,14 @@ class GeckoBotPose(object):
         self.eps = self.x[-1]
         self.fpos_real = fpos_real
 
+    def complete(self):
+        if np.isnan(np.array(self.x)).any():
+            if not np.isnan(np.array(self.x[:-1])).any():
+                print('only eps missing ...')
+            return False
+        else:
+            return True
+
     def get_eps(self):
         return self.x[-1]
 
@@ -134,9 +142,12 @@ class GeckoBotGait(object):
     def plot_gait(self, fignum='', figname='GeckoBotGait', g=0, ax=None):
         if fignum:
             plt.figure(figname+fignum)
+        c1 = g
         for idx, pose in enumerate(self.poses):
             c = (1-float(idx)/len(self.poses))*.8
-            col = (c, c, g)
+            if g == 'c':
+                c1 = c
+            col = (c, c, c1)
             pose.plot(col, ax=ax)
             pose.plot_real_markers(col, ax=ax)
 
@@ -213,11 +224,12 @@ class GeckoBotGait(object):
 
     def plot_orientation(self, length=.5, poses=[0, -1]):
         plt.figure('GeckoBotGait')
-        for pose in poses:
-            start = self.poses[pose].get_m1_pos()
-            eps = self.poses[pose].get_eps()
-            plt.plot([start[0], start[0]+np.cos(np.deg2rad(eps))*length],
-                     [start[1], start[1]+np.sin(np.deg2rad(eps))*length], 'r')
+        if len(self.poses) >= 1:
+            for pose in poses:
+                start = self.poses[pose].get_m1_pos()
+                eps = self.poses[pose].get_eps()
+                plt.plot([start[0], start[0]+np.cos(np.deg2rad(eps))*length],
+                         [start[1], start[1]+np.sin(np.deg2rad(eps))*length], 'r')
 
     def plot_epsilon(self):
         plt.figure('GeckoBotGaitEpsHistory')

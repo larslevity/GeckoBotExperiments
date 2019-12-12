@@ -9,7 +9,7 @@ Created on Wed Dec 11 12:57:26 2019
 
 import matplotlib.pyplot as plt
 import numpy as np
-
+from func_timeout import func_timeout, FunctionTimedOut
 
 
 import sys
@@ -22,6 +22,10 @@ import plotfun_GaitLawExp as pf
 import gait_law_utils as uti
 from Src import calibration
 from Src import inverse_kinematics
+from Src import roboter_repr
+#from Src import timeout
+#from Src import exception
+
 
 # %%
 
@@ -29,93 +33,161 @@ from Src import inverse_kinematics
 Q1 = np.array([50, 60, 70, 80, 90])
 Q2 = np.array([-.5, -.25, 0, .25, .5])
 
-Q1 = np.array([80, 90])
-#Q2 = [.5]
+#Q1 = np.array([60])
+#Q2 = [0.25]
 
 DEPS = np.zeros((len(Q2), len(Q1)))
 X_idx = np.zeros((len(Q2), len(Q1)))
 Y_idx = np.zeros((len(Q2), len(Q1)))
 version = 'vS11'
 
-n_cyc = 3
-dx, dy = 3.5, 3+2.5*(n_cyc-1 if n_cyc > 1 else 1)
+n_cyc = 2
+sc = 10  # scale factor
+dx, dy = 3.5*sc, (3+2.5*(n_cyc-1 if n_cyc > 1 else 1))*sc
 
 len_leg, len_tor = calibration.get_len(version)
 ell_n = [len_leg, len_leg, len_tor, len_leg, len_leg]
 
+n_steps = {}
+MEAS = {}
+GAITS_cor = []
+GAITS_raw = []
 
 
 # %%
-
-n_steps = {}
-MEAS = {}
-
 for q1_idx, q1 in enumerate(Q1):
     q1str = str(q1)
     MEAS[q1str] = {}
     for q2_idx, q2 in enumerate(Q2):
         # %% ### Load Data
+        
         q2str = str(q2).replace('.', '').replace('00', '0')
         MEAS[q1str][q2str] = {}
         X_idx[q2_idx][q1_idx] = q2_idx*dx
-        Y_idx[q2_idx][q1_idx] = -q1_idx*dy
+        Y_idx[q2_idx][q1_idx] = q1_idx*dy
 
-        dirpath = version + '/'        
+        dirpath = version + '/'
         name = 'q1_' + q1str + 'q2_' + q2str
 
-        db = uti.load_data(dirpath, [name])
+        print('load data:', name)
+        try:
+            db = func_timeout(1, uti.load_data, args=(dirpath, [name]))
+        except FunctionTimedOut:
+            db = []
+            print('can not load data...')
+        print('find poses ...')
         POSE_IDX = uti.find_poses_idx(db, neighbors=10)
         n_steps[name] = len(POSE_IDX[0])-1
 
     # %% ### Track of feet:
         print('plot track....')
         pf.plot_track(db, POSE_IDX, name, version, save_as_tikz=False)
-        
+
         # Extract Pose
-        
         exp_idx = 0
         idx = 0
+        gait_cor = roboter_repr.GeckoBotGait()
+        gait_raw = roboter_repr.GeckoBotGait()
         for idx in range(2*n_cyc):
-            c = (1-float(idx)/2/n_cyc)*.8
-            col = (c, c, 0)
 
-            alp, eps, fpos, p, fix, _ = uti.extract_measurement(db[exp_idx], POSE_IDX[exp_idx][idx])
-#            x = alp + ell_n + [eps]
-#            uti.plot_pose(x, fpos, fix, col=(c, c, 1))
+            X1_init = (q2_idx*dx, q1_idx*dy)
+            alp, eps, fpos, p, fix, _ = uti.extract_measurement(
+                    db[exp_idx], POSE_IDX[exp_idx][idx])
+            # shift:
+            xpos, ypos = fpos
+            fpos = ([x + X1_init[0] for x in xpos],
+                    [y + X1_init[1] for y in ypos])
+            x = alp + ell_n + [eps]
+            pose_raw = roboter_repr.GeckoBotPose(x, fpos, fix)
+            gait_raw.append_pose(pose_raw)
+            
+#            print(idx, 'pose complete:', pose_raw.complete())
 
-            # corrected current_pose
-            alp_c, eps_c, fpos_c = inverse_kinematics.correct_measurement(
-                    alp, eps, fpos, len_leg=len_leg, len_tor=len_tor)
-            x_c = alp_c + ell_n + [eps_c]
-            uti.plot_pose(x_c, fpos_c, fix, col=(c, c, 0))
-        
-        
-        
+#            # corrected current_pose
+            def correct(alp, eps, fpos):
+                alp_c, eps_c, fpos_c = inverse_kinematics.correct_measurement(
+                        alp, eps, fpos, len_leg, len_tor)
+                x_c = alp_c + ell_n + [eps_c]
+                pose_cor = roboter_repr.GeckoBotPose(x_c, fpos_c, fix)
+                return pose_cor
+            try:
+                if pose_raw.complete():
+                    print('correct measurement ...')
+                    pose_cor = func_timeout(1, correct, args=(alp, eps, fpos))
+                    gait_cor.append_pose(pose_cor)
+            except FunctionTimedOut:
+                print('time out. cant correct measurement ...')
+
+        GAITS_cor.append(gait_cor)
+        GAITS_raw.append(gait_raw)
+
     # %% EPS
-        
+        print('plot eps....')
+        plt.figure('eps')
         eps = pf.plot_eps(db, POSE_IDX, name, version, save_as_tikz=False)
-        
+
         MEAS[q1str][q2str]['eps'] = eps
         DEPS[q2_idx][q1_idx] = np.nanmean(np.diff(eps))*2  # mean deps/cycle
 
-# %% EPS
 
-fig = plt.figure('DEPSperCycle')
-levels = np.arange(-21, 22, 3)
-contour = plt.contourf(X_idx, Y_idx, DEPS, alpha=1,
-                       cmap='RdBu', levels=levels)
-surf = plt.contour(X_idx, Y_idx, DEPS, levels=levels, colors='k')
-plt.clabel(surf, levels, inline=True, fmt='%2.0f')
+# %% EPS
+plt.figure('eps')
+plt.xlabel('time')
+plt.ylabel('robot orientation epsilon')
+fig = plt.gcf()
+fig.set_size_inches(10.5, 8)
+fig.savefig('eps.png', transparent=True,
+            dpi=300, bbox_inches='tight')
+
+# %% EPS / GAIT
+print('create figure: EPS/GAIT')
+
+fig = plt.figure('GeckoBotGait')
+levels = np.arange(-65, 66, 5)
+if len(Q1) > 1:
+    contour = plt.contourf(X_idx, Y_idx, DEPS*n_cyc, alpha=1,
+                           cmap='RdBu_r', levels=levels)
+# surf = plt.contour(X_idx, Y_idx, DEPS, levels=levels, colors='k')
+# plt.clabel(surf, levels, inline=True, fmt='%2.0f')
+
+#
+#for gait in GAITS_raw:
+#    gait.plot_gait()
+#    gait.plot_orientation(length=.5*sc)
+
+for gait in GAITS_cor:
+    gait.plot_gait(g='g')
+    gait.plot_orientation(length=.5*sc)
+
+
+
+for xidx, x in enumerate(list(DEPS)):
+    for yidx, deps in enumerate(list(x)):
+        plt.text(X_idx[xidx][yidx], Y_idx[xidx][yidx]-2.2*sc, round(deps*n_cyc, 1),
+                 ha="center", va="bottom",
+                 bbox=dict(boxstyle="square",
+                           ec=(1., 0.5, 0.5),
+                           fc=(1., 0.8, 0.8),
+                           ))
+
 
 plt.xticks(X_idx.T[0], [round(x, 2) for x in Q2])
 plt.yticks(Y_idx[0], [round(x, 1) for x in Q1])
 plt.ylabel('step length $q_1$')
 plt.xlabel('steering $q_2$')
+plt.axis('scaled')
+
+plt.grid()
+ax = fig.gca()
+ax.spines['top'].set_visible(False)
+ax.spines['left'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.spines['bottom'].set_visible(False)
 
 
-
-
-
+fig.set_size_inches(10.5, 8)
+fig.savefig('gait.png', transparent=True,
+            dpi=300, bbox_inches='tight')
 
 
 # %%

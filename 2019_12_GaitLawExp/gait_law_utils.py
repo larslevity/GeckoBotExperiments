@@ -110,7 +110,7 @@ def find_poses_idx(db, neighbors=5):
                             pose_idx.append(idx)  # append ori
         # last#
         idx = len(db[exp_idx]['pr3'])-1
-        for jdx in range(idx, idx-100, -1):  # look the last neigbors
+        for jdx in range(idx, idx-100, -1):  # look the last neighbors
             if not np.isnan(db[exp_idx]['aIMG2'][jdx]):
                 # check
                 dr = db[exp_idx]['pr2'][idx] - db[exp_idx]['pr2'][jdx]

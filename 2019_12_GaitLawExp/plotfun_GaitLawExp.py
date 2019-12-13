@@ -220,7 +220,7 @@ def plot_eps(db, POSE_IDX, run, mode, save_as_tikz=False):
     plt.xlabel('time')
     plt.ylabel('robot orientation epsilon')
 
-    return mu_eps
+    return mu_eps, t
 
 
 def plot_deps_over_steps(db, POSE_IDX, run, mode, save_as_tikz=False):

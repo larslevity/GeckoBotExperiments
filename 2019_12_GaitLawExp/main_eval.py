@@ -77,6 +77,7 @@ for q1_idx, q1 in enumerate(Q1):
             print('can not load data...')
         print('find poses ...')
         POSE_IDX = uti.find_poses_idx(db, neighbors=10)
+        POSE_IDX = [pidx[:13] for pidx in POSE_IDX]
         n_steps[name] = len(POSE_IDX[0])-1
 
     # %% ### Track of feet:
@@ -124,10 +125,82 @@ for q1_idx, q1 in enumerate(Q1):
     # %% EPS
         print('plot eps....')
         plt.figure('eps')
-        eps = pf.plot_eps(db, POSE_IDX, name, version, save_as_tikz=False)
+        eps, t = pf.plot_eps(db, POSE_IDX, name, version, save_as_tikz=False)
 
         MEAS[q1str][q2str]['eps'] = eps
-        DEPS[q2_idx][q1_idx] = np.nanmean(np.diff(eps))*2  # mean deps/cycle
+        MEAS[q1str][q2str]['time'] = t
+        MEAS[q1str][q2str]['time_full'] = db[0]['time']
+        MEAS[q1str][q2str]['eps_full'] = db[0]['eps']
+        deps = np.nanmean(np.diff(eps))*2  # mean deps/cycle
+        DEPS[q2_idx][q1_idx] = deps
+
+# %% DEPS Visual
+    plt.figure('eps'+q1str)
+    col = pf.get_run_color()[name]
+    Q2_ = [-.5, -.25, 0]
+    for q2_idx, q2 in enumerate(Q2):
+        q2str = str(q2).replace('.', '').replace('00', '0')
+        plt.plot(MEAS[q1str][q2str]['time_full'],
+                 MEAS[q1str][q2str]['eps_full'], col)
+        t, eps = MEAS[q1str][q2str]['time'], MEAS[q1str][q2str]['eps']
+        deps = DEPS[q2_idx][q1_idx]
+        plt.plot(t, eps, 'o', color=col, alpha=.5, markersize=4)
+        
+
+        # Polyfit
+        idx = np.isfinite(t) & np.isfinite(eps)  # filter NaN
+        epsdot, c = np.polyfit(t[idx], eps[idx], 1)
+        dt = t[-1] - t[0]
+        # counter check
+        deps_ = epsdot*dt/(len(eps)-1)*2
+        print(deps, deps_)
+        plt.plot([t[0], t[-1]], [c, c+dt*epsdot], 'k')
+        
+        poly = np.poly1d([epsdot, c])
+        # deviation of eps from mean of deps trend for each pose
+        deps_mean_eps = [poly(ti) - epsi for ti, epsi in zip(t[idx], eps[idx])]
+        # mean deviation of eps of deps trend
+        mean_deps_mean_eps = np.mean(np.abs(deps_mean_eps))
+        MEAS[q1str][q2str]['abs_deps'] = mean_deps_mean_eps
+        
+        # plot
+        for deps_mean, ti in zip(deps_mean_eps, t[idx]):
+            plt.plot([ti, ti], [poly(ti), poly(ti)-deps_mean], 'k')
+        plt.text(t[-1]+3, eps[-1], 'Deps/cyc =' + str(round(deps_, 1)) + '  deps=' + str(round(mean_deps_mean_eps, 1)),
+                 ha="left", va="bottom",
+                 bbox=dict(boxstyle="square",
+                           ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8),
+                           ))
+
+#    mean_abs_deps = np.mean([MEAS[q1str][key]['abs_deps'] for key in MEAS[q1str]])
+#    MEAS[q1str]['abs_deps'] = mean_abs_deps
+    
+    # plot
+    plt.ylabel('robot orientation epsilon [deg]')
+    plt.xlabel('time [s]')
+    plt.title('q1=' + q1str)
+    plt.grid()
+    fig = plt.gcf()
+    fig.set_size_inches(10.5, 8)
+    fig.savefig('eps'+q1str+'.png', transparent=True,
+                dpi=300, bbox_inches='tight')
+    kwargs = {'extra_axis_parameters': {'width=10cm', 'height=6cm',
+                                        'tick pos=left'}}
+    my_save.save_plt_as_tikz('tex/eps'+q1str+'.tex', **kwargs)
+
+    
+
+# %% ABS DEPS # Schwankung des Roboters um seine Trendlinie
+plt.figure('mean abs deps')
+abs_deps = [MEAS[key]['abs_deps'] for key in MEAS]
+plt.plot(Q1, abs_deps)
+plt.xticks(Q1)
+plt.yticks([round(a, 1) for a in abs_deps])
+plt.xlabel('step length $q_1$ [deg]')
+plt.ylabel('mean of oscillation amplitude [deg]')
+plt.grid()
+
+my_save.save_plt_as_tikz('tex/oscillation_amplitude.tex')
 
 
 # %% EPS
@@ -138,6 +211,7 @@ fig = plt.gcf()
 fig.set_size_inches(10.5, 8)
 fig.savefig('eps.png', transparent=True,
             dpi=300, bbox_inches='tight')
+
 
 # %% EPS / GAIT
 print('create figure: EPS/GAIT')
@@ -150,14 +224,14 @@ if len(Q1) > 1:
 # surf = plt.contour(X_idx, Y_idx, DEPS, levels=levels, colors='k')
 # plt.clabel(surf, levels, inline=True, fmt='%2.0f')
 
-#
-#for gait in GAITS_raw:
-#    gait.plot_gait()
-#    gait.plot_orientation(length=.5*sc)
 
-for gait in GAITS_cor:
-    gait.plot_gait(g='g')
+for gait in GAITS_raw:
+    gait.plot_gait(g='c')
     gait.plot_orientation(length=.5*sc)
+
+#for gait in GAITS_cor:
+#    gait.plot_gait(g='c')
+#    gait.plot_orientation(length=.5*sc)
 
 
 

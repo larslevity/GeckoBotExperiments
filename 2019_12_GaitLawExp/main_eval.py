@@ -46,7 +46,7 @@ X_idx = np.zeros((len(Q2), len(Q1)))
 Y_idx = np.zeros((len(Q2), len(Q1)))
 version = 'vS11'
 
-n_cyc = 2
+n_cyc = 1
 sc = 10  # scale factor
 dx, dy = 3.5*sc, (3+2.5*(n_cyc-1 if n_cyc > 1 else 1))*sc
 
@@ -93,7 +93,7 @@ for q1_idx, q1 in enumerate(Q1):
         exp_idx = 0
         gait_cor = roboter_repr.GeckoBotGait()
         gait_raw = roboter_repr.GeckoBotGait()
-        for idx in range(2*n_cyc):
+        for idx in range(2*n_cyc + 1):
 
             X1_init = (q2_idx*dx, q1_idx*dy)
             alp, eps, fpos, p, fix, _ = uti.extract_measurement(

@@ -6,7 +6,7 @@ Created on Wed Dec 11 12:57:26 2019
 @author: ls
 
 
-
+c110:
 Tricks wegen korrupten Daten (vllt hat Akes Promotion damit etwas zu tun?)
 
 q1_60q2_01.csv is copy of q1_60q2_-01.csv)
@@ -32,8 +32,6 @@ import gait_law_utils as uti
 from Src import calibration
 from Src import inverse_kinematics
 from Src import roboter_repr
-#from Src import timeout
-#from Src import exception
 
 
 # %%
@@ -41,9 +39,8 @@ from Src import roboter_repr
 
 Q1 = np.array([50, 60, 70, 80, 90])
 Q2 = np.array([-.5, -.3, -.1, .1, .3, .5])
-
-#Q1 = np.array([60])
-#Q2 = [0.25]
+#Q1 = np.array([80, 90])
+#Q2 = np.array([-.5, .5])
 
 DEPS = np.zeros((len(Q2), len(Q1)))
 AMPLITUDE = np.zeros((len(Q2), len(Q1)))
@@ -54,7 +51,7 @@ DYSIG = np.zeros((len(Q2), len(Q1)))
 X_idx = np.zeros((len(Q2), len(Q1)))
 Y_idx = np.zeros((len(Q2), len(Q1)))
 version = 'vS11'
-c1val = 'c104'
+c1val = 'c110_redo'
 
 n_cyc = 1
 sc = 10  # scale factor
@@ -225,11 +222,11 @@ for q1_idx, q1 in enumerate(Q1):
     plt.grid()
     fig = plt.gcf()
     fig.set_size_inches(10.5, 8)
-    fig.savefig(c1val+'_eps'+q1str+'.png', transparent=True,
+    fig.savefig('Out/'+c1val+'/eps'+q1str+'.png', transparent=True,
                 dpi=300, bbox_inches='tight')
     kwargs = {'extra_axis_parameters': {'width=10cm', 'height=6cm',
                                         'tick pos=left'}}
-    my_save.save_plt_as_tikz('tex/'+c1val+'eps'+q1str+'.tex', **kwargs)
+    my_save.save_plt_as_tikz('Out/'+c1val+'/eps'+q1str+'.tex', **kwargs)
 
     
 
@@ -244,7 +241,7 @@ plt.xlabel('step length $q_1$ [deg]')
 plt.ylabel('mean of oscillation amplitude [deg]')
 plt.grid()
 
-my_save.save_plt_as_tikz('tex/'+c1val+'oscillation_amplitude.tex')
+my_save.save_plt_as_tikz('Out/'+c1val+'/oscillation_amplitude.tex')
 
 #%%
 levels = np.arange(0, 5,.5)
@@ -260,7 +257,7 @@ plt.xlabel('steering $q_2$')
 
 fig = plt.gcf()
 fig.set_size_inches(10.5, 8)
-fig.savefig('tex/'+c1val+'oscillation_amplitude_heatmap.png', transparent=True,
+fig.savefig('Out/'+c1val+'/oscillation_amplitude_heatmap.png', transparent=True,
             dpi=300, bbox_inches='tight')
 
 
@@ -270,7 +267,7 @@ plt.xlabel('time')
 plt.ylabel('robot orientation epsilon')
 fig = plt.gcf()
 fig.set_size_inches(10.5, 8)
-fig.savefig('eps.png', transparent=True,
+fig.savefig('Out/'+c1val+'/eps.png', transparent=True,
             dpi=300, bbox_inches='tight')
 
 
@@ -321,7 +318,7 @@ ax.spines['bottom'].set_visible(False)
 
 
 fig.set_size_inches(10.5, 8)
-fig.savefig(c1val+'_gait.png', transparent=True,
+fig.savefig('Out/'+c1val+'/gait.png', transparent=True,
             dpi=300, bbox_inches='tight')
 
 # %%
@@ -417,7 +414,7 @@ plt.xlabel('steering $q_2$')
 
 fig = plt.gcf()
 #fig.set_size_inches(10.5, 8.5)
-fig.savefig('tex/'+c1val+'FitDXDY_order_{}_round_{}.png'.format(order, roundon),
+fig.savefig('Out/'+c1val+'/FitDXDY_order_{}_round_{}.png'.format(order, roundon),
             dpi=300, trasperent=True, bbox_inches='tight')
 
 

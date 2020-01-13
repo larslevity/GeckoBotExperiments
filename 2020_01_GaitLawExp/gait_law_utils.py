@@ -36,6 +36,7 @@ def load_data(path, sets):
     xscale = 112./1000  # after changing resolution of RPi
     xshift = -12 - 50  # cm
     yshift = -45 - 20  # cm
+    eps_0 = 90  # deg value eps meas is shifted to at start idx
 
     for exp in sets:
         data = load.read_csv(path+"{}.csv".format(exp))
@@ -47,16 +48,18 @@ def load_data(path, sets):
         # correction
         start_time = data['time'][start_idx]
         start_eps = data['eps'][start_idx]
+        start_eps_idx = start_idx
         if np.isnan(start_eps):
             i = 0
             while np.isnan(start_eps):
                 i += +1
                 start_eps = data['eps'][start_idx+i]
+                start_eps_idx = start_idx+i
             print('took start_eps from idx', start_idx + i,
                   '(start_idx: ', start_idx, ')')
             if i > 10:
-                print('MORE THAN 10 MEASUREMENTS!!')
-        
+                print('THAT ARE MORE THAN 10 MEASUREMENTS!!')
+        # shift time acis
         data['time'] = \
             [round(data_time - start_time, 3) for data_time in data['time']]
         for key in data:
@@ -64,14 +67,28 @@ def load_data(path, sets):
                 shift = xshift if key[0] == 'x' else yshift
                 data[key] = [i*xscale + shift for i in data[key]]
             if key == 'eps':
-                data['eps'] = [np.mod(e+180-start_eps, 360)-180+90 for e in data['eps']]
+                data['eps'] = [np.mod(e+180-start_eps, 360)-180+eps_0 for e in data['eps']]
+        # shift eps to remove jump
+        last_eps = eps_0
+        corr_times = 1
+        correct_direction = 1
+        for idx in range(start_eps_idx+1, len(data['eps'])):
+            eps = data['eps'][idx]
+            if not np.isnan(eps):
+                if abs(eps-last_eps) > 200:  # unrealsitic jump in orientation
+                    if abs(last_eps - (eps - 360*np.sign(eps)*correct_direction)) > 200:
+                        correct_direction = correct_direction*(-1)
+                        corr_times += 1
+                        print('change eps correction direction\t\t', corr_times)
+                    data['eps'][idx] = eps - 360*np.sign(eps)*correct_direction
+                last_eps = data['eps'][idx]
         # rotate:
         for idx in range(6):
             x = data['x{}'.format(idx)]
             y = data['y{}'.format(idx)]
             X, Y = [], []
             for vec in zip(x, y):
-                xrot, yrot = rotate(vec, np.deg2rad(-start_eps+90))
+                xrot, yrot = rotate(vec, np.deg2rad(-start_eps+eps_0))
                 X.append(xrot)
                 Y.append(yrot)
             data['x{}'.format(idx)] = X

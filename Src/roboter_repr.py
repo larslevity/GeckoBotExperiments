@@ -59,7 +59,7 @@ class GeckoBotPose(object):
             plt.plot(fpx, fpy, 'o', markersize=10, color=col)
             plt.plot(nfpx, nfpy, 'x', markersize=10, color=col)
 
-    def get_tikz_repr(self, col='black', shift=None):
+    def get_tikz_repr(self, col='black', shift=None, linewidth='.5mm'):
         alp, ell, eps = (self.x[0:n_limbs], self.x[n_limbs:2*n_limbs],
                          self.x[-1])
         mx, my = self.markers
@@ -72,7 +72,7 @@ class GeckoBotPose(object):
             geckostring = ''
         geckostring += tikz_draw_gecko(
                 alp, ell, eps, (mx[0], my[0]), fix=self.f, col=col,
-                linewidth='1mm')
+                linewidth=linewidth)
         if shift:
             geckostring += '\\end{scope}\n \n \n'
         else:
@@ -151,13 +151,13 @@ class GeckoBotGait(object):
             pose.plot(col, ax=ax)
             pose.plot_real_markers(col, ax=ax)
 
-    def get_tikz_repr(self, shift=None):
+    def get_tikz_repr(self, shift=None, linewidth='.5mm'):
         gait_str = ''
         for idx, pose in enumerate(self.poses):
             c = int(20 + (float(idx)/len(self.poses))*80.)
             col = 'black!{}'.format(c)
             shift_ = idx*shift if shift else None
-            gait_str += pose.get_tikz_repr(col, shift_)
+            gait_str += pose.get_tikz_repr(col, shift_, linewidth)
         return gait_str
 
     def plot_markers(self, markernum=range(6), figname='GeckoBotGait'):
@@ -216,11 +216,15 @@ class GeckoBotGait(object):
         deps = self.poses[-1].get_eps() - self.poses[0].get_eps()
         return dist, deps
 
-    def plot_travel_distance(self):
+    def plot_travel_distance(self, **kwargs):
         plt.figure('GeckoBotGait')
         dist, deps = self.get_travel_distance()
         start = self.poses[0].get_m1_pos()
-        plt.plot([start[0], start[0]+dist[0]], [start[1], start[1]+dist[1]])
+#        plt.plot([start[0], start[0]+dist[0]], [start[1], start[1]+dist[1]])
+        plt.arrow(start[0], start[1], dist[0], dist[1],
+                  length_includes_head=1,
+                  head_width=3,
+                  **kwargs)
 
     def plot_orientation(self, length=.5, poses=[0, -1]):
         plt.figure('GeckoBotGait')
@@ -229,7 +233,7 @@ class GeckoBotGait(object):
                 start = self.poses[pose].get_m1_pos()
                 eps = self.poses[pose].get_eps()
                 plt.plot([start[0], start[0]+np.cos(np.deg2rad(eps))*length],
-                         [start[1], start[1]+np.sin(np.deg2rad(eps))*length], 'r')
+                         [start[1], start[1]+np.sin(np.deg2rad(eps))*length], 'g')
 
     def plot_epsilon(self):
         plt.figure('GeckoBotGaitEpsHistory')
@@ -446,7 +450,7 @@ def tikz_draw_gecko(alp, ell, eps, F1, col='black',
 \\def\\riii{%f}
 \\def\\riv{%f}
 
-\\def\\R{1.2}
+\\def\\R{.4}
 
 \\path (%f, %f)coordinate(F1);
 

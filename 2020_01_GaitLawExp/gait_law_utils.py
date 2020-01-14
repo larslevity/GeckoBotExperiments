@@ -18,7 +18,6 @@ from Src import save as my_save
 from Src import load
 
 
-
 def rotate(vec, theta):
     c, s = np.cos(theta), np.sin(theta)
     return np.r_[c*vec[0]-s*vec[1], s*vec[0]+c*vec[1]]
@@ -45,6 +44,7 @@ def load_data(path, sets):
             start_idx = data['f0'].index(1)  # upper left foot attached 1sttime
         except ValueError:  # no left foot is fixed
             start_idx = 0
+
         # correction
         start_time = data['time'][start_idx]
         start_eps = data['eps'][start_idx]
@@ -68,6 +68,7 @@ def load_data(path, sets):
                 data[key] = [i*xscale + shift for i in data[key]]
             if key == 'eps':
                 data['eps'] = [np.mod(e+180-start_eps, 360)-180+eps_0 for e in data['eps']]
+
         # shift eps to remove jump
         last_eps = eps_0
         corr_times = 1
@@ -82,6 +83,7 @@ def load_data(path, sets):
                         print('change eps correction direction\t\t', corr_times)
                     data['eps'][idx] = eps - 360*np.sign(eps)*correct_direction
                 last_eps = data['eps'][idx]
+
         # rotate:
         for idx in range(6):
             x = data['x{}'.format(idx)]
@@ -94,10 +96,37 @@ def load_data(path, sets):
             data['x{}'.format(idx)] = X
             data['y{}'.format(idx)] = Y
 
+        # shift xy coordinates s.t. (x1,y1)(t0) = (0,0)
+        start_x1 = (data['x1'][start_idx], data['y1'][start_idx])
+        if np.isnan(start_x1[0]) or np.isnan(start_x1[1]):
+            i = 0
+            while np.isnan(start_x1[0]) or np.isnan(start_x1[1]):
+                i -= 1
+                start_x1 = (data['x1'][start_idx+i], data['y1'][start_idx+i])
+                if i < -20:
+                    start_x1 = (0, 0)
+                    print('can not find start position ...')
+        print('Messung startet bei start_x1:  ', start_x1)
+        for idx in range(6):
+            X = [x - start_x1[0] for x in data['x{}'.format(idx)]]
+            Y = [y - start_x1[1] for y in data['y{}'.format(idx)]]
+            data['x{}'.format(idx)] = X
+            data['y{}'.format(idx)] = Y
+
         dataBase.append(data)
 
     return dataBase
 
+
+def rotate_feet(fpos, theta):
+    # rotate:
+    x, y = fpos
+    X, Y = [], []
+    for vec in zip(x, y):
+        xrot, yrot = rotate(vec, np.deg2rad(theta))
+        X.append(xrot)
+        Y.append(yrot)
+    return((X, Y))
 
 
 def find_poses_idx(db, neighbors=5):

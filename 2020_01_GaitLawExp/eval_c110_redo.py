@@ -55,7 +55,7 @@ c1val = 'c110_redo'
 
 n_cyc = 1
 sc = 10  # scale factor
-dx, dy = 3.5*sc, (3+2.5*(n_cyc-1 if n_cyc > 1 else 1))*sc
+dx, dy = 2.8*sc, (3+1.5*(n_cyc-1 if n_cyc > 1 else 1))*sc
 
 len_leg, len_tor = calibration.get_len(version)
 ell_n = [len_leg, len_leg, len_tor, len_leg, len_leg]
@@ -89,7 +89,7 @@ for q1_idx, q1 in enumerate(Q1):
             print('can not load data...')
         print('find poses ...')
         POSE_IDX = uti.find_poses_idx(db, neighbors=10)
-        POSE_IDX = [pidx[:13] for pidx in POSE_IDX]
+#        POSE_IDX = [pidx[:13] for pidx in POSE_IDX]
         n_steps[name] = len(POSE_IDX[0])-1
 
     # %% ### Track of feet:
@@ -100,23 +100,83 @@ for q1_idx, q1 in enumerate(Q1):
         exp_idx = 0
         gait_cor = roboter_repr.GeckoBotGait()
         gait_raw = roboter_repr.GeckoBotGait()
+        gait_raw_help = \
+            {i: roboter_repr.GeckoBotGait() for i in range(2*n_cyc + 1)}
+        X1_init = (q2_idx*dx, q1_idx*dy)
+        eps_0 = 90
+        print('startpunkt fuer Plot:  ', X1_init)
+
+        X = {i: [] for i in range(2*n_cyc + 1)}
+        FPOS = {i: [] for i in range(2*n_cyc + 1)}
+        FIX = {i: [] for i in range(2*n_cyc + 1)}
+
+        for pidx in range(2, n_steps[name]-2, 2):  # drop first and last 2poses
+            _, eps_init, fpos, _, _, _ = uti.extract_measurement(
+                        db[exp_idx], POSE_IDX[exp_idx][pidx])
+            eps_init -= eps_0   # for plot purpose
+            x1_init = np.r_[fpos[0][1], fpos[1][1]]
+            for idx in range(2*n_cyc + 1):
+                alp, eps, fpos, p, fix, _ = uti.extract_measurement(
+                        db[exp_idx], POSE_IDX[exp_idx][pidx+idx])
+                # shift to zero:
+                xpos, ypos = fpos
+                fpos = ([x - x1_init[0] for x in xpos],
+                        [y - x1_init[1] for y in ypos])
+                # rotate
+                fpos = uti.rotate_feet(fpos, -eps_init)
+                # shift to plot position
+                xpos, ypos = fpos
+                fpos = ([x + X1_init[0] for x in xpos],
+                        [y + X1_init[1] for y in ypos])
+                # rotate also eps
+                x = alp + ell_n + [eps-eps_init]
+                X[idx].append(x)
+                FPOS[idx].append(fpos)
+                FIX[idx].append(fix)
+                # append to gait for better comprhension
+                pose_raw = roboter_repr.GeckoBotPose(x, fpos, fix)
+                gait_raw_help[idx].append_pose(pose_raw)
+
+        # calc mean of all measurements
+        gait_raw_mean = \
+            {i: roboter_repr.GeckoBotGait() for i in range(2*n_cyc + 1)}
         for idx in range(2*n_cyc + 1):
+            xpos_mean, ypos_mean = [], []
+            for i in range(6):
+                xmean = np.nanmean(
+                    [FPOS[idx][cyc][0][i] for cyc in range(len(FPOS[idx]))])
+                xpos_mean.append(xmean)
+                ymean = np.nanmean(
+                    [FPOS[idx][cyc][1][i] for cyc in range(len(FPOS[idx]))])
+                ypos_mean.append(ymean)
+            state_x_mean = []
+            for i in range(11):
+                mean = np.nanmean(
+                    [X[idx][cyc][i] for cyc in range(len(X[idx]))])
+                state_x_mean.append(mean)
+            fix_mean = []
+            for i in range(4):
+                fix = np.nanmean(
+                    [FIX[idx][cyc][i] for cyc in range(len(FIX[idx]))])
+                fix = 0 if fix < 1 else 1
+                fix_mean.append(fix)
+            pose_raw = roboter_repr.GeckoBotPose(
+                    state_x_mean, (xpos_mean, ypos_mean), fix_mean)
 
-            X1_init = (q2_idx*dx, q1_idx*dy)
-            alp, eps, fpos, p, fix, _ = uti.extract_measurement(
-                    db[exp_idx], POSE_IDX[exp_idx][idx])
-            # shift:
-            xpos, ypos = fpos
-            fpos = ([x + X1_init[0] for x in xpos],
-                    [y + X1_init[1] for y in ypos])
-            x = alp + ell_n + [eps]
-            pose_raw = roboter_repr.GeckoBotPose(x, fpos, fix)
+            gait_raw_mean[idx].append_pose(pose_raw)
             gait_raw.append_pose(pose_raw)
-            
-#            print(idx, 'pose complete:', pose_raw.complete())
+            # double check:
+            plt.figure('check' + name)
+            gait_raw_help[idx].plot_gait()
+            gait_raw_mean[idx].plot_gait()
 
-#            # corrected current_pose
-            def correct(alp, eps, fpos):
+        GAITS_raw.append(gait_raw)
+        print(idx, 'pose complete:', pose_raw.complete())
+
+
+        # correct gait raw
+        for pose_raw in gait_raw.poses:
+            def correct(alp, eps, fpos, fix):
                 alp_c, eps_c, fpos_c = inverse_kinematics.correct_measurement(
                         alp, eps, fpos, len_leg, len_tor)
                 x_c = alp_c + ell_n + [eps_c]
@@ -125,42 +185,44 @@ for q1_idx, q1 in enumerate(Q1):
             try:
                 if pose_raw.complete():
                     print('correct measurement ...')
-                    pose_cor = func_timeout(1, correct, args=(alp, eps, fpos))
+                    alp, eps = pose_raw.alp, pose_raw.eps
+                    fix, fpos = pose_raw.f, pose_raw.markers
+                    pose_cor = func_timeout(1, correct, args=(
+                            alp, eps, fpos, fix))
                     gait_cor.append_pose(pose_cor)
             except FunctionTimedOut:
                 print('time out. cant correct measurement ...')
 
-
         GAITS_cor.append(gait_cor)
-        GAITS_raw.append(gait_raw)
 
 
     # %% DX/DY
         dx_mean = []
         dy_mean = []
-        for idx in [0, 2, 4, 6, 8]:
-            _, eps, fpos, _, _, _ = uti.extract_measurement(db[exp_idx], POSE_IDX[exp_idx][idx])
+        for idx in range(2, n_steps[name]-2, 2):  # drop first and last 2 poses
+            _, eps_init, fpos, _, _, _ = \
+                uti.extract_measurement(db[exp_idx], POSE_IDX[exp_idx][idx])
             x1_init = np.r_[fpos[0][1], fpos[1][1]]
-            eps_init = eps
-            
-            _, eps, fpos, _, _, _ = uti.extract_measurement(db[exp_idx], POSE_IDX[exp_idx][idx+2])
+
+            _, eps, fpos, _, _, _ = uti.extract_measurement(
+                    db[exp_idx], POSE_IDX[exp_idx][idx+2])
             x1 = np.r_[fpos[0][1], fpos[1][1]]
             travel = uti.rotate(x1 - x1_init, np.deg2rad(-eps_init))
             dx_mean.append(travel[0])
             dy_mean.append(travel[1])
-            
-            
+
         DX[q2_idx][q1_idx] = np.nanmean(dx_mean)
         DY[q2_idx][q1_idx] = np.nanmean(dy_mean)
 
         DXSIG[q2_idx][q1_idx] = np.nanstd(dx_mean)
         DYSIG[q2_idx][q1_idx] = np.nanstd(dy_mean)
-            
 
     # %% EPS
         print('plot eps....')
         plt.figure('eps')
-        eps, t = pf.plot_eps(db, POSE_IDX, name, version, save_as_tikz=False)
+        # drop first and last cycle for evaluation of eps
+        eps, t = pf.plot_eps(db, [POSE_IDX[0][2:-2]],
+                             name, version, save_as_tikz=False)
 
         MEAS[q1str][q2str]['eps'] = eps
         MEAS[q1str][q2str]['time'] = t
@@ -168,7 +230,7 @@ for q1_idx, q1 in enumerate(Q1):
         MEAS[q1str][q2str]['eps_full'] = db[0]['eps']
         deps = np.nanmean(np.diff(eps))*2  # mean deps/cycle
         DEPS[q2_idx][q1_idx] = deps
-        
+
 
 # %% DEPS Visual
     plt.figure('eps'+q1str)
@@ -181,7 +243,6 @@ for q1_idx, q1 in enumerate(Q1):
         t, eps = MEAS[q1str][q2str]['time'], MEAS[q1str][q2str]['eps']
         deps = DEPS[q2_idx][q1_idx]
         plt.plot(t, eps, 'o', color=col, alpha=.5, markersize=4)
-        
 
         # Polyfit
         idx = np.isfinite(t) & np.isfinite(eps)  # filter NaN
@@ -189,10 +250,12 @@ for q1_idx, q1 in enumerate(Q1):
         dt = t[-1] - t[0]
         # counter check
         deps_ = epsdot*dt/(len(eps)-1)*2
-        print(deps, deps_)
-        plt.plot([t[0], t[-1]], [c, c+dt*epsdot], 'k')
+        print('compare both calculations for deps:',
+              round(deps, 2), round(deps_, 2))
         
+
         poly = np.poly1d([epsdot, c])
+        plt.plot([t[0], t[-1]], [poly(t[0]), poly(t[-1])], 'k')
         # deviation of eps from mean of deps trend for each pose
         deps_mean_eps = [poly(ti) - epsi for ti, epsi in zip(t[idx], eps[idx])]
         # mean deviation of eps of deps trend
@@ -203,18 +266,22 @@ for q1_idx, q1 in enumerate(Q1):
         # plot
         for deps_mean, ti in zip(deps_mean_eps, t[idx]):
             plt.plot([ti, ti], [poly(ti), poly(ti)-deps_mean], 'k')
-        plt.text(t[-1]+3, eps[-1], 'Deps/cyc =' + str(round(deps_, 1)) + '  deps=' + str(round(mean_deps_mean_eps, 1)),
+        plt.text(t[-1]+3, eps[-1], ('Deps/cyc =' + str(round(deps_, 1))
+                                    + '  deps='
+                                    + str(round(mean_deps_mean_eps, 1))),
                  ha="left", va="bottom",
                  bbox=dict(boxstyle="square",
                            ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8),
                            ))
 
-    mean_abs_deps = np.mean([MEAS[q1str][key]['abs_deps'] for key in MEAS[q1str]])
-    mean_abs_deps_sig = np.std([MEAS[q1str][key]['abs_deps'] for key in MEAS[q1str]])
-    
+    mean_abs_deps = np.mean(
+            [MEAS[q1str][key]['abs_deps'] for key in MEAS[q1str]])
+    mean_abs_deps_sig = np.std(
+            [MEAS[q1str][key]['abs_deps'] for key in MEAS[q1str]])
+
     MEAS[q1str]['abs_deps'] = mean_abs_deps
     MEAS[q1str]['abs_deps_sig'] = mean_abs_deps_sig
-    
+
     # plot
     plt.ylabel('robot orientation epsilon [deg]')
     plt.xlabel('time [s]')
@@ -227,8 +294,6 @@ for q1_idx, q1 in enumerate(Q1):
     kwargs = {'extra_axis_parameters': {'width=10cm', 'height=6cm',
                                         'tick pos=left'}}
     my_save.save_plt_as_tikz('Out/'+c1val+'/eps'+q1str+'.tex', **kwargs)
-
-    
 
 # %% ABS DEPS # Schwankung des Roboters um seine Trendlinie
 plt.figure('mean abs deps')
@@ -243,8 +308,8 @@ plt.grid()
 
 my_save.save_plt_as_tikz('Out/'+c1val+'/oscillation_amplitude.tex')
 
-#%%
-levels = np.arange(0, 5,.5)
+# %%
+levels = np.arange(0, 5, .5)
 
 contour = plt.contourf(X_idx, Y_idx, AMPLITUDE, alpha=1, cmap='coolwarm',
                        levels=levels)
@@ -257,8 +322,8 @@ plt.xlabel('steering $q_2$')
 
 fig = plt.gcf()
 fig.set_size_inches(10.5, 8)
-fig.savefig('Out/'+c1val+'/oscillation_amplitude_heatmap.png', transparent=True,
-            dpi=300, bbox_inches='tight')
+fig.savefig('Out/'+c1val+'/oscillation_amplitude_heatmap.png',
+            transparent=True, dpi=300, bbox_inches='tight')
 
 
 # %% EPS
@@ -270,56 +335,13 @@ fig.set_size_inches(10.5, 8)
 fig.savefig('Out/'+c1val+'/eps.png', transparent=True,
             dpi=300, bbox_inches='tight')
 
-
-# %% EPS / GAIT
-print('create figure: EPS/GAIT')
-
-fig = plt.figure('GeckoBotGait')
-levels = np.arange(-65, 66, 5)
-if len(Q1) > 1:
-    contour = plt.contourf(X_idx, Y_idx, DEPS*n_cyc, alpha=1,
-                           cmap='RdBu_r', levels=levels)
-# surf = plt.contour(X_idx, Y_idx, DEPS, levels=levels, colors='k')
-# plt.clabel(surf, levels, inline=True, fmt='%2.0f')
-
-
-for gait in GAITS_raw:
-    gait.plot_gait(g='c')
-    gait.plot_orientation(length=.5*sc)
-
-#for gait in GAITS_cor:
-#    gait.plot_gait(g='c')
-#    gait.plot_orientation(length=.5*sc)
-
-
-
-for xidx, x in enumerate(list(DEPS)):
-    for yidx, deps in enumerate(list(x)):
-        plt.text(X_idx[xidx][yidx], Y_idx[xidx][yidx]-2.2*sc, round(deps*n_cyc, 1),
-                 ha="center", va="bottom",
-                 bbox=dict(boxstyle="square",
-                           ec=(1., 0.5, 0.5),
-                           fc=(1., 0.8, 0.8),
-                           ))
-
-
-plt.xticks(X_idx.T[0], [round(x, 2) for x in Q2])
-plt.yticks(Y_idx[0], [round(x, 1) for x in Q1])
-plt.ylabel('step length $q_1$')
-plt.xlabel('steering $q_2$')
-plt.axis('scaled')
-
-plt.grid()
-ax = fig.gca()
-ax.spines['top'].set_visible(False)
-ax.spines['left'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.spines['bottom'].set_visible(False)
-
-
+# %% Track
+plt.figure('Track'+version)
+fig = plt.gcf()
 fig.set_size_inches(10.5, 8)
-fig.savefig('Out/'+c1val+'/gait.png', transparent=True,
+fig.savefig('Out/'+c1val+'/track.png', transparent=True,
             dpi=300, bbox_inches='tight')
+
 
 # %%
 
@@ -410,13 +432,83 @@ plt.yticks(Q1, [round(x, 1) for x in Q1])
 plt.ylabel('step length $q_1$')
 plt.xlabel('steering $q_2$')
 
-
-
 fig = plt.gcf()
-#fig.set_size_inches(10.5, 8.5)
-fig.savefig('Out/'+c1val+'/FitDXDY_order_{}_round_{}.png'.format(order, roundon),
-            dpi=300, trasperent=True, bbox_inches='tight')
+fig.set_size_inches(10.5, 8.5)
+fig.savefig(
+        'Out/'+c1val+'/FitDXDY_order_{}_round_{}.png'.format(order, roundon),
+        dpi=300, trasperent=True, bbox_inches='tight')
 
+# %% EPS / GAIT
+print('create figure: EPS/GAIT')
+
+fig = plt.figure('GeckoBotGait')
+levels = np.arange(-65, 66, 5)
+if len(Q1) > 1:
+    contour = plt.contourf(X_idx, Y_idx, DEPS*n_cyc, alpha=1,
+                           cmap='RdBu_r', levels=levels)
+# surf = plt.contour(X_idx, Y_idx, DEPS, levels=levels, colors='k')
+# plt.clabel(surf, levels, inline=True, fmt='%2.0f')
+
+
+gait_tex = ''
+
+for gait in GAITS_cor:
+#    gait.plot_gait(g='c')
+#    gait.plot_travel_distance()
+    gait.plot_orientation(length=.5*sc)
+    gait_tex = gait_tex + '\n%%%%%%%\n' + gait.get_tikz_repr(linewidth='.7mm')
+
+for q1_idx, q1 in enumerate(Q1):
+    for q2_idx, q2 in enumerate(Q2):
+        dx = DX[q2_idx][q1_idx]
+        dy = DY[q2_idx][q1_idx]
+        start = GAITS_raw[q1_idx*len(Q2)+q2_idx].poses[0].get_m1_pos()
+        plt.arrow(start[0], start[1], -dy, dx, facecolor='red',
+                  length_includes_head=1,
+                  width=.9,
+                  head_width=3)
+
+#for gait in GAITS_cor:
+#    gait.plot_gait(g='c')
+#    gait.plot_orientation(length=.5*sc)
+
+for xidx, x in enumerate(list(DEPS)):
+    for yidx, deps in enumerate(list(x)):
+        plt.text(X_idx[xidx][yidx], Y_idx[xidx][yidx]-2.2*sc,
+                 round(deps*n_cyc, 1),
+                 ha="center", va="bottom",
+                 fontsize=25,
+                 bbox=dict(boxstyle="square",
+                           ec=(.5, 1., 0.5),
+                           fc=(.8, 1., 0.8),
+                           ))
+
+
+plt.xticks(X_idx.T[0], [round(x, 2) for x in Q2])
+plt.yticks(Y_idx[0], [round(x, 1) for x in Q1])
+plt.ylabel('step length $q_1$')
+plt.xlabel('steering $q_2$')
+plt.axis('scaled')
+
+plt.grid()
+ax = fig.gca()
+ax.spines['top'].set_visible(False)
+ax.spines['left'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.spines['bottom'].set_visible(False)
+
+
+my_save.save_plt_as_tikz('Out/'+c1val+'/gait.tex',
+                         additional_tex_code=gait_tex,
+                         scale=.7,
+                         scope='scale=.1, opacity=.8')
+
+
+
+
+fig.set_size_inches(10.5, 8)
+fig.savefig('Out/'+c1val+'/gait.png', transparent=True,
+            dpi=300, bbox_inches='tight')
 
 
 

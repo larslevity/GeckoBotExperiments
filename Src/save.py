@@ -26,7 +26,10 @@ def save_plt_as_tikz(filename, additional_tex_code=None, scale=1, scope=None,
     aux_fn = filename + '_aux'
     if additional_tex_code:
         kwargs = {'extra_axis_parameters':
-                  {'anchor=origin', 'disabledatascaling', 'x=1cm', 'y=1cm'}}
+                  {'anchor=origin', 'disabledatascaling', 'x=.1cm', 'y=.1cm',
+                   'axis line style={draw opacity=0}',
+                   'tick label style={font=\\Large}',
+                   'label style={font=\\huge}'}}
     tikz_save(aux_fn, encoding='utf-8', **kwargs)
     insert_tex_header(aux_fn, additional_tex_code, scale, scope)
 
@@ -80,6 +83,7 @@ def insert_tex_header(filename, additional_tex_code=None, scale=1, scope=None):
 \\usepgfplotslibrary{groupplots}
 \\begin{document}
 """
+    ending = "\n%% End matplotlib2tikz content %% \n\\end{document}"
     if additional_tex_code:
         # remove \begin{tikzpicture}
         with open(filename, 'r', newline='\r\n') as fin:
@@ -88,14 +92,23 @@ def insert_tex_header(filename, additional_tex_code=None, scale=1, scope=None):
             fout.writelines([data[0]] + data[2:])
         # add geckostr between header and matplotlib2tikz data
         header = (header + '\n\\begin{tikzpicture}[scale=%s]' % (scale)
-                  + ('\n\\begin{scope}[%s]' % (scope) if scope else '')
+                  )
+        # remove \end{tikzpicture}
+        with open(filename, 'r', newline='\r\n') as fin:
+            data = fin.read().splitlines(True)
+        with open(filename, 'w', newline='\r\n') as fout:
+            fout.writelines(data[:-1])
+        ending = (('\n\\begin{scope}[%s]' % (scope) if scope else '')
                   + additional_tex_code
-                  + ('\n\\end{scope}' if scope else ''))
+                  + ('\n\\end{scope}' if scope else '')
+                  + '\n\\end{tikzpicture}'
+                  + '\n%% \n\\end{document}')
     line_pre_adder(filename, header)
+
     # Append Ending
-    ending = "\n%% End matplotlib2tikz content %% \n\\end{document}"
-    with open(filename, "a", newline='\n') as myfile:
-        myfile.write(ending)
+    with open(filename, "a") as myfile:
+        for line in ending.splitlines():
+            myfile.write(line.rstrip('\r\n') + '\n',)
 
 
 def line_pre_adder(filename, line_to_prepend):

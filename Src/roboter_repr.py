@@ -65,18 +65,20 @@ class GeckoBotPose(object):
         mx, my = self.markers
 
 #        ell = [l/10. for l in ell]
-
-        if shift:
-            geckostring = '\\begin{scope}[xshift=%scm]' % str(shift)
+        if self.complete():
+            if shift:
+                geckostring = '\\begin{scope}[xshift=%scm]' % str(shift)
+            else:
+                geckostring = ''
+            geckostring += tikz_draw_gecko(
+                    alp, ell, eps, (mx[0], my[0]), fix=self.f, col=col,
+                    linewidth=linewidth)
+            if shift:
+                geckostring += '\\end{scope}\n \n \n'
+            else:
+                geckostring += '\n\n'
         else:
             geckostring = ''
-        geckostring += tikz_draw_gecko(
-                alp, ell, eps, (mx[0], my[0]), fix=self.f, col=col,
-                linewidth=linewidth)
-        if shift:
-            geckostring += '\\end{scope}\n \n \n'
-        else:
-            geckostring += '\n\n'
         return geckostring
 
     def save_as_tikz(self, filename, compileit=True):
@@ -172,6 +174,10 @@ class GeckoBotGait(object):
             if idx in markernum:
                 x, y = marker
                 plt.plot(x, y, color=col[idx])
+
+        for pose in self.poses:
+            ax = plt.gca()
+            pose.plot_real_markers(ax=ax)
 
     def plot_com(self, markernum=range(6)):
         """plots the history of center of markers in *markernum*"""
@@ -312,7 +318,7 @@ def predict_gait(references, initial_pose, weight=None):
 
 
 def markers_color():
-    return ['red', 'orange', 'green', 'blue', 'magenta', 'darkred']
+    return ['red', 'orange', 'darkred', 'blue', 'darkorange', 'darkblue']
 
 
 def get_point_repr(x, marks, f):

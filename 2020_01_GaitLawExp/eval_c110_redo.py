@@ -171,8 +171,6 @@ for q1_idx, q1 in enumerate(Q1):
             gait_raw_mean[idx].plot_gait()
 
         GAITS_raw.append(gait_raw)
-        print(idx, 'pose complete:', pose_raw.complete())
-
 
         # correct gait raw
         for pose_raw in gait_raw.poses:

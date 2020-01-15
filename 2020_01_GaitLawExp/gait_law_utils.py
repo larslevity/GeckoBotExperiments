@@ -27,7 +27,7 @@ def rotate(vec, theta):
 #      y = sin(a)*x + cos(a)*y
 
 
-def load_data(path, sets):
+def load_data(path, sets, raw=False):
     dataBase = []
 #    xscale = 145./1000  # 1000px -> 145cm
 #    xshift = -22  # cm
@@ -39,81 +39,83 @@ def load_data(path, sets):
 
     for exp in sets:
         data = load.read_csv(path+"{}.csv".format(exp))
+        if raw:
+            dataBase.append(data)
+        else:
+            try:
+                start_idx = data['f0'].index(1)  # upper left foot attached 1sttime
+            except ValueError:  # no left foot is fixed
+                start_idx = 0
 
-        try:
-            start_idx = data['f0'].index(1)  # upper left foot attached 1sttime
-        except ValueError:  # no left foot is fixed
-            start_idx = 0
+            # correction
+            start_time = data['time'][start_idx]
+            start_eps = data['eps'][start_idx]
+            start_eps_idx = start_idx
+            if np.isnan(start_eps):
+                i = 0
+                while np.isnan(start_eps):
+                    i += +1
+                    start_eps = data['eps'][start_idx+i]
+                    start_eps_idx = start_idx+i
+                print('took start_eps from idx', start_idx + i,
+                      '(start_idx: ', start_idx, ')')
+                if i > 10:
+                    print('THAT ARE MORE THAN 10 MEASUREMENTS!!')
+            # shift time acis
+            data['time'] = \
+                [round(data_time - start_time, 3) for data_time in data['time']]
+            for key in data:
+                if key[0] in ['x', 'y']:
+                    shift = xshift if key[0] == 'x' else yshift
+                    data[key] = [i*xscale + shift for i in data[key]]
+                if key == 'eps':
+                    data['eps'] = [np.mod(e+180-start_eps, 360)-180+eps_0 for e in data['eps']]
 
-        # correction
-        start_time = data['time'][start_idx]
-        start_eps = data['eps'][start_idx]
-        start_eps_idx = start_idx
-        if np.isnan(start_eps):
-            i = 0
-            while np.isnan(start_eps):
-                i += +1
-                start_eps = data['eps'][start_idx+i]
-                start_eps_idx = start_idx+i
-            print('took start_eps from idx', start_idx + i,
-                  '(start_idx: ', start_idx, ')')
-            if i > 10:
-                print('THAT ARE MORE THAN 10 MEASUREMENTS!!')
-        # shift time acis
-        data['time'] = \
-            [round(data_time - start_time, 3) for data_time in data['time']]
-        for key in data:
-            if key[0] in ['x', 'y']:
-                shift = xshift if key[0] == 'x' else yshift
-                data[key] = [i*xscale + shift for i in data[key]]
-            if key == 'eps':
-                data['eps'] = [np.mod(e+180-start_eps, 360)-180+eps_0 for e in data['eps']]
+            # shift eps to remove jump
+            last_eps = eps_0
+            corr_times = 1
+            correct_direction = 1
+            for idx in range(start_eps_idx+1, len(data['eps'])):
+                eps = data['eps'][idx]
+                if not np.isnan(eps):
+                    if abs(eps-last_eps) > 200:  # unrealsitic jump in orientation
+                        if abs(last_eps - (eps - 360*np.sign(eps)*correct_direction)) > 200:
+                            correct_direction = correct_direction*(-1)
+                            corr_times += 1
+                            print('change eps correction direction\t\t', corr_times)
+                        data['eps'][idx] = eps - 360*np.sign(eps)*correct_direction
+                    last_eps = data['eps'][idx]
 
-        # shift eps to remove jump
-        last_eps = eps_0
-        corr_times = 1
-        correct_direction = 1
-        for idx in range(start_eps_idx+1, len(data['eps'])):
-            eps = data['eps'][idx]
-            if not np.isnan(eps):
-                if abs(eps-last_eps) > 200:  # unrealsitic jump in orientation
-                    if abs(last_eps - (eps - 360*np.sign(eps)*correct_direction)) > 200:
-                        correct_direction = correct_direction*(-1)
-                        corr_times += 1
-                        print('change eps correction direction\t\t', corr_times)
-                    data['eps'][idx] = eps - 360*np.sign(eps)*correct_direction
-                last_eps = data['eps'][idx]
+            # rotate:
+            for idx in range(6):
+                x = data['x{}'.format(idx)]
+                y = data['y{}'.format(idx)]
+                X, Y = [], []
+                for vec in zip(x, y):
+                    xrot, yrot = rotate(vec, np.deg2rad(-start_eps+eps_0))
+                    X.append(xrot)
+                    Y.append(yrot)
+                data['x{}'.format(idx)] = X
+                data['y{}'.format(idx)] = Y
 
-        # rotate:
-        for idx in range(6):
-            x = data['x{}'.format(idx)]
-            y = data['y{}'.format(idx)]
-            X, Y = [], []
-            for vec in zip(x, y):
-                xrot, yrot = rotate(vec, np.deg2rad(-start_eps+eps_0))
-                X.append(xrot)
-                Y.append(yrot)
-            data['x{}'.format(idx)] = X
-            data['y{}'.format(idx)] = Y
+            # shift xy coordinates s.t. (x1,y1)(t0) = (0,0)
+            start_x1 = (data['x1'][start_idx], data['y1'][start_idx])
+            if np.isnan(start_x1[0]) or np.isnan(start_x1[1]):
+                i = 0
+                while np.isnan(start_x1[0]) or np.isnan(start_x1[1]):
+                    i -= 1
+                    start_x1 = (data['x1'][start_idx+i], data['y1'][start_idx+i])
+                    if i < -20:
+                        start_x1 = (0, 0)
+                        print('can not find start position ...')
+            print('Messung startet bei start_x1:  ', start_x1)
+            for idx in range(6):
+                X = [x - start_x1[0] for x in data['x{}'.format(idx)]]
+                Y = [y - start_x1[1] for y in data['y{}'.format(idx)]]
+                data['x{}'.format(idx)] = X
+                data['y{}'.format(idx)] = Y
 
-        # shift xy coordinates s.t. (x1,y1)(t0) = (0,0)
-        start_x1 = (data['x1'][start_idx], data['y1'][start_idx])
-        if np.isnan(start_x1[0]) or np.isnan(start_x1[1]):
-            i = 0
-            while np.isnan(start_x1[0]) or np.isnan(start_x1[1]):
-                i -= 1
-                start_x1 = (data['x1'][start_idx+i], data['y1'][start_idx+i])
-                if i < -20:
-                    start_x1 = (0, 0)
-                    print('can not find start position ...')
-        print('Messung startet bei start_x1:  ', start_x1)
-        for idx in range(6):
-            X = [x - start_x1[0] for x in data['x{}'.format(idx)]]
-            Y = [y - start_x1[1] for y in data['y{}'.format(idx)]]
-            data['x{}'.format(idx)] = X
-            data['y{}'.format(idx)] = Y
-
-        dataBase.append(data)
+            dataBase.append(data)
 
     return dataBase
 

@@ -142,9 +142,13 @@ def plot_track(db, POSE_IDX, run, mode, save_as_tikz=False, show_cycles=1):
 #    plt.xlim(-10, 165)
 #    plt.ylim(-60, 60)
     if save_as_tikz:
+        if isinstance(save_as_tikz, str):
+            name = save_as_tikz
+        else:
+            name = 'tikz/track_'+mode+'_'+run+'.tex'
         kwargs = {'extra_axis_parameters':
             {'x=.1cm', 'y=.1cm', 'anchor=origin'}}
-        save.save_plt_as_tikz('tikz/track_'+mode+'_'+run+'.tex', **kwargs)
+        save.save_plt_as_tikz(name, **kwargs)
         print(run)
 #    plt.show()
 

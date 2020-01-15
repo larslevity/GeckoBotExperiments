@@ -13,6 +13,17 @@ try:
 except ImportError:
     from scandir import scandir
 
+try:
+    import deepdish
+except ImportError:
+    print('Can not import Deepdish')
+
+
+def load_data(filename):
+    """ Reading data back """
+    return_data = deepdish.io.load(filename)
+    return return_data
+
 
 def read_csv(filename):
     dic = {}

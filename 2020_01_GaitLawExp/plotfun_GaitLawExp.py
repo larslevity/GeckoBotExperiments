@@ -231,8 +231,13 @@ def plot_eps(db, POSE_IDX, run, mode, save_as_tikz=False):
     EPSMAT[:] = np.nan
     TMAT[:] = np.nan
 
+    try:
+        color = col[run]
+    except KeyError:
+        color = None
+
     for exp_idx, dset in enumerate(db):
-        plt.plot(dset['time'], dset['eps'], color=col[run])
+        plt.plot(dset['time'], dset['eps'], color=color)
         EPS = np.take(dset['eps'], POSE_IDX[exp_idx])
         T = np.take(dset['time'], POSE_IDX[exp_idx])
       
@@ -240,11 +245,6 @@ def plot_eps(db, POSE_IDX, run, mode, save_as_tikz=False):
             EPSMAT[pidx][exp_idx] = eps
             TMAT[pidx][exp_idx] = t
 
-
-    try:
-        color = col[run]
-    except KeyError:
-        color = 'black'
     mu_eps, sig = calc_mean_stddev(EPSMAT)
     t, sigt = calc_mean_stddev(TMAT)
     plt.plot(t, mu_eps, 'o', color=color)
@@ -252,6 +252,13 @@ def plot_eps(db, POSE_IDX, run, mode, save_as_tikz=False):
                      facecolor=color, alpha=0.5)
     plt.xlabel('time')
     plt.ylabel('robot orientation epsilon')
+    plt.grid()
+    if save_as_tikz:
+        if isinstance(save_as_tikz, str):
+            name = save_as_tikz
+        else:
+            name = 'tikz/track_'+mode+'_'+run+'.tex'
+        save.save_plt_as_tikz(name)
 
     return mu_eps, t
 

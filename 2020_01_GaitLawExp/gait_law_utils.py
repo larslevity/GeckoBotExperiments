@@ -53,14 +53,16 @@ def load_data(path, sets, raw=False):
             start_eps_idx = start_idx
             if np.isnan(start_eps):
                 i = 0
+                print('eps measurment is corrupt at start_idx')
                 while np.isnan(start_eps):
-                    i += +1
+                    i += 1
                     start_eps = data['eps'][start_idx+i]
                     start_eps_idx = start_idx+i
                 print('took start_eps from idx', start_idx + i,
                       '(start_idx: ', start_idx, ')')
                 if i > 10:
-                    print('THAT ARE MORE THAN 10 MEASUREMENTS!!')
+                    print('THAT ARE MORE THAN 10 MEASUREMENTS!!\n\n')
+#                    continue  # skip rest of code and go to next iteration
             # shift time acis
             data['time'] = \
                 [round(data_time - start_time, 3) for data_time in data['time']]
@@ -171,7 +173,7 @@ def find_poses_idx(db, neighbors=5):
                     break
         IDX.append(pose_idx)
         if failed > 0:
-            print('failed:', failed)
+            print('failed detections of poses:', failed)
     return IDX
 
 

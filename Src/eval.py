@@ -328,7 +328,7 @@ def get_marker_color():
 
 
 def get_actuator_color():
-    return ['red', 'darkred', 'darkorange', 'orange', 'blue', 'darkblue']
+    return ['red', 'darkred', 'orange', 'darkorange', 'blue', 'darkblue']
 
 
 if __name__ == '__main__':

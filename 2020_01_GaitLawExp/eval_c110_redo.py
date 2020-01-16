@@ -43,6 +43,7 @@ Q2 = np.array([-.5, -.3, -.1, .1, .3, .5])
 #Q2 = np.array([-.5, .5])
 
 DEPS = np.zeros((len(Q2), len(Q1)))
+DEPS_SIG = np.zeros((len(Q2), len(Q1)))
 AMPLITUDE = np.zeros((len(Q2), len(Q1)))
 DX = np.zeros((len(Q2), len(Q1)))
 DY = np.zeros((len(Q2), len(Q1)))
@@ -227,7 +228,9 @@ for q1_idx, q1 in enumerate(Q1):
         MEAS[q1str][q2str]['time_full'] = db[0]['time']
         MEAS[q1str][q2str]['eps_full'] = db[0]['eps']
         deps = np.nanmean(np.diff(eps))*2  # mean deps/cycle
+        deps_sig = np.nanstd(np.diff(eps))*2  # sig deps/cycle
         DEPS[q2_idx][q1_idx] = deps
+        DEPS_SIG[q2_idx][q1_idx] = deps_sig
 
 
 # %% DEPS Visual
@@ -309,10 +312,10 @@ my_save.save_plt_as_tikz('Out/'+c1val+'/oscillation_amplitude.tex')
 # %%
 levels = np.arange(0, 5, .5)
 
-contour = plt.contourf(X_idx, Y_idx, AMPLITUDE, alpha=1, cmap='coolwarm',
+contour = plt.contourf(X_idx, Y_idx, AMPLITUDE, alpha=1, cmap='YlOrRd',
                        levels=levels)
 surf = plt.contour(X_idx, Y_idx, AMPLITUDE, levels=levels, colors='k')
-plt.clabel(surf, levels, inline=True, fmt='%2.0f')
+plt.clabel(surf, levels, inline=True, fmt='%2.1f')
 plt.xticks(X_idx.T[0], [round(x, 2) for x in Q2])
 plt.yticks(Y_idx[0], [round(x, 1) for x in Q1])
 plt.ylabel('step length $q_1$')
@@ -344,12 +347,31 @@ fig.savefig('Out/'+c1val+'/track.png', transparent=True,
 # %%
 
 # PLOT VECTOR FIELD
-fig, ax = plt.subplots(num='DXDY')
+
+
+def plot_vecfield(X, Y, Z1, Z2, **kwargs):
+    x = [x_[0] for x_ in X]
+    y = Y[0]
+    xscale = 1.2 # max(x) - min(x)
+    yscale = 65 # max(y) - min(y)  # im Abgleich mit Axis limits
+    print(x, y, xscale, yscale)
+    for xidx, xi in enumerate(x):
+        for yidx, yi in enumerate(y):
+            start = [xi, yi]
+            dist = [Z1[xidx][yidx]*xscale, Z2[xidx][yidx]*yscale]
+
+            plt.arrow(start[0], start[1], dist[0], dist[1],
+                      length_includes_head=1,
+                      head_width=.4,
+                      **kwargs)
+
+
+fig, ax = plt.subplots(num='DEPSDXDY')
 X1__, X2__ = np.meshgrid(Q1, Q2)
 X1_ = X1__.flatten()
 X2_ = X2__.flatten()
 
-roundon = 3
+roundon = 4
 order = 2
 
 Adic = {}
@@ -368,17 +390,18 @@ Tdic[3] = ' + {}x_1^3 + {}x_2^3 + {}x_1^2x_2^1 + {}x_1^1x_2^2'
 Tdic[4] = ' + {}x_1^4 + {}x_2^4 + {}x_1^3x_2^1 + {}x_1^2x_2^2 + {}x_1^1x_2^3'
 Tdic[5] = ' + {}x_1^5 + {}x_2^5 + {}x_1^4x_2^1 + {}x_1^3x_2^2 + {}x_1^2x_2^3 + {}x_1^1x_2^4'
 
-pys = (
-        '{}'
-        + '+ {}*x1 + {}*x2'
-        + '+ {}*x1**2 + {}*x2**2 + {}*x1**1*x2**1'
-        + '+ {}*x1**3 + {}*x2**3 + {}*x1**2*x2**1 + {}*x1**1*x2**2'
-        + '+ {}*x1**4 + {}*x2**4 + {}*x1**3*x2**1 + {}*x1**2*x2**2 + {}*x1**1*x2**3'
-#                + '+ {}*x1**5 + {}*x2**5 + {}*x1**4*x2**1 + {}*x1**3*x2**2 + {}*x1**2*x2**3 + {}*x1**1*x2**4'
-        )
-tex = ''
+pys = {}
+pys[0] = '{}'
+pys[1] = ' + {}*x1 + {}*x2'
+pys[2] = ' + {}*x1**2 + {}*x2**2 + {}*x1**1*x2**1'
+pys[3] = ' + {}*x1**3 + {}*x2**3 + {}*x1**2*x2**1 + {}*x1**1*x2**2'
+pys[4] = ' + {}*x1**4 + {}*x2**4 + {}*x1**3*x2**1 + {}*x1**2*x2**2 + {}*x1**1*x2**3'
+pys[5] = ' + {}*x1**5 + {}*x2**5 + {}*x1**4*x2**1 + {}*x1**3*x2**2 + {}*x1**2*x2**3 + {}*x1**1*x2**4'
+
+tex, py = '', ''
 for i in range(order+1):
     tex += Tdic[i]
+    py += pys[i]
 
 
 def flat_list(l):
@@ -389,11 +412,34 @@ A = flat_list(A)
 A = np.array(A).T
     
 
+# DEPS
+
+BDEPS = DEPS.flatten()
+coeff, r, rank, s = np.linalg.lstsq(A, BDEPS)
+coeff_ = [round(c, roundon) for c in coeff]
+deps_tex = tex.format(*coeff_)
+deps_py = py.format(*coeff_)
+
+FITDEPS = X1_*0.0
+for c, a in zip(coeff_, A.T):
+    FITDEPS += c*a
+
+error_deps = np.reshape(((BDEPS - FITDEPS)), np.shape(X1__), order='C')
+
+levels = np.arange(-5, 6, 1)
+contour = plt.contourf(X2__, X1__, error_deps, alpha=1, cmap='coolwarm',
+                       levels=levels)
+surf = plt.contour(X2__, X1__, error_deps, levels=levels, colors='k')
+plt.clabel(surf, levels, inline=True, fmt='%2.0f')
+
+
+# DXDY
 
 BDX = DX.flatten()
 coeff, r, rank, s = np.linalg.lstsq(A, BDX)
 coeff_ = [round(c, roundon) for c in coeff]
 dx = tex.format(*coeff_)
+dx_py = py.format(*coeff_)
 
 FITDX = X1_*0.0
 for c, a in zip(coeff_, A.T):
@@ -403,6 +449,7 @@ BDY = DY.flatten()
 coeff, r, rank, s = np.linalg.lstsq(A, BDY)
 coeff_ = [round(c, roundon) for c in coeff]
 dy = tex.format(*coeff_)
+dy_py = py.format(*coeff_)
 
 FITDY = X1_*0.0
 for c, a in zip(coeff_, A.T):
@@ -416,25 +463,46 @@ mean_error = round(np.mean(np.nanmean(error_len_rel, 0)[1:]), 2)  # x1=0 exclude
 #       
 
 
-scale = 60
-q = ax.quiver(X2__, X1__, DX, DY, units='x', scale=scale)
+
+
+#scalevec = .02
+#plot_vecfield(X2__, X1__, -DY*scalevec, DX*scalevec, color='black')
+
+scale = 120
+q = ax.quiver(X2__, X1__, -DY, DX, color='black', units='x', scale=scale)
 ax.scatter(X2__, X1__, color='0.5', s=10)
-ax.quiver(X2__, X1__, FITDX, FITDY, units='x', scale=scale, color='blue')
-ax.quiver(X2__, X1__, error_x, error_y, units='x', scale=scale, color='red')
+ax.quiver(X2__, X1__, -FITDY, FITDX, color='blue', units='x', scale=scale)
+ax.quiver(X2__, X1__, -error_y, error_x, color='red', units='x', scale=scale)
 
 ax.grid()
-plt.xlim([-.6, .7])
+plt.xlim([-.6, .6])
+plt.ylim([45, 102])
 
 plt.xticks(Q2, [round(x, 2) for x in Q2])
 plt.yticks(Q1, [round(x, 1) for x in Q1])
 plt.ylabel('step length $q_1$')
 plt.xlabel('steering $q_2$')
 
+
 fig = plt.gcf()
-fig.set_size_inches(10.5, 8.5)
+fig.set_size_inches(5.25, 2.5)
 fig.savefig(
         'Out/'+c1val+'/FitDXDY_order_{}_round_{}.png'.format(order, roundon),
         dpi=300, trasperent=True, bbox_inches='tight')
+
+
+my_save.save_plt_as_tikz('Out/'+c1val+'/FIT.tex')
+
+print('\n\nTEX:\ndeps:\t', deps_tex)
+print('dx:\t', dx)
+print('dy:\t', dy)
+print('\nPython\ndeps:\t', deps_py)
+print('dx:\t', dx_py)
+print('dy:\t', dy_py)
+print('Keine Drehung mehr noetig. Laesst sich in SrcCode einbetten! (16.1.20)')
+
+
+
 
 # %% EPS / GAIT
 print('create figure: EPS/GAIT')

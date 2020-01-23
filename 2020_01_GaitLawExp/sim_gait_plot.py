@@ -45,7 +45,7 @@ len_leg, len_tor = calibration.get_len(version)
 ell_n = [len_leg, len_leg, len_tor, len_leg, len_leg]
 
 
-weight = [.3, 33, 44]   # [f_l, f_o, f_a]
+weight = [89, 10, 5.9]   # [f_l, f_o, f_a]
 eps = 90
 
 
@@ -75,14 +75,15 @@ for q1_idx, q1 in enumerate(Q1):
 
         f1 = [0, 1, 1, 0]
         f2 = [1, 0, 0, 1]
-        if q2 < 0:
+#        if q2 < 0:
+        if 1:
             ref2 = [[alpha(-q1, q2, f2), f2],
                     [alpha(q1, q2, f1), f1]
                     ]
-        else:
-            ref2 = [[alpha(q1, q2, f1), f1],
-                    [alpha(-q1, q2, f2), f2]
-                    ]
+#        else:
+#            ref2 = [[alpha(q1, q2, f1), f1],
+#                    [alpha(-q1, q2, f2), f2]
+#                    ]
         ref2 = ref2*n_cyc
         if and_half:
             ref2 += [ref2[0]]

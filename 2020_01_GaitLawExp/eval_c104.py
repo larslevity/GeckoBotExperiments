@@ -1,19 +1,10 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Dec 11 12:57:26 2019
+Created on Mon Jan 20 11:36:13 2020
 
-@author: ls
-
-
-c110:
-Tricks wegen korrupten Daten (vllt hat Akes Promotion damit etwas zu tun?)
-
-q1_60q2_01.csv is copy of q1_60q2_-01.csv)
-q1_70q2_-03.csv is copy of q1_70q2_-05.csv
-
-
+@author: AmP
 """
+
 
 
 import matplotlib.pyplot as plt
@@ -52,11 +43,11 @@ DYSIG = np.zeros((len(Q2), len(Q1)))
 X_idx = np.zeros((len(Q2), len(Q1)))
 Y_idx = np.zeros((len(Q2), len(Q1)))
 version = 'vS11'
-c1val = 'c110_redo'
+c1val = 'c104'
 
 n_cyc = 1
 sc = 10  # scale factor
-dx, dy = 2.8*sc, (4.5)*sc
+dx, dy = 2.8*sc, (3+1.5*(n_cyc-1 if n_cyc > 1 else 1))*sc
 
 len_leg, len_tor = calibration.get_len(version)
 ell_n = [len_leg, len_leg, len_tor, len_leg, len_leg]
@@ -541,7 +532,7 @@ for q1_idx, q1 in enumerate(Q1):
 for xidx, x in enumerate(list(DEPS)):
     for yidx, deps in enumerate(list(x)):
         plt.text(X_idx[xidx][yidx], Y_idx[xidx][yidx]-2.2*sc,
-                 '$'+str(round(deps*n_cyc, 1))+'^\\circ$',
+                 round(deps*n_cyc, 1),
                  ha="center", va="bottom",
                  fontsize=25,
                  bbox=dict(boxstyle="square",
@@ -552,11 +543,9 @@ for xidx, x in enumerate(list(DEPS)):
 
 plt.xticks(X_idx.T[0], [round(x, 2) for x in Q2])
 plt.yticks(Y_idx[0], [round(x, 1) for x in Q1])
-plt.ylabel('step length $q_1$ $(^\\circ)$')
-plt.xlabel('steering $q_2$ (1)')
+plt.ylabel('step length $q_1$')
+plt.xlabel('steering $q_2$')
 plt.axis('scaled')
-plt.ylim((Y_idx[0][0]-30, Y_idx[0][-1]+30))
-plt.xlim((-15, 155))
 
 plt.grid()
 ax = fig.gca()

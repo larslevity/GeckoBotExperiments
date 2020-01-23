@@ -59,7 +59,8 @@ class GeckoBotPose(object):
             plt.plot(fpx, fpy, 'o', markersize=10, color=col)
             plt.plot(nfpx, nfpy, 'x', markersize=10, color=col)
 
-    def get_tikz_repr(self, col='black', shift=None, linewidth='.5mm'):
+    def get_tikz_repr(self, col='black', shift=None, linewidth='.5mm',
+                      dashed=1):
         alp, ell, eps = (self.x[0:n_limbs], self.x[n_limbs:2*n_limbs],
                          self.x[-1])
         mx, my = self.markers
@@ -72,7 +73,7 @@ class GeckoBotPose(object):
                 geckostring = ''
             geckostring += tikz_draw_gecko(
                     alp, ell, eps, (mx[0], my[0]), fix=self.f, col=col,
-                    linewidth=linewidth)
+                    linewidth=linewidth, dashed=dashed)
             if shift:
                 geckostring += '\\end{scope}\n \n \n'
             else:
@@ -158,13 +159,14 @@ class GeckoBotGait(object):
             pose.plot(col, ax=ax)
             pose.plot_real_markers(col, ax=ax)
 
-    def get_tikz_repr(self, shift=None, linewidth='.5mm'):
+    def get_tikz_repr(self, shift=None, linewidth='.5mm', dashed=0):
         gait_str = ''
         for idx, pose in enumerate(self.poses):
             c = int(20 + (float(idx)/len(self.poses))*80.)
             col = 'black!{}'.format(c)
             shift_ = idx*shift if shift else None
-            gait_str += pose.get_tikz_repr(col, shift_, linewidth)
+            gait_str += pose.get_tikz_repr(col, shift_, linewidth,
+                                           dashed=dashed)
         return gait_str
 
     def plot_markers(self, markernum=range(6), figname='GeckoBotGait'):
@@ -305,9 +307,11 @@ class GeckoBotGait(object):
         print('Done')
 
 
-def predict_gait(references, initial_pose, weight=None):
-    len_leg = initial_pose.len_leg
-    len_tor = initial_pose.len_tor
+def predict_gait(references, initial_pose, weight=None, lens=[None]):
+    if not lens:
+        lens = [1, 1.2]
+    len_leg = lens[0]
+    len_tor = lens[1]
     if not weight:
         weight = [model.f_l, model.f_o, model.f_a]
 
@@ -430,7 +434,7 @@ def plot_gait(data_xy, data_fp, data_nfp, data_x):
 
 
 def tikz_draw_gecko(alp, ell, eps, F1, col='black',
-                    linewidth='.5mm', fix=None):
+                    linewidth='.5mm', fix=None, dashed=1):
     c1, c2, c3, c4 = model._calc_phi(alp, eps)
     l1, l2, lg, l3, l4 = ell
     for idx, a in enumerate(alp):
@@ -441,7 +445,7 @@ def tikz_draw_gecko(alp, ell, eps, F1, col='black',
     if isinstance(col, str):
         col = [col]*5
     ls = ['', '', '', '']
-    if fix:
+    if fix and dashed:
         for idx in range(4):
             if not fix[idx]:
                 ls[idx] = 'dashed, '

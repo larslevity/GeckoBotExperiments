@@ -417,12 +417,12 @@ A = np.array(A).T
 
 BDEPS = DEPS.flatten()
 coeff, r, rank, s = np.linalg.lstsq(A, BDEPS)
-coeff_ = [round(c, roundon) for c in coeff]
-deps_tex = tex.format(*coeff_)
-deps_py = py.format(*coeff_)
+coeff_deps = [round(c, roundon) for c in coeff]
+deps_tex = tex.format(*coeff_deps)
+deps_py = py.format(*coeff_deps)
 
 FITDEPS = X1_*0.0
-for c, a in zip(coeff_, A.T):
+for c, a in zip(coeff_deps, A.T):
     FITDEPS += c*a
 
 error_deps = np.reshape(((BDEPS - FITDEPS)), np.shape(X1__), order='C')
@@ -438,22 +438,22 @@ plt.clabel(surf, levels, inline=True, fmt='%2.0f')
 
 BDX = DX.flatten()
 coeff, r, rank, s = np.linalg.lstsq(A, BDX)
-coeff_ = [round(c, roundon) for c in coeff]
-dx = tex.format(*coeff_)
-dx_py = py.format(*coeff_)
+coeff_dx = [round(c, roundon) for c in coeff]
+dx_tex = tex.format(*coeff_dx)
+dx_py = py.format(*coeff_dx)
 
 FITDX = X1_*0.0
-for c, a in zip(coeff_, A.T):
+for c, a in zip(coeff_dx, A.T):
     FITDX += c*a
 
 BDY = DY.flatten()
 coeff, r, rank, s = np.linalg.lstsq(A, BDY)
-coeff_ = [round(c, roundon) for c in coeff]
-dy = tex.format(*coeff_)
-dy_py = py.format(*coeff_)
+coeff_dy = [round(c, roundon) for c in coeff]
+dy_tex = tex.format(*coeff_dy)
+dy_py = py.format(*coeff_dy)
 
 FITDY = X1_*0.0
-for c, a in zip(coeff_, A.T):
+for c, a in zip(coeff_dy, A.T):
     FITDY += c*a
 
 error_x = np.reshape(((BDX - FITDX)), np.shape(X1__), order='C')
@@ -498,8 +498,8 @@ fig.savefig(
 my_save.save_plt_as_tikz('Out/'+c1val+'/FIT.tex')
 
 print('\n\nTEX:\ndeps:\t', deps_tex)
-print('dx:\t', dx)
-print('dy:\t', dy)
+print('dx:\t', dx_tex)
+print('dy:\t', dy_tex)
 print('\nPython\ndeps:\t', deps_py)
 print('dx:\t', dx_py)
 print('dy:\t', dy_py)

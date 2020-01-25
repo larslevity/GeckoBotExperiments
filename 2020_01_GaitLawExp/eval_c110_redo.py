@@ -17,6 +17,7 @@ q1_70q2_-03.csv is copy of q1_70q2_-05.csv
 
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as pat
 import numpy as np
 from func_timeout import func_timeout, FunctionTimedOut
 
@@ -463,6 +464,9 @@ mean_error = round(np.mean(np.nanmean(error_len_rel, 0)[1:]), 2)  # x1=0 exclude
 #       
 
 
+FITDX = np.reshape(FITDX, np.shape(X1__), order='C')
+FITDY = np.reshape(FITDY, np.shape(X1__), order='C')
+FITDEPS = np.reshape(FITDEPS, np.shape(X1__), order='C')
 
 
 #scalevec = .02
@@ -508,35 +512,66 @@ print('Keine Drehung mehr noetig. Laesst sich in SrcCode einbetten! (16.1.20)')
 print('create figure: EPS/GAIT')
 
 fig = plt.figure('GeckoBotGait')
+ax = plt.gca()
 levels = np.arange(-65, 66, 5)
 if len(Q1) > 1:
     contour = plt.contourf(X_idx, Y_idx, DEPS*n_cyc, alpha=1,
                            cmap='RdBu_r', levels=levels)
-# surf = plt.contour(X_idx, Y_idx, DEPS, levels=levels, colors='k')
-# plt.clabel(surf, levels, inline=True, fmt='%2.0f')
+surf = plt.contour(X_idx, Y_idx, DEPS, levels=levels, colors='gray')
+plt.clabel(surf, levels, inline=True, fmt='%2.0f', fontsize=25)
 
 
-gait_tex = ''
 
-for gait in GAITS_cor:
-#    gait.plot_gait(g='c')
-#    gait.plot_travel_distance()
-    gait.plot_orientation(length=.5*sc)
-    gait_tex = gait_tex + '\n%%%%%%%\n' + gait.get_tikz_repr(linewidth='.7mm')
+
 
 for q1_idx, q1 in enumerate(Q1):
     for q2_idx, q2 in enumerate(Q2):
         dx = DX[q2_idx][q1_idx]
         dy = DY[q2_idx][q1_idx]
-        start = GAITS_raw[q1_idx*len(Q2)+q2_idx].poses[0].get_m1_pos()
-        plt.arrow(start[0], start[1], -dy, dx, facecolor='red',
-                  length_includes_head=1,
-                  width=.9,
-                  head_width=3)
+        sigxx = DXSIG[q2_idx][q1_idx]
+        sigyy = DYSIG[q2_idx][q1_idx]
+        fitdx = FITDX[q2_idx][q1_idx]
+        fitdy = FITDY[q2_idx][q1_idx]
 
-#for gait in GAITS_cor:
+        # deps of exp:
+        start = GAITS_cor[q1_idx*len(Q2)+q2_idx].poses[-1].get_m1_pos()
+        deps = DEPS[q2_idx][q1_idx]
+        sigdeps = DEPS_SIG[q2_idx][q1_idx]
+        length = .45*sc
+        p1 = [start[0]+np.cos(np.deg2rad(deps+sigdeps+90))*length,
+              start[1]+np.sin(np.deg2rad(deps+sigdeps+90))*length]
+        p2 = [start[0]+np.cos(np.deg2rad(deps-sigdeps+90))*length,
+              start[1]+np.sin(np.deg2rad(deps-sigdeps+90))*length]
+        poly = plt.Polygon([start, p1, p2], color='g', alpha=.5, edgecolor=None)
+        ax.add_patch(poly)
+
+        # deps of fit:
+        length = .4*sc
+        deps = FITDEPS[q2_idx][q1_idx]
+        plt.plot([start[0], start[0]+np.cos(np.deg2rad(deps+90))*length],
+                 [start[1], start[1]+np.sin(np.deg2rad(deps+90))*length], 'b')
+
+
+
+        # std of DXDY:
+        start = GAITS_cor[q1_idx*len(Q2)+q2_idx].poses[0].get_m1_pos()
+        el = pat.Ellipse((start[0]-dy, start[1]+dx), sigyy*2, sigxx*2,
+                                 facecolor='red', alpha=1)
+        ax.add_artist(el)
+        
+        # fit
+        plt.arrow(start[0], start[1], -fitdy, fitdx, facecolor='blue',
+                  length_includes_head=1, width=.9, head_width=3)
+        # measurement
+        plt.arrow(start[0], start[1], -dy, dx, facecolor='red',
+                  length_includes_head=1, width=.9, head_width=3)
+
+gait_tex = ''
+for gait in GAITS_cor:
 #    gait.plot_gait(g='c')
-#    gait.plot_orientation(length=.5*sc)
+    gait.plot_orientation(length=.5*sc)
+    gait_tex = gait_tex + '\n%%%%%%%\n' + gait.get_tikz_repr(linewidth='.7mm')
+
 
 for xidx, x in enumerate(list(DEPS)):
     for yidx, deps in enumerate(list(x)):

@@ -24,7 +24,7 @@ def save_plt_as_tikz(filename, additional_tex_code=None, scale=1, scope=None,
 
     print('Saving as TikZ-Picture...', filename)
     aux_fn = filename + '_aux'
-    if additional_tex_code:
+    if additional_tex_code and 'extra_axis_parameters' not in kwargs:
         kwargs = {'extra_axis_parameters':
                   {'anchor=origin', 'disabledatascaling', 'x=.1cm', 'y=.1cm',
                    'axis line style={draw opacity=0}',

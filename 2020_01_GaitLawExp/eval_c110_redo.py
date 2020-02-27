@@ -74,7 +74,7 @@ for q1_idx, q1 in enumerate(Q1):
     MEAS[q1str] = {}
     for q2_idx, q2 in enumerate(Q2):
         # %% ### Load Data
-        
+
         q2str = str(q2).replace('.', '').replace('00', '0')
         MEAS[q1str][q2str] = {}
         X_idx[q2_idx][q1_idx] = q2_idx*dx

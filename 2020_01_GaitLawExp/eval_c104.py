@@ -499,12 +499,13 @@ print('Keine Drehung mehr noetig. Laesst sich in SrcCode einbetten! (16.1.20)')
 print('create figure: EPS/GAIT')
 
 fig = plt.figure('GeckoBotGait')
+ax = plt.gca()
 levels = np.arange(-65, 66, 5)
 if len(Q1) > 1:
     contour = plt.contourf(X_idx, Y_idx, DEPS*n_cyc, alpha=1,
                            cmap='RdBu_r', levels=levels)
-# surf = plt.contour(X_idx, Y_idx, DEPS, levels=levels, colors='k')
-# plt.clabel(surf, levels, inline=True, fmt='%2.0f')
+surf = plt.contour(X_idx, Y_idx, DEPS, levels=levels, colors='gray')
+plt.clabel(surf, levels, inline=True, fmt='%2.0f', fontsize=25)
 
 
 gait_tex = ''
@@ -525,14 +526,11 @@ for q1_idx, q1 in enumerate(Q1):
                   width=.9,
                   head_width=3)
 
-#for gait in GAITS_cor:
-#    gait.plot_gait(g='c')
-#    gait.plot_orientation(length=.5*sc)
 
 for xidx, x in enumerate(list(DEPS)):
     for yidx, deps in enumerate(list(x)):
         plt.text(X_idx[xidx][yidx], Y_idx[xidx][yidx]-2.2*sc,
-                 round(deps*n_cyc, 1),
+                 '$'+str(round(deps*n_cyc, 1))+'^\\circ$',
                  ha="center", va="bottom",
                  fontsize=25,
                  bbox=dict(boxstyle="square",
@@ -543,9 +541,12 @@ for xidx, x in enumerate(list(DEPS)):
 
 plt.xticks(X_idx.T[0], [round(x, 2) for x in Q2])
 plt.yticks(Y_idx[0], [round(x, 1) for x in Q1])
-plt.ylabel('step length $q_1$')
-plt.xlabel('steering $q_2$')
+plt.ylabel('step length $q_1$ $(^\\circ)$')
+plt.xlabel('steering $q_2$ (1)')
 plt.axis('scaled')
+plt.ylim((Y_idx[0][0]-30, Y_idx[0][-1]+30))
+plt.xlim((-15, 155))
+
 
 plt.grid()
 ax = fig.gca()

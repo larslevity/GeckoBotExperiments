@@ -108,3 +108,7 @@ venv.bak/
 *.synctex.gz
 *.aux
 *.log
+
+# all Out folders
+*/Out/*
+*/tikz/*

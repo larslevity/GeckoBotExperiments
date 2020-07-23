@@ -49,6 +49,27 @@ class LP1(object):
         return self.lastout
 
 
+class Diff1(object):
+    def __init__(self, Ts):
+        self.Ts = Ts
+        self.lastout = 0
+        self.lastin = 0
+
+    def diff(self, x):
+        self.lastout = 2/self.Ts*(x-self.lastin) - self.lastout
+        self.lastin = x
+        return self.lastout
+
+
+def diff_array(x, Ts):
+    d1 = Diff1(Ts)
+    dx = []
+    for val in x:
+        dx.append(d1.diff(val))
+    del d1
+    return np.array(dx)
+
+
 def lowpass_array(x, Ts=0.03, gamma=.1):
     lp1 = LP1(Ts, gamma)
     x_filt = []
@@ -56,6 +77,7 @@ def lowpass_array(x, Ts=0.03, gamma=.1):
         x_filt.append(lp1.filt(val))
     del lp1
     return np.array(x_filt)
+
 
 
 def JAnorm(alp):

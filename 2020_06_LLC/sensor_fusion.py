@@ -135,13 +135,13 @@ accB_static_y = np.array(accB_static_y)
 
 
     
-## %% plot only alpha
+# %% plot only alpha
 
 fig = plt.figure(3)
-plt.plot(time[s:e]-time[s], alpha_acc[s:e], '-', color='orange',  label='$\\alpha(a_{raw})$')
-plt.plot(time[s:e]-time[s], alpha_marica[s:e], '--', color='blue',  label='$\\alpha(marica)$')
-plt.plot(time[s:e]-time[s], alpha_acc_filt[s:e], ':', color='red',  label='$\\alpha(a_{filt})$')
-plt.plot(time[s:e]-time[s], alpha_dyn_filt[s:e], '-o', color='purple',  label='$\\alpha(a_{dyn, filt})$')
+plt.plot(time[s:e]-time[s], alpha_acc[s:e], '-', color='green',  label='$\\alpha(a_{raw})$')
+#plt.plot(time[s:e]-time[s], alpha_marica[s:e], '--', color='blue',  label='$\\alpha(marica)$')
+plt.plot(time[s:e]-time[s], alpha_acc_filt[s:e], '-', color='red',  label='$\\alpha(a_{filt})$')
+plt.plot(time[s:e]-time[s], alpha_dyn_filt[s:e], '-', color='blue',  label='$\\alpha(a_{static})$')
 
 
 plt.ylabel('bending angle $\\alpha$ ($^\\circ$)')
@@ -149,8 +149,11 @@ plt.xlabel('time (s)')
 plt.grid()
 plt.legend()
 
-fig.set_size_inches(18.5, 10.5)
-plt.savefig('Out/sensorfusion/alpha_course.png', dpi=300)
+#fig.set_size_inches(18.5, 10.5)
+#plt.savefig('Out/sensorfusion/alpha_course.png', dpi=300)
+
+tikzplotlib.save('Out/sensorfusion/alpha_course.tex', standalone=True)
+
 
 # %% plot tripple axis
 
@@ -181,8 +184,10 @@ ax2.grid()
 ax2.set_ylim(*limacc)
 
 
-fig.set_size_inches(18.5, 10.5)
-plt.savefig('Out/sensorfusion/ImuA.png', dpi=300)
+#fig.set_size_inches(18.5, 10.5)
+#plt.savefig('Out/sensorfusion/ImuA.png', dpi=300)
+
+tikzplotlib.save('Out/sensorfusion/ImuA.tex', standalone=True)
 
 # %% IMU B
 
@@ -246,57 +251,133 @@ tikzplotlib.save('Out/sensorfusion/ImuB.tex', standalone=True, **kwargs)
 
 # %% close up
 
-s=4540
-e=4580
+s1=3910
+e1=3970
+
+s2=4225
+e2=4285
+
+s3=4540
+e3=4600
 
 
-fig, (ax3, axdW, ax4, ax5) = plt.subplots(nrows=4, sharex=True,
-     gridspec_kw={'height_ratios': [2, 1, 2, 3]})
+fig, ((axgyrB1, axgyrB2, axgyrB3), 
+      (axdW1, axdW2, axdW3), 
+      (axaccB1, axaccB2, axaccB3),
+      (axalp1, axalp2, axalp3)) = plt.subplots(
+        nrows=4, ncols=3, 
+        sharex='col', sharey='row',
+        gridspec_kw={'height_ratios': [2, 1, 2, 3]}
+        )
 
-axdW.plot(time[s:e]-time[s0], domegaB_z[s:e], '-', color=col[2])
-#axdW.set_ylabel(r'$\dot{\omega}$ (rad/s$^{-2}$)')
-axdW.grid()
+# labels
+axdW1.set_ylabel(r'$\dot{\omega}$ (rad/s$^{-2}$)')
+axaccB1.set_ylabel(r'acc$_B$ (m/s$^{-2}$)')
+axgyrB1.set_ylabel(r'gyr$_B$ (rad/s$^{-1}$)')
+axalp1.set_ylabel(r'bending angle $\alpha$ ($^\circ$)')
+axalp1.set_xlabel(r'time (s)')
+axalp2.set_xlabel(r'time (s)')
+axalp3.set_xlabel(r'time (s)')
 
-
-# IMU B
+## PLOTS
+# axgyrB1
 for i in range(3):
-    ax3.plot(time[s:e]-time[s0], gyrB[i][s:e], '-', color=col[i], alpha=.5, linewidth=.7)
+    axgyrB1.plot(time[s1:e1]-time[s0], gyrB[i][s1:e1], '-', color=col[i], alpha=.5, linewidth=.7)
 for i in range(3):
-    ax3.plot(time[s:e]-time[s0], gyrB_filt[i][s:e], color=col[i], alpha=.5, linewidth=1)
-#ax3.set_ylabel(r'gyr$_B$ (rad/s$^{-1}$)')
-ax3.grid()
-ax3.set_ylim(*limgyr)
-
+    axgyrB1.plot(time[s1:e1]-time[s0], gyrB_filt[i][s1:e1], color=col[i], alpha=.5, linewidth=1)
+# axgyrB2
 for i in range(3):
-    ax4.plot(time[s:e]-time[s0], accB[i][s:e], '-', color=col[i], alpha=.5, linewidth=.5)
+    axgyrB2.plot(time[s2:e2]-time[s0], gyrB[i][s2:e2], '-', color=col[i], alpha=.5, linewidth=.7)
 for i in range(3):
-    ax4.plot(time[s:e]-time[s0], accB_filt[i][s:e], '-', color=col[i], alpha=.7, linewidth=.7)
-ax4.plot(time[s:e]-time[s0], accB_static_x[s:e], '-', color=col[0], linewidth=1)
-ax4.plot(time[s:e]-time[s0], accB_static_y[s:e], '-', color=col[1], linewidth=1)
+    axgyrB2.plot(time[s2:e2]-time[s0], gyrB_filt[i][s2:e2], color=col[i], alpha=.5, linewidth=1)
+# axgyrB3
+for i in range(3):
+    axgyrB3.plot(time[s3:e3]-time[s0], gyrB[i][s3:e3], '-', color=col[i], alpha=.5, linewidth=.7)
+for i in range(3):
+    axgyrB3.plot(time[s3:e3]-time[s0], gyrB_filt[i][s3:e3], color=col[i], alpha=.5, linewidth=1)
 
-#ax4.set_ylabel(r'acc$_B$ (m/s$^{-2}$)')
-ax4.grid()
-ax4.set_ylim(*limacc)
 
-# alpha
-ax5.plot(time[s:e]-time[s0], alpha_acc[s:e], '-', color='green',  label='$\\alpha(a_{raw})$')
-ax5.plot(time[s:e]-time[s0], alpha_acc_filt[s:e], '-', color='red',  label='$\\alpha(a_{filt})$')
-ax5.plot(time[s:e]-time[s0], alpha_dyn_filt[s:e], '-', color='blue',  label='$\\alpha(a_{static})$')
-ax5.set_yticks([0, 20, 60, 90])
-ax5.set_ylim(-10, 110)
-#ax5.set_ylabel(r'$\alpha$ ($^\circ$)')
-ax5.set_xlabel('time (s)')
-ax5.grid()
-#ax5.legend()
+# axdW1
+axdW1.plot(time[s1:e1]-time[s0], domegaB_z[s1:e1], '-', color=col[2])
+# axdW2
+axdW2.plot(time[s2:e2]-time[s0], domegaB_z[s2:e2], '-', color=col[2])
+# axdW3
+axdW3.plot(time[s3:e3]-time[s0], domegaB_z[s3:e3], '-', color=col[2])
+
+# axaccB1
+for i in range(3):
+    axaccB1.plot(time[s1:e1]-time[s0], accB[i][s1:e1], '-', color=col[i], alpha=.5, linewidth=.5)
+for i in range(3):
+    axaccB1.plot(time[s1:e1]-time[s0], accB_filt[i][s1:e1], '-', color=col[i], alpha=.7, linewidth=.7)
+axaccB1.plot(time[s1:e1]-time[s0], accB_static_x[s1:e1], '-', color=col[0], linewidth=1)
+axaccB1.plot(time[s1:e1]-time[s0], accB_static_y[s1:e1], '-', color=col[1], linewidth=1)
+# axaccB2
+for i in range(3):
+    axaccB2.plot(time[s2:e2]-time[s0], accB[i][s2:e2], '-', color=col[i], alpha=.5, linewidth=.5)
+for i in range(3):
+    axaccB2.plot(time[s2:e2]-time[s0], accB_filt[i][s2:e2], '-', color=col[i], alpha=.7, linewidth=.7)
+axaccB2.plot(time[s2:e2]-time[s0], accB_static_x[s2:e2], '-', color=col[0], linewidth=1)
+axaccB2.plot(time[s2:e2]-time[s0], accB_static_y[s2:e2], '-', color=col[1], linewidth=1)
+# axaccB3
+for i in range(3):
+    axaccB3.plot(time[s3:e3]-time[s0], accB[i][s3:e3], '-', color=col[i], alpha=.5, linewidth=.5)
+for i in range(3):
+    axaccB3.plot(time[s3:e3]-time[s0], accB_filt[i][s3:e3], '-', color=col[i], alpha=.7, linewidth=.7)
+axaccB3.plot(time[s3:e3]-time[s0], accB_static_x[s3:e3], '-', color=col[0], linewidth=1)
+axaccB3.plot(time[s3:e3]-time[s0], accB_static_y[s3:e3], '-', color=col[1], linewidth=1)
+
+# axalp1
+axalp1.plot(time[s1:e1]-time[s0], alpha_acc[s1:e1], '-', color='green',  label='$\\alpha(a_{raw})$')
+axalp1.plot(time[s1:e1]-time[s0], alpha_acc_filt[s1:e1], '-', color='red',  label='$\\alpha(a_{filt})$')
+axalp1.plot(time[s1:e1]-time[s0], alpha_dyn_filt[s1:e1], '-', color='blue',  label='$\\alpha(a_{static})$')
+# axalp2
+axalp2.plot(time[s2:e2]-time[s0], alpha_acc[s2:e2], '-', color='green',  label='$\\alpha(a_{raw})$')
+axalp2.plot(time[s2:e2]-time[s0], alpha_acc_filt[s2:e2], '-', color='red',  label='$\\alpha(a_{filt})$')
+axalp2.plot(time[s2:e2]-time[s0], alpha_dyn_filt[s2:e2], '-', color='blue',  label='$\\alpha(a_{static})$')
+# axalp3
+axalp3.plot(time[s3:e3]-time[s0], alpha_acc[s3:e3], '-', color='green',  label='$\\alpha(a_{raw})$')
+axalp3.plot(time[s3:e3]-time[s0], alpha_acc_filt[s3:e3], '-', color='red',  label='$\\alpha(a_{filt})$')
+axalp3.plot(time[s3:e3]-time[s0], alpha_dyn_filt[s3:e3], '-', color='blue',  label='$\\alpha(a_{static})$')
+
+
+
+
+
+## FORMATING
+
+axalp3.set_ylim(-10, 105)
+axalp3.set_yticks([0, 20, 60, 90])
+axaccB1.set_yticks([-10, 0, 10])
+axdW1.set_yticks([-.2, 0, .2])
+axgyrB1.set_yticks([-.04, 0, .04])
+
+
+axalp1.grid()
+axalp2.grid()
+axalp3.grid()
+
+axaccB1.grid()
+axaccB2.grid()
+axaccB3.grid()
+
+axdW1.grid()
+axdW2.grid()
+axdW3.grid()
+
+axgyrB1.grid()
+axgyrB2.grid()
+axgyrB3.grid()
+
+## SAVE
+axis_params = {'height={4cm}', 'width={6cm}', 'y label style={at={(axis description cs:-0.25,.5)},rotate=0,anchor=south}'}
 
 kwargs = {
     'strict': 1,
     'extra_tikzpicture_parameters': {},
-    'extra_axis_parameters': {'height={4cm}', 'width={6cm}',
-                              'y label style={at={(axis description cs:-0.25,.5)},rotate=0,anchor=south}'},
-    'extra_groupstyle_parameters': {'vertical sep={0pt}',
+    'extra_axis_parameters': axis_params,
+    'extra_groupstyle_parameters': {'vertical sep={5pt}', 'horizontal sep={5pt}',
                                     'x descriptions at=edge bottom'}
         }
 
 
-tikzplotlib.save('Out/sensorfusion/ImuB_closeUp.tex', standalone=True, **kwargs)
+tikzplotlib.save('Out/sensorfusion/ImuB_closeUp3.tex', standalone=True, **kwargs)

@@ -10,7 +10,7 @@ Created on Thu Sep 19 16:29:53 2019
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib2tikz import save as tikz_save
+#from matplotlib2tikz import save as tikz_save
 
 
 import sys
@@ -19,7 +19,6 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from Src import eval_pathPlanner as ev
 from Src import load
-from Src import plot_fun_pathPlanner as pf
 from Src import save as my_save
 
 import utils as uti
@@ -111,7 +110,7 @@ for mode in modes:
     dirpath = mode + '/'
 
     sets = load.get_csv_set(dirpath)
-    db = ev.load_data_pathPlanner(dirpath, sets, version=version)
+    db = ev.load_data_pathPlanner(dirpath, sets)
 
     print('find idxes....')
     POSE_IDX = uti.ieee_find_poses_idx(db, neighbors=10)

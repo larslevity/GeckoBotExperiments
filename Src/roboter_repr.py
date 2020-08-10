@@ -158,6 +158,7 @@ class GeckoBotGait(object):
             col = (c, c, c1)
             pose.plot(col, ax=ax)
             pose.plot_real_markers(col, ax=ax)
+        plt.gca().set_aspect('equal')
 
     def get_tikz_repr(self, shift=None, linewidth='.5mm', dashed=0):
         gait_str = ''

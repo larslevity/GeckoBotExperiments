@@ -228,7 +228,7 @@ def error_of_prediction(db, IDX, start_idx, n_predictions, version='vS11',
 
         # plot gaits
         f, axes = plt.subplots(nrows=2, sharex=True, sharey=True)
-        plt.setp(axes.flat, aspect=1.0, adjustable='box-forced')
+        plt.setp(axes.flat, aspect=1.0)
         gait_predicted.plot_gait(fignum=None, ax=axes[1], g=0)
         gait_measured.plot_gait(fignum=None, ax=axes[0], g=1)
 

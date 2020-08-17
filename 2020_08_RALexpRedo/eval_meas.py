@@ -43,12 +43,6 @@ version = 'vS12'
 
 n_steps = {}
 
-MU_DX = {}
-SIG_DX = {}
-
-for idx in range(6):
-    MU_DX[idx] = {}
-    SIG_DX[idx] = {}
 
 MU_DEPS = {}
 SIG_DEPS = {}
@@ -130,18 +124,39 @@ for mode_idx, mode in enumerate(modes):
 # %% ABSOLUTE PLOTS
 # %% DEPS
 
-kwargs = {'extra_axis_parameters': {'anchor=origin',
-                                    'axis line style={draw=none}',
-                                    'xtick style={draw=none}',
-                                    'height=6cm',
-                                    'width=10cm'}}
+kwargs = {'extra_axis_parameters': 
+            {'anchor=origin',
+             'axis line style={draw=none}',
+             'xtick style={draw=none}',
+             'height=6cm',
+             'width=10cm',
+             'legend style={at={(.1,.9), anchor=north west}}',
+#             },
+#        'extra_axis_code: {
+'''\\pgfplotsset{
+    legend image with color/.style={
+    legend image code/.code={%
+        \\node[anchor=center, rectangle, fill=#1] at (0.3cm,0cm) {};
+    }
+},
+}
+\\addlegendimage{legend image with color=blue};
+\\addlegendentry{$w_\\varphi = 10$};
+\\addlegendimage{legend image with color=red};
+\\addlegendentry{$w_\\varphi = 1$};
+\\addlegendimage{legend image with color=color0};
+\\addlegendentry{$w_\\varphi = 0.1$};''',
+             },
+#          'extra_tikzpicture_parameters':
+#            {'legend image with color/.style={legend image code/.code={\node[anchor=center, rectangle, fill=#1] at (0.3cm,0cm) {}}};',
+#            },
+        }
 
 colors = {
         '$w_{\\varphi}=10$': 'blue',
         '$w_{\\varphi}=1$': 'red',
         '$w_{\\varphi}=0.1$': 'orange',
         }
-
 
 
 def mapped(modes):
@@ -168,9 +183,10 @@ ax = uti.barplot(mu, mapped(modes), labels, colors,
 ax.set_ylabel('')
 ax.set_xlabel('')
 ax.grid(True, axis='y')
-ax.set_ylim((0, 150))
+ax.set_ylim((-20, 170))  # straight
+#ax.set_ylim((0, 60))  # curve
 
 
 
-tikz_save('Out/eval_' + mode[:-2] + '.tex', **kwargs)
+tikz_save('Out/eval_' + mode[:-2] + '.tex', standalone=True, **kwargs)
 #

@@ -23,11 +23,11 @@ import merge_img
 
 
 modes = [
-#        'straight_1',
-#        'straight_2',
-#        'straight_3',
-#        'curve_1',
-#        'curve_2',
+        'straight_1',
+        'straight_2',
+        'straight_3',
+        'curve_1',
+        'curve_2',
         'curve_3',
         ]
 
@@ -41,8 +41,8 @@ ell0 = [len_leg, len_leg, len_tor, len_leg, len_leg]
 
 
 
-n_poses = 5
-start_idx = 1
+n_poses = 3
+start_idx = 2
 
 
 def line_normal(img_exp, point, eps, h, col=(.5,.5,.5,1)):

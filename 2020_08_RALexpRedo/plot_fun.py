@@ -15,68 +15,6 @@ from itertools import islice
 from Src import save
 
 
-def get_run_color():
-    cols = {'q1_50q2_-05': 'red',
-            'q1_50q2_-025': 'red',
-            'q1_50q2_-03': 'red',
-            'q1_50q2_-01': 'red',
-            'q1_50q2_0': 'red',
-            'q1_50q2_01': 'red',
-            'q1_50q2_025': 'red',
-            'q1_50q2_03': 'red',
-            'q1_50q2_05': 'red',
-            'q1_60q2_-05': 'orange',
-            'q1_60q2_-03': 'orange',
-            'q1_60q2_-025': 'orange',
-            'q1_60q2_-01': 'orange',
-            'q1_60q2_0': 'orange',
-            'q1_60q2_01': 'orange',
-            'q1_60q2_025': 'orange',
-            'q1_60q2_03': 'orange',
-            'q1_60q2_05': 'orange',
-            'q1_70q2_-05': 'blue',
-            'q1_70q2_-03': 'blue',
-            'q1_70q2_-025': 'blue',
-            'q1_70q2_-01': 'blue',
-            'q1_70q2_0': 'blue',
-            'q1_70q2_01': 'blue',
-            'q1_70q2_025': 'blue',
-            'q1_70q2_03': 'blue',
-            'q1_70q2_05': 'blue',
-            'q1_80q2_-05': 'green',
-            'q1_80q2_-03': 'green',
-            'q1_80q2_-025': 'green',
-            'q1_80q2_-01': 'green',
-            'q1_80q2_0': 'green',
-            'q1_80q2_01': 'green',
-            'q1_80q2_025': 'green',
-            'q1_80q2_03': 'green',
-            'q1_80q2_05': 'green',
-            'q1_90q2_-05': 'yellow',
-            'q1_90q2_-03': 'yellow',
-            'q1_90q2_-025': 'yellow',
-            'q1_90q2_-01': 'yellow',
-            'q1_90q2_0': 'yellow',
-            'q1_90q2_01': 'yellow',
-            'q1_90q2_025': 'yellow',
-            'q1_90q2_03': 'yellow',
-            'q1_90q2_05': 'yellow'            
-            }
-    return cols
-
-
-def get_mode_color():
-    cols = { 
-        'without_eps_correction_x1_90': 'red',
-        'without_eps_correction_x1_70': 'salmon',
-        'without_eps_correction_x1_50': 'lightsalmon',
-        'eps_corrected_x1_50': 'deepskyblue',
-        'eps_corrected_x1_70': 'cornflowerblue',
-        'eps_corrected_x1_90': 'royalblue',
-            }
-    return cols
-
-
 def get_marker_color():
     return ['red', 'orange', 'darkred', 'blue', 'darkorange', 'darkblue']
 
@@ -99,7 +37,7 @@ def calc_deps(xbar):
 
 def plot_track(db, POSE_IDX, run, mode, save_as_tikz=False, show_cycles=1):
     prop = calc_prop(db)
-    col = get_run_color()
+    col = 'red'
 
     plt.figure('Track'+mode)
     for exp_idx, dset in enumerate(db):
@@ -119,19 +57,19 @@ def plot_track(db, POSE_IDX, run, mode, save_as_tikz=False, show_cycles=1):
 
             if idx == 8:
                 try:
-                    plt.plot(x_, y_, 'o', color=col[run])
+                    plt.plot(x_, y_, 'o', color=col)
                 except KeyError:
                     plt.plot(x_, y_, 'o')
             else:
                 try:
-                    plt.plot(x_, y_, '-', color=col[run])
+                    plt.plot(x_, y_, '-', color=col)
                 except KeyError:
                     plt.plot(x_, y_, '-')
         if show_cycles:
             x = [dset['x1'][pose_idx] for pose_idx in POSE_IDX[exp_idx]]
             y = [dset['y1'][pose_idx] for pose_idx in POSE_IDX[exp_idx]]
             try:
-                plt.plot(x, y, 'o', color=col[run])
+                plt.plot(x, y, 'o', color=col)
             except KeyError:
                 plt.plot(x, y, 'o')
 
@@ -145,7 +83,7 @@ def plot_track(db, POSE_IDX, run, mode, save_as_tikz=False, show_cycles=1):
         if isinstance(save_as_tikz, str):
             name = save_as_tikz
         else:
-            name = 'tikz/track_'+mode+'_'+run+'.tex'
+            name = 'Out/track_'+mode+'_'+run+'.tex'
         kwargs = {'extra_axis_parameters':
             {'x=.1cm', 'y=.1cm', 'anchor=origin'}}
         save.save_plt_as_tikz(name, **kwargs)
@@ -167,7 +105,6 @@ def downsample(rows, proportion=.1):
 
 
 def plot_needed_steps(needed_steps, runs, modes, save_as_tikz=False):
-    colors = get_mode_color()
     
     width_mode = .9
     
@@ -178,7 +115,7 @@ def plot_needed_steps(needed_steps, runs, modes, save_as_tikz=False):
     for jdx, mode in enumerate(modes):
         rectdic[mode] = {}
         N = len(modes)
-        col = colors[mode]
+        col = 'red'
         for idx, key in enumerate(needed_steps[mode]):
             n = len(needed_steps[mode][key])
             width = width_mode/(N)  # the width of the bars
@@ -223,7 +160,7 @@ def calc_mean_stddev(mat):
 def plot_eps(db, POSE_IDX, run, mode, save_as_tikz=False):
 #    plt.figure('eps')
 #    plt.title('RUN: ' + run + ' - Eps')
-    col = get_run_color()
+    col = 'green'
 
     max_poses = max([len(pidx) for pidx in POSE_IDX])
     EPSMAT = np.empty((max_poses, len(db)))
@@ -232,7 +169,7 @@ def plot_eps(db, POSE_IDX, run, mode, save_as_tikz=False):
     TMAT[:] = np.nan
 
     try:
-        color = col[run]
+        color = col
     except KeyError:
         color = None
 
@@ -266,7 +203,6 @@ def plot_eps(db, POSE_IDX, run, mode, save_as_tikz=False):
 def plot_deps_over_steps(db, POSE_IDX, run, mode, save_as_tikz=False):
     fig, ax1 = plt.subplots(num='Deps'+run)
     ax1.set_title('RUN: ' + run + ' - Delta Eps')
-    col = get_mode_color()
 
     max_poses = max([len(pidx) for pidx in POSE_IDX])
     DEPSMAT = np.empty((max_poses, len(db)))
@@ -295,10 +231,7 @@ def plot_deps_over_steps(db, POSE_IDX, run, mode, save_as_tikz=False):
     my, sigy = calc_mean_stddev(YBAR)
     d = np.linalg.norm([mx, my], axis=0)
     dsig = np.linalg.norm([sigx, sigy], axis=0)
-    try:
-        color = col[mode]
-    except KeyError:
-        color = 'black'
+
     color='blue'
     mu, sig = calc_mean_stddev(DEPSMAT)
     ax1.plot(mu, color=color)

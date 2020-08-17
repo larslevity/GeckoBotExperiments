@@ -290,11 +290,7 @@ class GeckoBotGait(object):
         plt.plot(stress)
         return sum(stress)
 
-    def save_as_tikz(self, filename):
-        direc = path.dirname(path.dirname(
-                    path.abspath(__file__))) + '/2019_09_IEEE_exp/Out/'
-        name = direc+filename+'.tex'
-        out_dir = os.path.dirname(name)
+    def save_as_tikz(self, filename, dashed=0):
         gstr = ''
         for idx, pose in enumerate(self.poses):
             if len(self.poses) == 1:
@@ -302,8 +298,8 @@ class GeckoBotGait(object):
             else:
                 c = 50 + int((float(idx)/(len(self.poses)-1))*50)
                 col = 'black!{}'.format(c)
-            gstr += pose.get_tikz_repr(col)
-        mysave.save_geckostr_as_tikz(name, gstr)
+            gstr += pose.get_tikz_repr(col, dashed=dashed)
+        mysave.save_geckostr_as_tikz(filename, gstr)
 #        os.system('pdflatex -output-directory {} {}'.format(out_dir, name))
         print('Done')
 

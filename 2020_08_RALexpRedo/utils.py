@@ -256,7 +256,7 @@ def barplot(mu, modes, labels, colors, sig=None, num='errros'):
                 height = round(rect.get_height(), 1)
                 ax.annotate('{}'.format(height),
                     xy=(rect.get_x() + rect.get_width() / 2, height),
-#                    xytext=(0, 3),  # 3 points vertical offset
+                    xytext=(0, 3),  # 3 points vertical offset
                     textcoords="offset points",
                     ha='center', va='bottom')
     autolabel(rectdic)

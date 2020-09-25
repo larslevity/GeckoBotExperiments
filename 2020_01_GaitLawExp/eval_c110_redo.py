@@ -57,7 +57,10 @@ c1val = 'c110_redo'
 
 n_cyc = 1
 sc = 10  # scale factor
-dx, dy = 2.8*sc, (4.5)*sc
+dx, dy = 6*sc, (4.5)*sc  # for presentation
+#dx, dy = 2.8*sc, (4.5)*sc  # for paper
+
+
 
 len_leg, len_tor = calibration.get_len(version)
 ell_n = [len_leg, len_leg, len_tor, len_leg, len_leg]
@@ -591,7 +594,7 @@ plt.ylabel('step length $q_1$ $(^\\circ)$')
 plt.xlabel('steering $q_2$ (1)')
 plt.axis('scaled')
 plt.ylim((Y_idx[0][0]-30, Y_idx[0][-1]+30))
-plt.xlim((-15, 155))
+#plt.xlim((-15, 155))
 
 plt.grid()
 ax = fig.gca()

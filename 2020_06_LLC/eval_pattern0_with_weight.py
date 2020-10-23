@@ -73,11 +73,61 @@ for idx, data in enumerate(db):
 #    for sample in resam:
 #        plt.plot(sample, ':')
 
+
+
+
+
+# %% evaluation criteria
+
     _, t, _ = resample_and_mean(time, start, end)
     t = t - t[0]  # remove offset
     _, aref_m, _ = resample_and_mean(aref, start, end)
     _, alp, alp_std = resample_and_mean(alpha, start, end)
     _, pref, pref_std = resample_and_mean(pressure_ref, start, end)
+
+
+
+    def find_nearest_idx(array, value):
+        array = np.asarray(array)
+        idx = (np.abs(array - value)).argmin()
+        return idx
+    
+    tchange = [1.35 ,6.35 ,11.35, 16.35]
+    idxchange = [find_nearest_idx(t, timestep) for timestep in tchange]
+    refchange = [aref_m[i] for i in idxchange]
+
+    # rise time
+    rise_time = []
+    for step in [(0, 1), (2, 3)]:
+        start = alp[idxchange[step[0]]]
+        final = alp[idxchange[step[1]]]
+        angle_change = final-start
+        threshold1 = idxchange[step[0]]+1 + np.argmax(alp[idxchange[step[0]]:] > start+angle_change*.1)
+        threshold2 = idxchange[step[0]]+1 + np.argmax(alp[idxchange[step[0]]:] > start+angle_change*.9)
+        rise_time.append(t[threshold2] - t[threshold1])
+        plt.plot([t[threshold2], t[threshold2]], [0, 90], ':k')
+        plt.plot([t[threshold1], t[threshold1]], [0, 90], ':k')
+    print('rise time (mean): [{:3.2f}, {:3.2f}] ({:3.2f})'.format(rise_time[0], rise_time[1], np.mean(rise_time)))
+    
+    # settling time    
+    settling_time = []
+    for step in [(0, 1), (2, 3)]:
+        start = alp[idxchange[step[0]]]
+        final = alp[idxchange[step[1]]]
+        angle_change = final-start
+        threshold1 = idxchange[step[0]]+1 + np.argmax(alp[idxchange[step[0]]:] > start+angle_change*.95)
+        settling_time.append(t[threshold1] - t[idxchange[step[0]]])
+        plt.plot([t[threshold1], t[threshold1]], [-10, 100], ':r')
+        plt.plot([t[idxchange[step[0]]], t[idxchange[step[0]]]], [-10, 100], ':r')
+    print('rise time (mean): [{:3.2f}, {:3.2f}] ({:3.2f})'.format(settling_time[0], settling_time[1], np.mean(settling_time)))
+    
+    
+    plt.plot(t, alp)
+    plt.plot(t, aref_m)
+    etrack = np.nanmean(np.abs(alp-aref_m))
+    print('tracking error:', etrack)
+
+# %% plot
 
 #    plt.figure('Slices'+str(idx))
 #    ax1 = plt.gca()  # alp axis

@@ -42,7 +42,8 @@ for idx, data in enumerate(db):
     print(ctrname, '(', N, ')')
     start = [i-smargin for i in range(N-1) if (aref[i]==0 and aref[i+1]==60)]
     end = [i+emargin for i in range(N-1) if (aref[i]==40 and aref[i+1]==0)]
-    
+
+
     ## Counter Check
 #    plt.figure('Index'+str(idx))
 #    plt.plot(alpha)
@@ -50,6 +51,8 @@ for idx, data in enumerate(db):
 #    plt.plot(start, np.zeros((len(start))), 'ko')
 #    plt.plot(end, np.zeros((len(end))), 'kx')
     
+
+
 
 
 # %% Resample and mean
@@ -79,12 +82,17 @@ for idx, data in enumerate(db):
 
 
 # %% evaluation criteria
+    
+    fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True,
+         gridspec_kw={'height_ratios': [3, 1]})
+    
+    
     def find_nearest_idx(array, value):
         array = np.asarray(array)
         idx = (np.abs(array - value)).argmin()
         return idx
     
-    tchange = [1.35 ,6.35 ,11.35, 16.35]
+    tchange = [1.35 ,6.35 ,11.35, 16.35, 21.35]
     idxchange = [find_nearest_idx(t, timestep) for timestep in tchange]
     refchange = [aref_m[i] for i in idxchange]
 
@@ -97,41 +105,54 @@ for idx, data in enumerate(db):
         threshold1 = idxchange[step[0]]+1 + np.argmax(alp[idxchange[step[0]]:] > start+angle_change*.1)
         threshold2 = idxchange[step[0]]+1 + np.argmax(alp[idxchange[step[0]]:] > start+angle_change*.9)
         rise_time.append(t[threshold2] - t[threshold1])
-        plt.plot([t[threshold2], t[threshold2]], [0, 90], ':k')
-        plt.plot([t[threshold1], t[threshold1]], [0, 90], ':k')
+        ax1.plot([t[threshold2], t[threshold2]], [start+angle_change*.1, start+angle_change*.9], 'k', linewidth=.3)
+        ax1.plot([t[threshold1], t[threshold1]], [start+angle_change*.1, start+angle_change*.9], 'k', linewidth=.3)
+        ax1.annotate("", xy=(t[threshold2], start+angle_change*.1+5), xytext=(t[threshold1], start+angle_change*.1+5), arrowprops=dict(arrowstyle="->"))
+        ax1.annotate("$t_r$", xy=(t[threshold2]+(t[threshold1]-t[threshold2])/2, start+angle_change*.1+5), ha='center', va='bottom')
     print('rise time (mean): [{:3.2f}, {:3.2f}] ({:3.2f})'.format(rise_time[0], rise_time[1], np.mean(rise_time)))
     
     # settling time    
     settling_time = []
+    yshift=4.5
     for step in [(0, 1), (2, 3)]:
         start = alp[idxchange[step[0]]]
         final = alp[idxchange[step[1]]]
         angle_change = final-start
-        threshold1 = idxchange[step[0]]+1 + np.argmax(alp[idxchange[step[0]]:] > start+angle_change*.95)
+
+        err = 0.05
+        threshold1 = idxchange[step[0]]+1 + int(max(np.argwhere(np.abs(final-alp[idxchange[step[0]]:idxchange[step[1]]]) > angle_change*err)))
+
         settling_time.append(t[threshold1] - t[idxchange[step[0]]])
-        plt.plot([t[threshold1], t[threshold1]], [-10, 100], ':r')
-        plt.plot([t[idxchange[step[0]]], t[idxchange[step[0]]]], [-10, 100], ':r')
-    print('rise time (mean): [{:3.2f}, {:3.2f}] ({:3.2f})'.format(settling_time[0], settling_time[1], np.mean(settling_time)))
+        ax1.plot([t[idxchange[step[0]]], t[idxchange[step[1]]]], [final-angle_change*err, final-angle_change*err], ':k', linewidth=.3)
+        ax1.plot([t[idxchange[step[0]]], t[idxchange[step[1]]]], [final+angle_change*err, final+angle_change*err], ':k', linewidth=.3)
+        ax1.plot([t[threshold1], t[threshold1]], [start-yshift, start+angle_change*(1-err)], 'k', linewidth=.3)
+        ax1.plot([t[idxchange[step[0]]], t[idxchange[step[0]]]], [start-yshift, start+angle_change*(1-err)], 'k', linewidth=.3)
+        ax1.annotate("", xy=(t[threshold1], start-yshift+1), xytext=(t[idxchange[step[0]]], start-yshift+1), arrowprops=dict(arrowstyle="->"))
+        ax1.annotate("$t_s$", xy=(t[idxchange[step[0]]]+(t[threshold1]-t[idxchange[step[0]]])/2, start-yshift+1), ha='center', va='bottom')
+    print('settling time (mean): [{:3.2f}, {:3.2f}] ({:3.2f})'.format(settling_time[0], settling_time[1], np.mean(settling_time)))
     
-    
-    plt.plot(t, alp)
-    plt.plot(t, aref_m)
-    etrack = np.nanmean(np.abs(alp-aref_m))
-    print('tracking error:', etrack)
+    # tracking
+    etrack = 0
+    for step in [(0, 1), (1,2), (2,3), (3,4)]:
+        start = alp[idxchange[step[0]]]
+        final = alp[idxchange[step[1]]]
+        final_idx = idxchange[step[1]]-5
+        
+        angle_change = final-start
+        start_idx = idxchange[step[0]]+1 + int(max(np.argwhere(np.abs(final-alp[idxchange[step[0]]:idxchange[step[1]]]) > abs(angle_change)*err)))
+        
+        ax1.fill_between(t[start_idx:final_idx], alp[start_idx:final_idx], aref_m[start_idx:final_idx], alpha=.4, color='orange')
 
+        etrack += np.nanmean(np.abs(alp[start_idx:final_idx]-aref_m[start_idx:final_idx]))
+    print('tracking error:', etrack/4)
 
-# %%
-
-#    plt.figure('Slices'+str(idx))
-#    ax1 = plt.gca()  # alp axis
-#    ax2 = ax1.twinx()  # pref axis
-    fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True,
-         gridspec_kw={'height_ratios': [3, 1]})
     
     ax1.plot(t, aref_m, '--', color='blue')
     ax1.plot(t, alp, color='blue')
     ax1.fill_between(t, alp-alp_std, alp+alp_std, alpha=.2, color='blue')
     
+
+  
     ax2.plot(t, pref, color='red')
     ax2.fill_between(t, pref-pref_std, pref+pref_std, alpha=.2, color='blue')
     
@@ -153,7 +174,7 @@ for idx, data in enumerate(db):
     kwargs = {
         'strict': 1,
         'extra_tikzpicture_parameters': {},
-        'extra_axis_parameters': {'height={4cm}', 'width={12cm}'},
+        'extra_axis_parameters': {'height={4cm}', 'width={8cm}'},
         'extra_groupstyle_parameters': {'vertical sep={0pt}',
                                         'x descriptions at=edge bottom'}
             }

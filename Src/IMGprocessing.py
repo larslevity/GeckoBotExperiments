@@ -55,12 +55,12 @@ def detect_apriltags(frame):
 
 def extract_position(april_result):
     SHIFT = {  # xshift, yshift
-        0: [10, 5],
-        1: [0, -15],
-        2: [-10, 5],
-        3: [10, -5],
-        4: [0, -9],
-        5: [-12, -5],
+        0: [30, 15],
+        1: [0, -40],
+        2: [-30, 15],
+        3: [30, -15],
+        4: [0, -20],
+        5: [-30, -15],
             }
     X, Y = [np.nan]*6, [np.nan]*6
     xref = (np.nan, np.nan)
@@ -159,16 +159,20 @@ def calc_angle(vec1, vec2, rotate_angle=0., jump=np.pi*.5):
     return -phi2
 
 
-def draw_pose(img, alpha, eps, positions, ell, col=(255, 255, 255)):
+def draw_pose(img, alpha, eps, positions, ell, col=(255, 255, 255), thickness=1):
+    yshift = img.shape[0]
     alpha = alpha[0:3] + alpha[4:]  # remove double torso measurement
     xpos, ypos = positions
+    for idx, (x, y) in enumerate(zip(xpos, ypos)):
+        if idx not in [1, 4]:
+            cv2.circle(img, (int(x), int(yshift-y)), thickness*4, col, -1)
+
     (xa, ya) = get_repr(alpha, ell, eps, [xpos[0], ypos[0]])
-    yshift = img.shape[0]
     for x, y in zip(xa, ya):
-        cv2.circle(img, (int(x), int(yshift-y)), 1, col)
+        cv2.circle(img, (int(x), int(yshift-y)), thickness, col)
 
 
-arc_res = 40    # resolution of arcs
+arc_res = 200    # resolution of arcs
 
 def _calc_arc_coords(xy, alp1, alp2, rad):
     x0, y0 = xy

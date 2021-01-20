@@ -240,14 +240,16 @@ for q1_idx, q1 in enumerate(Q1):
 # %% DEPS Visual
     plt.figure('eps'+q1str)
     col = pf.get_run_color()[name]
-    Q2_ = [-.5, -.25, 0]
+    colq2 = ['blue', 'teal', 'green', 'yellow', 'orange', 'red']
+    
     for q2_idx, q2 in enumerate(Q2):
+        eps0 = MEAS[q1str][q2str]['eps_full'][70]
         q2str = str(q2).replace('.', '').replace('00', '0')
-        plt.plot(MEAS[q1str][q2str]['time_full'],
-                 MEAS[q1str][q2str]['eps_full'], col)
+        plt.plot(MEAS[q1str][q2str]['time_full'][70:500],
+                 MEAS[q1str][q2str]['eps_full'][70:500] -eps0, colq2[q2_idx])
         t, eps = MEAS[q1str][q2str]['time'], MEAS[q1str][q2str]['eps']
         deps = DEPS[q2_idx][q1_idx]
-        plt.plot(t, eps, 'o', color=col, alpha=.5, markersize=4)
+        plt.plot(t[:10], eps[:10]-eps0, 'o', color=colq2[q2_idx], alpha=.5, markersize=4)
 
         # Polyfit
         idx = np.isfinite(t) & np.isfinite(eps)  # filter NaN
@@ -260,7 +262,7 @@ for q1_idx, q1 in enumerate(Q1):
         
 
         poly = np.poly1d([epsdot, c])
-        plt.plot([t[0], t[-1]], [poly(t[0]), poly(t[-1])], 'k')
+        plt.plot([t[0], t[10]], [poly(t[0])-eps0, poly(t[10])-eps0], 'k')
         # deviation of eps from mean of deps trend for each pose
         deps_mean_eps = [poly(ti) - epsi for ti, epsi in zip(t[idx], eps[idx])]
         # mean deviation of eps of deps trend
@@ -270,10 +272,15 @@ for q1_idx, q1 in enumerate(Q1):
 
         # plot
         for deps_mean, ti in zip(deps_mean_eps, t[idx]):
-            plt.plot([ti, ti], [poly(ti), poly(ti)-deps_mean], 'k')
-        plt.text(t[-1]+3, eps[-1], ('Deps/cyc =' + str(round(deps_, 1))
-                                    + '  deps='
-                                    + str(round(mean_deps_mean_eps, 1))),
+            plt.plot([ti, ti], [poly(ti)-eps0, poly(ti)-deps_mean-eps0], 'k')
+            if ti > 40:
+                break
+        plt.text(30, poly(30)-eps0, ('$q_2= '+ str(q2)
+                                    + ',\\Delta\\varepsilon=' 
+                                    + str(round(deps_, 1))
+                                    + '^\\circ, c^\\ast='
+                                    + str(round(mean_deps_mean_eps, 1))
+                                    + '^\\circ$'),
                  ha="left", va="bottom",
                  bbox=dict(boxstyle="square",
                            ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8),
@@ -288,17 +295,21 @@ for q1_idx, q1 in enumerate(Q1):
     MEAS[q1str]['abs_deps_sig'] = mean_abs_deps_sig
 
     # plot
-    plt.ylabel('robot orientation epsilon [deg]')
-    plt.xlabel('time [s]')
-    plt.title('q1=' + q1str)
+    plt.ylabel('robot orientation $\\varepsilon$ ($^\\circ$)')
+    plt.xlabel('time (s)')
+    plt.ylim(-200, 200)
+    plt.xlim(0, 45)
+#    plt.title('q1=' + q1str)
     plt.grid()
+    
+    kwargs = {'extra_axis_parameters': {'width=10cm', 'height=6cm',
+                                        'tick pos=left'}}
+    my_save.save_plt_as_tikz('Out/'+c1val+'/eps'+q1str+'.tex', **kwargs)
+
     fig = plt.gcf()
     fig.set_size_inches(10.5, 8)
     fig.savefig('Out/'+c1val+'/eps'+q1str+'.png', transparent=True,
                 dpi=300, bbox_inches='tight')
-    kwargs = {'extra_axis_parameters': {'width=10cm', 'height=6cm',
-                                        'tick pos=left'}}
-    my_save.save_plt_as_tikz('Out/'+c1val+'/eps'+q1str+'.tex', **kwargs)
 
 # %% ABS DEPS # Schwankung des Roboters um seine Trendlinie
 plt.figure('mean abs deps')
@@ -307,23 +318,52 @@ abs_deps_sig = [MEAS[key]['abs_deps_sig'] for key in MEAS]
 plt.errorbar(Q1, abs_deps, yerr=abs_deps_sig)
 plt.xticks(Q1)
 plt.yticks([round(a, 1) for a in abs_deps])
-plt.xlabel('step length $q_1$ [deg]')
-plt.ylabel('mean of oscillation amplitude [deg]')
+plt.xlabel('step length $q_1$ ($^\\circ$)')
+plt.ylabel('mean of oscillation amplitude ($^\\circ$)')
 plt.grid()
 
 my_save.save_plt_as_tikz('Out/'+c1val+'/oscillation_amplitude.tex')
 
 # %%
-levels = np.arange(0, 5, .5)
 
-contour = plt.contourf(X_idx, Y_idx, AMPLITUDE, alpha=1, cmap='YlOrRd',
-                       levels=levels)
-surf = plt.contour(X_idx, Y_idx, AMPLITUDE, levels=levels, colors='k')
-plt.clabel(surf, levels, inline=True, fmt='%2.1f')
-plt.xticks(X_idx.T[0], [round(x, 2) for x in Q2])
-plt.yticks(Y_idx[0], [round(x, 1) for x in Q1])
-plt.ylabel('step length $q_1$')
-plt.xlabel('steering $q_2$')
+fig = plt.figure(name)
+(ax, cax) = fig.subplots(1, 2, gridspec_kw={'width_ratios': [95, 5]})
+
+levels = np.arange(0.5, 4.5, .5)
+
+contour = ax.contourf(X_idx, Y_idx, AMPLITUDE, alpha=1, cmap='coolwarm',
+                       levels=np.arange(0.5, 4.5, .1))
+surf = ax.contour(X_idx, Y_idx, AMPLITUDE, levels=levels, colors='k')
+ax.clabel(surf, levels, inline=True, fmt='%2.1f')
+ax.set_xticks(X_idx.T[0]) 
+ax.set_xticklabels([round(x, 2) for x in Q2])
+ax.set_yticks(Y_idx[0]) 
+ax.set_yticklabels([round(x, 1) for x in Q1])
+ax.set_ylabel('step length $q_1$ ($^\\circ$)')
+ax.set_xlabel('steering $q_2$ ($^\\circ$)')
+
+#plt.colorbar(contour)
+
+
+# color bar hack to export as tikz
+x = np.linspace(0, 1, 2)
+y = levels
+X, Y = np.meshgrid(x, y)
+Z = Y
+cax.contourf(X, Y, Z, cmap='coolwarm', levels=100)
+cax.yaxis.tick_right()
+cax.yaxis.set_label_position("right")
+cax.set_ylabel('average amplitude of oscillation ($^\\circ$)')
+
+cax.set_xticklabels([' '], color='white')
+cax.set_xticks([0])
+cax.xaxis.label.set_color('white')
+cax.tick_params(axis='x', colors='white')
+
+kwargs = {'extra_axis_parameters': {'width=12cm', 'height=8cm',
+                                        'tick pos=left'}}
+
+my_save.save_plt_as_tikz('Out/'+c1val+'/oscillation_amplitude_heatmap.tex', **kwargs)
 
 fig = plt.gcf()
 fig.set_size_inches(10.5, 8)
